@@ -1,7 +1,8 @@
-<!DOCTYPE html>
-<!-- saved from url=(0060)file:///C:/Users/JesperReis/Downloads/familjekalender_8.html -->
-<html lang="sv"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -10,22 +11,37 @@
 <title>Familjen Reis – Planering</title>
 
 <!-- Firebase SDK -->
-<script src="./Familjen Reis – Planering_files/firebase-app-compat.js.nedladdning"></script>
-<script src="./Familjen Reis – Planering_files/firebase-database-compat.js.nedladdning"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBGEXGTew8kXBixMQlEhvyljvMQUBiqOL0",
-    authDomain: "familjekalender-reis.firebaseapp.com",
-    databaseURL: "https://familjekalender-reis-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "familjekalender-reis",
-    storageBucket: "familjekalender-reis.firebasestorage.app",
-    messagingSenderId: "197443174169",
-    appId: "1:197443174169:web:3c0731c8b267f2b019cf88"
-  };
-  firebase.initializeApp(firebaseConfig);
-  window.db = firebase.database();
+  // Wait for Firebase to load, with retry
+  function initFirebase() {
+    if (typeof firebase === 'undefined') {
+      console.error('Firebase failed to load');
+      window.firebaseFailed = true;
+      return;
+    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyBGEXGTew8kXBixMQlEhvyljvMQUBiqOL0",
+      authDomain: "familjekalender-reis.firebaseapp.com",
+      databaseURL: "https://familjekalender-reis-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "familjekalender-reis",
+      storageBucket: "familjekalender-reis.firebasestorage.app",
+      messagingSenderId: "197443174169",
+      appId: "1:197443174169:web:3c0731c8b267f2b019cf88"
+    };
+    try {
+      firebase.initializeApp(firebaseConfig);
+      window.db = firebase.database();
+      window.firebaseReady = true;
+    } catch (e) {
+      console.error('Firebase init failed', e);
+      window.firebaseFailed = true;
+    }
+  }
+  initFirebase();
 </script>
-<link href="./Familjen Reis – Planering_files/css2" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #f4efe6;
@@ -1893,8 +1909,8 @@
         <span style="font-size:14px;">↗</span>
       </button>
       <div class="date-display">
-        <span id="todayLabel" class="big">fredag</span>
-        <span id="todayDate">15 maj 2026</span>
+        <span id="todayLabel" class="big">Idag</span>
+        <span id="todayDate"></span>
       </div>
     </div>
   </header>
@@ -1932,7 +1948,7 @@
           <button class="nav-btn" id="prevBtn">‹</button>
           <button class="nav-btn" id="nextBtn">›</button>
         </div>
-        <div class="cal-month" id="monthLabel">maj<span class="year">2026</span></div>
+        <div class="cal-month" id="monthLabel"></div>
         <div class="view-switcher">
           <button class="view-btn active" data-view="month">Månad</button>
           <button class="view-btn" data-view="week">Vecka</button>
@@ -1950,7 +1966,7 @@
           <div class="weekday">Lör</div>
           <div class="weekday">Sön</div>
         </div>
-        <div class="days" id="daysGrid"><div class="day empty"></div><div class="day empty"></div><div class="day empty"></div><div class="day empty"></div><div class="day" data-date="2026-05-01" title="Klicka för att se händelser"><div class="day-num">1</div></div><div class="day" data-date="2026-05-02" title="Klicka för att se händelser"><div class="day-num">2</div></div><div class="day" data-date="2026-05-03" title="Klicka för att se händelser"><div class="day-num">3</div></div><div class="day" data-date="2026-05-04" title="Klicka för att se händelser"><div class="day-num">4</div></div><div class="day" data-date="2026-05-05" title="Klicka för att se händelser"><div class="day-num">5</div></div><div class="day" data-date="2026-05-06" title="Klicka för att se händelser"><div class="day-num">6</div></div><div class="day" data-date="2026-05-07" title="Klicka för att se händelser"><div class="day-num">7</div></div><div class="day" data-date="2026-05-08" title="Klicka för att se händelser"><div class="day-num">8</div></div><div class="day" data-date="2026-05-09" title="Klicka för att se händelser"><div class="day-num">9</div></div><div class="day" data-date="2026-05-10" title="Klicka för att se händelser"><div class="day-num">10</div></div><div class="day" data-date="2026-05-11" title="Klicka för att se händelser"><div class="day-num">11</div></div><div class="day" data-date="2026-05-12" title="Klicka för att se händelser"><div class="day-num">12</div></div><div class="day" data-date="2026-05-13" title="Klicka för att se händelser"><div class="day-num">13</div></div><div class="day" data-date="2026-05-14" title="Klicka för att se händelser"><div class="day-num">14</div></div><div class="day today selected" data-date="2026-05-15" title="Klicka igen för att öppna dagsvy"><div class="day-num">15</div></div><div class="day" data-date="2026-05-16" title="Klicka för att se händelser"><div class="day-num">16</div><div class="day-events"><div class="event-pill pill-jesper" title="Jesper · hus 12:00–13:00"><span class="pill-title">hus</span></div></div></div><div class="day" data-date="2026-05-17" title="Klicka för att se händelser"><div class="day-num">17</div></div><div class="day" data-date="2026-05-18" title="Klicka för att se händelser"><div class="day-num">18</div></div><div class="day" data-date="2026-05-19" title="Klicka för att se händelser"><div class="day-num">19</div></div><div class="day" data-date="2026-05-20" title="Klicka för att se händelser"><div class="day-num">20</div></div><div class="day" data-date="2026-05-21" title="Klicka för att se händelser"><div class="day-num">21</div></div><div class="day" data-date="2026-05-22" title="Klicka för att se händelser"><div class="day-num">22</div></div><div class="day" data-date="2026-05-23" title="Klicka för att se händelser"><div class="day-num">23</div></div><div class="day" data-date="2026-05-24" title="Klicka för att se händelser"><div class="day-num">24</div></div><div class="day" data-date="2026-05-25" title="Klicka för att se händelser"><div class="day-num">25</div></div><div class="day" data-date="2026-05-26" title="Klicka för att se händelser"><div class="day-num">26</div></div><div class="day" data-date="2026-05-27" title="Klicka för att se händelser"><div class="day-num">27</div></div><div class="day" data-date="2026-05-28" title="Klicka för att se händelser"><div class="day-num">28</div></div><div class="day" data-date="2026-05-29" title="Klicka för att se händelser"><div class="day-num">29</div></div><div class="day" data-date="2026-05-30" title="Klicka för att se händelser"><div class="day-num">30</div></div><div class="day" data-date="2026-05-31" title="Klicka för att se händelser"><div class="day-num">31</div></div></div>
+        <div class="days" id="daysGrid"></div>
       </div>
 
       <!-- Week view -->
@@ -1960,11 +1976,11 @@
     <div class="sidebar">
 
       <div class="panel" id="formPanel">
-        <a href="file:///C:/Users/JesperReis/Downloads/familjekalender_8.html#calendarTop" class="back-to-cal-link" id="backToCalBtn">↑ Tillbaka till kalendern</a>
+        <a href="#calendarTop" class="back-to-cal-link" id="backToCalBtn">↑ Tillbaka till kalendern</a>
         <div class="form-header-row">
           <div>
             <h2 class="panel-title" id="formTitle">Lägg till</h2>
-            <p class="panel-sub" id="formDateLabel">fredag 15 maj</p>
+            <p class="panel-sub" id="formDateLabel">Välj datum i kalendern</p>
           </div>
           <button class="cancel-edit-btn hidden" id="cancelEditBtn" title="Avbryt redigering">Avbryt</button>
         </div>
@@ -2070,7 +2086,7 @@
             <option value="16">16 gånger</option>
             <option value="20">20 gånger</option>
             <option value="26">26 gånger (ca ett halvår vecka)</option>
-            <option value="52" selected="">Tills vidare (52 gånger)</option>
+            <option value="52" selected>Tills vidare (52 gånger)</option>
           </select>
         </div>
 
@@ -2080,18 +2096,17 @@
       <div class="panel">
         <div class="panel-header-row">
           <div>
-            <h2 class="panel-title" id="listTitle">fredag 15 maj</h2>
-            <p class="panel-sub" id="listSub">Allt den här dagen</p>
+            <h2 class="panel-title" id="listTitle">Kommande</h2>
+            <p class="panel-sub" id="listSub">Det som händer härnäst</p>
           </div>
-          <button class="open-day-btn" id="openDayBtn" title="Öppna dagsvy">
+          <button class="open-day-btn hidden" id="openDayBtn" title="Öppna dagsvy">
             <span>Öppna</span>
             <span style="font-size:18px;line-height:1;">↗</span>
           </button>
         </div>
-        <div class="event-list" id="eventList"><div class="empty-state">
-        <div class="display">Inget inbokat</div>
-        <div class="small">Lägg till något i formuläret</div>
-      </div></div>
+        <div class="event-list" id="eventList">
+          <div class="loading">Laddar...</div>
+        </div>
       </div>
 
     </div>
@@ -2099,7 +2114,7 @@
 </div>
 
 <!-- Mobile floating action button -->
-<button class="fab" id="fabBtn" aria-label="Lägg till händelse" style="opacity: 0; pointer-events: none; transform: scale(0.8);">
+<button class="fab" id="fabBtn" aria-label="Lägg till händelse">
   <span style="font-size:24px;line-height:1;">+</span>
   <span class="fab-label">Lägg till</span>
 </button>
@@ -2165,26 +2180,46 @@
     events: []
   };
 
-  // STORAGE — Firebase Realtime Database (syncs across all devices)
-  const eventsRef = window.db.ref('events');
+  // STORAGE — Firebase Realtime Database with localStorage fallback
+  let eventsRef = null;
   let firebaseInitialLoadDone = false;
-  let suppressFirebaseUpdate = false; // prevent reload after our own writes
+  let suppressFirebaseUpdate = false;
+  const FALLBACK_STORAGE_KEY = 'familjekalender_events_fallback';
+
+  function getEventsRef() {
+    if (eventsRef) return eventsRef;
+    if (window.firebaseReady && window.db) {
+      eventsRef = window.db.ref('events');
+      return eventsRef;
+    }
+    return null;
+  }
 
   async function loadEvents() {
-    // Initial load + set up live listener
+    const ref = getEventsRef();
+    if (!ref) {
+      // Firebase not available — fall back to localStorage
+      console.warn('Firebase not available, using localStorage fallback');
+      try {
+        const raw = localStorage.getItem(FALLBACK_STORAGE_KEY);
+        state.events = raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        state.events = [];
+      }
+      return;
+    }
     return new Promise((resolve) => {
-      eventsRef.once('value').then(snapshot => {
+      ref.once('value').then(snapshot => {
         const data = snapshot.val();
         state.events = data ? Object.values(data) : [];
         firebaseInitialLoadDone = true;
         resolve();
 
         // Subscribe to changes from other devices
-        eventsRef.on('value', (snap) => {
+        ref.on('value', (snap) => {
           if (suppressFirebaseUpdate) return;
           const d = snap.val();
           state.events = d ? Object.values(d) : [];
-          // Only re-render if not in the middle of editing
           if (!state.editingEventId) {
             refreshCalendar();
             renderEventList();
@@ -2199,12 +2234,19 @@
   }
 
   async function saveAllEvents() {
+    const ref = getEventsRef();
+    if (!ref) {
+      // Fallback: save to localStorage
+      try {
+        localStorage.setItem(FALLBACK_STORAGE_KEY, JSON.stringify(state.events));
+      } catch (e) { console.error('LocalStorage save failed', e); }
+      return;
+    }
     try {
       suppressFirebaseUpdate = true;
-      // Convert array to object keyed by id (Firebase prefers this)
       const obj = {};
       state.events.forEach(e => { obj[e.id] = e; });
-      await eventsRef.set(obj);
+      await ref.set(obj);
       setTimeout(() => { suppressFirebaseUpdate = false; }, 500);
     } catch (e) {
       console.error('Save failed', e);
@@ -2219,10 +2261,14 @@
     } else {
       state.events[idx] = ev;
     }
-    // Save just this one event for efficiency
+    const ref = getEventsRef();
+    if (!ref) {
+      try { localStorage.setItem(FALLBACK_STORAGE_KEY, JSON.stringify(state.events)); } catch (e) {}
+      return;
+    }
     try {
       suppressFirebaseUpdate = true;
-      await eventsRef.child(ev.id).set(ev);
+      await ref.child(ev.id).set(ev);
       setTimeout(() => { suppressFirebaseUpdate = false; }, 500);
     } catch (e) {
       console.error('Save event failed', e);
@@ -2231,9 +2277,14 @@
   }
 
   async function deleteEvent(id) {
+    const ref = getEventsRef();
+    if (!ref) {
+      try { localStorage.setItem(FALLBACK_STORAGE_KEY, JSON.stringify(state.events)); } catch (e) {}
+      return;
+    }
     try {
       suppressFirebaseUpdate = true;
-      await eventsRef.child(id).remove();
+      await ref.child(id).remove();
       setTimeout(() => { suppressFirebaseUpdate = false; }, 500);
     } catch (e) {
       console.error('Delete failed', e);
@@ -3944,6 +3995,14 @@
   function setupSyncStatus() {
     const statusEl = document.getElementById('syncStatus');
     const textEl = statusEl.querySelector('.sync-text');
+
+    if (window.firebaseFailed || !window.firebaseReady) {
+      statusEl.classList.add('offline');
+      textEl.textContent = 'Offline (lokalt)';
+      statusEl.title = 'Firebase laddades inte — data sparas bara på denna enhet. Stäng eventuella blockerare och ladda om.';
+      return;
+    }
+
     const connectedRef = window.db.ref('.info/connected');
     connectedRef.on('value', (snap) => {
       if (snap.val() === true) {
@@ -3960,11 +4019,22 @@
   (async () => {
     renderTodayDate();
     setupSyncStatus();
-    await loadEvents();
-    selectDate(dateKey(new Date()));
     setupFabVisibility();
+
+    // Always render the calendar UI immediately, even if Firebase is slow
+    selectDate(dateKey(new Date()));
     refreshCalendar();
     renderEventList();
+
+    // Load events from Firebase with a timeout fallback
+    const loadPromise = loadEvents();
+    const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 4000));
+    await Promise.race([loadPromise, timeoutPromise]);
+
+    // Re-render once data is in (or after timeout)
+    refreshCalendar();
+    renderEventList();
+
     // Check reminders immediately, then every 30 seconds
     await maybeRequestPermission();
     checkReminders();
@@ -3972,6 +4042,5 @@
   })();
 </script>
 
-
-
-</body></html>
+</body>
+</html>
