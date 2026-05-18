@@ -12,6 +12,7 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
   function initFirebase() {
     if (typeof firebase === 'undefined') {
@@ -31,6 +32,7 @@
     try {
       firebase.initializeApp(firebaseConfig);
       window.db = firebase.database();
+      window.storage = firebase.storage();
       window.firebaseReady = true;
     } catch (e) {
       console.error('Firebase init failed', e);
@@ -55,6 +57,8 @@
     --ovrigt-light: #f4d6cf;
     --barnen: #d4a574;
     --barnen-light: #f5e8d4;
+    --george: #d4a574;
+    --bob: #4a6fa5;
     --display: 'Fraunces', Georgia, serif;
     --body: 'Inter Tight', system-ui, sans-serif;
   }
@@ -155,10 +159,7 @@
     animation: sync-pulse 2s infinite;
   }
 
-  .sync-status.offline .sync-dot {
-    background: #ff5722;
-    animation: none;
-  }
+  .sync-status.offline .sync-dot { background: #ff5722; animation: none; }
 
   @keyframes sync-pulse {
     0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.5); }
@@ -184,10 +185,7 @@
     position: relative;
   }
 
-  .tab:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  }
+  .tab:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
   .tab.active.tab-mat { background: var(--mat); color: white; border-color: var(--mat); }
   .tab.active.tab-ovrigt { background: var(--ovrigt); color: white; border-color: var(--ovrigt); }
@@ -216,26 +214,31 @@
     text-align: center;
   }
 
-  .tab.active .tab-count {
-    background: white;
-    color: var(--ink);
-  }
-
+  .tab.active .tab-count { background: white; color: var(--ink); }
   .tab-count.zero { display: none; }
 
-  .add-row {
-    display: grid;
-    grid-template-columns: 70px 90px 1fr 46px;
-    gap: 6px;
-    margin-bottom: 20px;
+  /* ADD FORM */
+  .add-form {
     background: var(--bg-card);
     border: 1px solid var(--line);
     border-radius: 16px;
-    padding: 8px;
-    align-items: center;
+    padding: 12px;
+    margin-bottom: 20px;
   }
 
-  .add-row input, .add-row select {
+  .add-row {
+    display: grid;
+    grid-template-columns: 70px 90px 1fr;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .add-row.barnen-row {
+    grid-template-columns: 70px 60px 1fr;
+  }
+
+  .add-form input, .add-form select, .add-form textarea {
     border: 1px solid var(--line);
     background: white;
     padding: 11px 10px;
@@ -245,21 +248,21 @@
     border-radius: 10px;
     outline: none;
     min-height: 44px;
+    width: 100%;
   }
 
-  .add-row #itemName {
-    border: none;
-    background: transparent;
+  .add-form input:focus, .add-form select:focus, .add-form textarea:focus {
+    border-color: var(--accent);
   }
 
-  .add-row input::placeholder { color: var(--ink-soft); }
+  .add-form input::placeholder, .add-form textarea::placeholder { color: var(--ink-soft); }
 
-  .add-row .qty-num {
+  .add-form .qty-num {
     text-align: center;
     font-weight: 600;
   }
 
-  .add-row .qty-unit {
+  .add-form .qty-unit {
     font-size: 13px;
     color: var(--ink-soft);
     font-weight: 500;
@@ -272,22 +275,113 @@
     padding-right: 22px;
   }
 
+  .add-form .comment-row {
+    margin-top: 8px;
+  }
+
+  .add-form .comment-row input {
+    width: 100%;
+  }
+
+  .add-form .person-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .person-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--line);
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: var(--body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: all 0.15s;
+    min-height: 44px;
+  }
+
+  .person-btn.active.person-george { background: var(--george); color: white; border-color: var(--george); }
+  .person-btn.active.person-bob { background: var(--bob); color: white; border-color: var(--bob); }
+  .person-btn.active.person-bada { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  .add-form .bottom-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    align-items: center;
+  }
+
+  .photo-btn {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 10px;
+    min-height: 44px;
+    min-width: 44px;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    transition: all 0.15s;
+  }
+
+  .photo-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .photo-btn.has-photo { background: var(--mat-light); border-color: var(--mat); color: var(--mat); }
+
   .add-btn {
-    width: 46px;
-    height: 46px;
+    flex: 1;
+    min-height: 44px;
     background: var(--accent);
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 24px;
-    line-height: 1;
+    font-family: var(--body);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
     transition: background 0.2s;
-    flex-shrink: 0;
   }
 
   .add-btn:hover { background: var(--accent-deep); }
 
+  .photo-preview {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: var(--mat-light);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--mat);
+    font-weight: 600;
+  }
+
+  .photo-preview img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .photo-preview button {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: var(--mat);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+  }
+</style>
+<style>
   .list-section {
     background: var(--bg-card);
     border: 1px solid var(--line);
@@ -317,10 +411,7 @@
     padding: 12px 14px;
     border-radius: 12px;
     transition: background 0.15s;
-    cursor: pointer;
   }
-
-  .item:hover { background: rgba(0,0,0,0.02); }
 
   .item + .item {
     border-top: 1px solid var(--line);
@@ -329,8 +420,8 @@
   }
 
   .checkbox {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     border: 2px solid var(--ink-soft);
     border-radius: 50%;
     flex-shrink: 0;
@@ -339,12 +430,12 @@
     justify-content: center;
     transition: all 0.2s;
     background: white;
+    cursor: pointer;
   }
 
   .item.checked .checkbox {
     background: var(--mat);
     border-color: var(--mat);
-    color: white;
   }
 
   .item.checked.list-ovrigt .checkbox { background: var(--ovrigt); border-color: var(--ovrigt); }
@@ -352,8 +443,8 @@
 
   .checkbox::after {
     content: "";
-    width: 8px;
-    height: 4px;
+    width: 9px;
+    height: 5px;
     border-left: 2px solid white;
     border-bottom: 2px solid white;
     transform: rotate(-45deg) translate(1px, -1px);
@@ -363,12 +454,31 @@
 
   .item.checked .checkbox::after { opacity: 1; }
 
+  .item-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    cursor: pointer;
+    flex-shrink: 0;
+    border: 1px solid var(--line);
+  }
+
+  .item-thumb:hover {
+    transform: scale(1.05);
+    transition: transform 0.15s;
+  }
+
   .item-body {
     flex: 1;
     min-width: 0;
+    cursor: pointer;
+  }
+
+  .item-name-row {
     display: flex;
     align-items: baseline;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
   }
 
@@ -400,22 +510,56 @@
     opacity: 0.6;
   }
 
-  .item-delete {
+  .item-person-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    color: white;
+  }
+
+  .item-person-tag.person-george { background: var(--george); }
+  .item-person-tag.person-bob { background: var(--bob); }
+  .item-person-tag.person-bada { background: var(--ink); }
+
+  .item-comment {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .item-actions {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .icon-btn {
     background: transparent;
     border: none;
     color: var(--ink-soft);
     cursor: pointer;
-    font-size: 20px;
     padding: 6px 10px;
     line-height: 1;
     opacity: 0.4;
-    transition: opacity 0.2s;
-    font-family: var(--display);
+    transition: all 0.2s;
     border-radius: 8px;
-    flex-shrink: 0;
+    min-width: 36px;
+    min-height: 36px;
   }
 
-  .item-delete:hover { opacity: 1; color: var(--accent); }
+  .icon-btn:hover {
+    opacity: 1;
+    color: var(--accent);
+    background: rgba(196, 69, 54, 0.08);
+  }
+
+  .icon-btn.edit-btn { font-size: 14px; }
+  .icon-btn.delete-btn { font-size: 22px; font-family: var(--display); }
 
   .section-title {
     font-size: 11px;
@@ -496,6 +640,152 @@
 
   .history-chip:hover::before { color: white; }
 
+  /* MODAL — for image preview, edit, and confirmations */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 26, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+    padding: 16px;
+  }
+
+  .modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .image-modal img {
+    max-width: 95vw;
+    max-height: 95vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .modal-card {
+    background: var(--bg-card);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 440px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .modal-card h3 {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+
+  .modal-card p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+  }
+
+  .modal-card .form-row {
+    margin-bottom: 12px;
+  }
+
+  .modal-card label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  .modal-card input, .modal-card select, .modal-card textarea {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-family: var(--body);
+    font-size: 14px;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    min-height: 44px;
+  }
+
+  .modal-card .modal-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .modal-card .btn-primary {
+    flex: 1;
+    padding: 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: var(--body);
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 44px;
+  }
+
+  .modal-card .btn-secondary {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: var(--body);
+    font-size: 14px;
+    font-weight: 500;
+    min-height: 44px;
+  }
+
+  .modal-card .btn-secondary:hover { color: var(--ink); border-color: var(--ink); }
+
+  .image-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+    font-family: var(--display);
+  }
+
+  .upload-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(196, 69, 54, 0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 6px;
+    vertical-align: -2px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
   .toast {
     position: fixed;
     bottom: 32px;
@@ -510,7 +800,7 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     opacity: 0;
     transition: all 0.3s;
-    z-index: 1000;
+    z-index: 3000;
   }
 
   .toast.show {
@@ -525,22 +815,23 @@
     .tab { padding: 14px 8px; }
     .tab-icon { font-size: 22px; }
     .tab-name { font-size: 16px; }
-    .add-row {
-      grid-template-columns: 60px 80px 1fr 44px;
-      gap: 4px;
-      padding: 6px;
-    }
-    .add-row input, .add-row select { font-size: 16px; padding: 10px 8px; }
-    .add-row .qty-unit { font-size: 13px; padding-right: 18px; }
+    .add-row { gap: 4px; }
+    .add-row { grid-template-columns: 56px 78px 1fr; }
+    .add-row.barnen-row { grid-template-columns: 56px 56px 1fr; }
+    .add-form input, .add-form select, .add-form textarea { font-size: 16px; padding: 10px 8px; }
+    .add-form .qty-unit { font-size: 13px; padding-right: 18px; }
     .add-btn { min-height: 44px; min-width: 44px; }
-    .item { padding: 14px 12px; }
-    .item-name { font-size: 16px; }
-    .item-qty { font-size: 13px; }
+    .item { padding: 14px 10px; gap: 10px; }
+    .item-name { font-size: 15px; }
+    .item-qty { font-size: 12px; }
+    .modal-card { padding: 20px 18px; }
+    .modal-card h3 { font-size: 19px; }
   }
 </style>
 </head>
 <body>
-  <div class="container">
+
+<div class="container">
 
   <header>
     <div>
@@ -574,25 +865,49 @@
     </div>
   </div>
 
-  <div class="add-row">
-    <input type="number" id="itemQty" class="qty-num" placeholder="2" min="0" step="0.5" autocomplete="off">
-    <select id="itemUnit" class="qty-unit">
-      <option value="">enhet</option>
-      <option value="st">st</option>
-      <option value="kg">kg</option>
-      <option value="g">g</option>
-      <option value="hg">hg</option>
-      <option value="liter">liter</option>
-      <option value="dl">dl</option>
-      <option value="cl">cl</option>
-      <option value="ml">ml</option>
-      <option value="paket">paket</option>
-      <option value="påse">påse</option>
-      <option value="burk">burk</option>
-      <option value="flaska">flaska</option>
-    </select>
-    <input type="text" id="itemName" placeholder="Vad?" autocomplete="off">
-    <button class="add-btn" id="addBtn" title="Lägg till">+</button>
+  <div class="add-form">
+    <div class="add-row" id="addRow">
+      <input type="number" id="itemQty" class="qty-num" placeholder="2" min="0" step="0.5" autocomplete="off">
+      <select id="itemUnit" class="qty-unit">
+        <option value="">enhet</option>
+        <option value="st">st</option>
+        <option value="kg">kg</option>
+        <option value="g">g</option>
+        <option value="hg">hg</option>
+        <option value="liter">liter</option>
+        <option value="dl">dl</option>
+        <option value="cl">cl</option>
+        <option value="ml">ml</option>
+        <option value="paket">paket</option>
+        <option value="påse">påse</option>
+        <option value="burk">burk</option>
+        <option value="flaska">flaska</option>
+      </select>
+      <input type="text" id="itemName" placeholder="Vad?" autocomplete="off">
+    </div>
+
+    <div class="person-row hidden" id="personRow">
+      <button class="person-btn person-george" data-person="george">👦 George</button>
+      <button class="person-btn person-bob" data-person="bob">👦 Bob</button>
+      <button class="person-btn person-bada" data-person="bada">Båda</button>
+    </div>
+
+    <div class="comment-row hidden" id="commentRow">
+      <input type="text" id="itemComment" placeholder="Kommentar (t.ex. storlek 110, till mormor...)" autocomplete="off">
+    </div>
+
+    <div class="bottom-row">
+      <button class="photo-btn" id="photoBtn" title="Lägg till bild">📷</button>
+      <button class="add-btn" id="addBtn">Lägg till</button>
+    </div>
+
+    <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none;">
+
+    <div class="photo-preview hidden" id="photoPreview">
+      <img id="photoPreviewImg" alt="Förhandsvisning">
+      <span id="photoPreviewText">Bild redo</span>
+      <button id="photoPreviewRemove" title="Ta bort bild">×</button>
+    </div>
   </div>
 
   <div class="list-section" id="activeList">
@@ -616,19 +931,26 @@
 
 </div>
 
+<div class="modal-overlay" id="imageModal">
+  <button class="image-modal-close" id="imageModalClose">×</button>
+  <div class="image-modal">
+    <img id="imageModalImg" alt="">
+  </div>
+</div>
+
+<div class="modal-overlay" id="actionModal">
+  <div class="modal-card" id="actionModalCard"></div>
+</div>
+
 <div class="toast" id="toast">Tillagd</div>
 
 <script>
-  const LISTS = {
-    mat: { name: 'Mat', emoji: '🍞', color: 'mat' },
-    ovrigt: { name: 'Övrigt', emoji: '📦', color: 'ovrigt' },
-    barnen: { name: 'Barnen', emoji: '👦', color: 'barnen' }
-  };
-
-  let state = {
+ let state = {
     activeList: 'mat',
     items: [],
-    history: []
+    history: [],
+    pendingPhoto: null,
+    selectedPerson: 'bada'
   };
 
   let itemsRef = null;
@@ -669,22 +991,18 @@
       ir.once('value').then(snap => {
         const data = snap.val();
         state.items = data ? Object.values(data) : [];
-
         ir.on('value', (s) => {
           if (suppressUpdate) return;
           const d = s.val();
           state.items = d ? Object.values(d) : [];
           render();
         });
-
         if (hr) {
           hr.once('value').then(hsnap => {
-            const hdata = hsnap.val();
-            state.history = hdata ? Object.values(hdata) : [];
+            state.history = hsnap.val() ? Object.values(hsnap.val()) : [];
             hr.on('value', (s) => {
               if (suppressUpdate) return;
-              const d = s.val();
-              state.history = d ? Object.values(d) : [];
+              state.history = s.val() ? Object.values(s.val()) : [];
               renderHistory();
             });
             resolve();
@@ -696,8 +1014,7 @@
 
   async function saveItem(item) {
     const idx = state.items.findIndex(e => e.id === item.id);
-    if (idx === -1) state.items.push(item);
-    else state.items[idx] = item;
+    if (idx === -1) state.items.push(item); else state.items[idx] = item;
     const ref = getItemsRef();
     if (!ref) {
       try { localStorage.setItem(FALLBACK_ITEMS, JSON.stringify(state.items)); } catch(e) {}
@@ -751,6 +1068,40 @@
     } catch (e) { console.error(e); suppressUpdate = false; }
   }
 
+  // IMAGE COMPRESSION + UPLOAD
+  function compressImage(file, maxWidth = 800) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          if (w > maxWidth) { h = h * (maxWidth / w); w = maxWidth; }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob(resolve, 'image/jpeg', 0.75);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadImage(blob, itemId) {
+    if (!window.firebaseReady || !window.storage) {
+      throw new Error('Storage not available');
+    }
+    const path = `items/${itemId}.jpg`;
+    const ref = window.storage.ref(path);
+    await ref.put(blob);
+    return await ref.getDownloadURL();
+  }
+
   function setupSyncStatus() {
     const statusEl = document.getElementById('syncStatus');
     const textEl = statusEl.querySelector('.sync-text');
@@ -773,6 +1124,7 @@
 
   function render() {
     renderTabs();
+    renderForm();
     renderItems();
     renderHistory();
   }
@@ -786,6 +1138,56 @@
         el.classList.toggle('zero', unchecked === 0);
       }
     });
+  }
+
+  function renderForm() {
+    const addRow = document.getElementById('addRow');
+    const personRow = document.getElementById('personRow');
+    const commentRow = document.getElementById('commentRow');
+    const unitSelect = document.getElementById('itemUnit');
+    const commentInput = document.getElementById('itemComment');
+
+    if (state.activeList === 'barnen') {
+      addRow.classList.add('barnen-row');
+      personRow.classList.remove('hidden');
+      commentRow.classList.remove('hidden');
+      commentInput.placeholder = 'Storlek, modell, märke...';
+      unitSelect.innerHTML = '<option value="st" selected>st</option>';
+    } else if (state.activeList === 'ovrigt') {
+      addRow.classList.remove('barnen-row');
+      personRow.classList.add('hidden');
+      commentRow.classList.remove('hidden');
+      commentInput.placeholder = 'Detaljer, till vem, etc...';
+      unitSelect.innerHTML = `
+        <option value="">enhet</option>
+        <option value="st">st</option>
+        <option value="kg">kg</option>
+        <option value="g">g</option>
+        <option value="paket">paket</option>
+        <option value="påse">påse</option>
+        <option value="burk">burk</option>
+        <option value="flaska">flaska</option>
+      `;
+    } else {
+      addRow.classList.remove('barnen-row');
+      personRow.classList.add('hidden');
+      commentRow.classList.add('hidden');
+      unitSelect.innerHTML = `
+        <option value="">enhet</option>
+        <option value="st">st</option>
+        <option value="kg">kg</option>
+        <option value="g">g</option>
+        <option value="hg">hg</option>
+        <option value="liter">liter</option>
+        <option value="dl">dl</option>
+        <option value="cl">cl</option>
+        <option value="ml">ml</option>
+        <option value="paket">paket</option>
+        <option value="påse">påse</option>
+        <option value="burk">burk</option>
+        <option value="flaska">flaska</option>
+      `;
+    }
   }
 
   function renderItems() {
@@ -805,7 +1207,7 @@
     clearBtn.classList.toggle('hidden', checkedCount === 0);
 
     if (items.length === 0) {
-      container.innerHTML = `<div class="list-empty"><div class="display">Tom lista</div><div style="font-size:13px;">Skriv något i fältet ovan</div></div>`;
+      container.innerHTML = `<div class="list-empty"><div class="display">Tom lista</div><div style="font-size:13px;">Lägg till något ovan</div></div>`;
       return;
     }
 
@@ -813,38 +1215,78 @@
     items.forEach(item => {
       const row = document.createElement('div');
       row.className = `item list-${item.list}` + (item.checked ? ' checked' : '');
-      row.addEventListener('click', (e) => {
-        if (e.target.classList.contains('item-delete')) return;
-        toggleChecked(item);
-      });
 
       const check = document.createElement('div');
       check.className = 'checkbox';
+      check.addEventListener('click', (e) => { e.stopPropagation(); toggleChecked(item); });
       row.appendChild(check);
+
+      if (item.imageUrl) {
+        const thumb = document.createElement('img');
+        thumb.className = 'item-thumb';
+        thumb.src = item.imageUrl;
+        thumb.alt = item.name;
+        thumb.addEventListener('click', (e) => { e.stopPropagation(); openImageModal(item.imageUrl); });
+        row.appendChild(thumb);
+      }
 
       const body = document.createElement('div');
       body.className = 'item-body';
-      const name = document.createElement('div');
+      body.addEventListener('click', () => toggleChecked(item));
+
+      const nameRow = document.createElement('div');
+      nameRow.className = 'item-name-row';
+      const name = document.createElement('span');
       name.className = 'item-name';
       name.textContent = item.name;
-      body.appendChild(name);
+      nameRow.appendChild(name);
+
       if (item.qty) {
-        const qty = document.createElement('div');
+        const qty = document.createElement('span');
         qty.className = 'item-qty';
         qty.textContent = item.qty;
-        body.appendChild(qty);
+        nameRow.appendChild(qty);
       }
+
+      if (item.list === 'barnen' && item.person) {
+        const pTag = document.createElement('span');
+        pTag.className = `item-person-tag person-${item.person}`;
+        pTag.textContent = item.person === 'bada' ? 'Båda' : item.person.charAt(0).toUpperCase() + item.person.slice(1);
+        nameRow.appendChild(pTag);
+      }
+
+      body.appendChild(nameRow);
+
+      if (item.comment) {
+        const c = document.createElement('div');
+        c.className = 'item-comment';
+        c.textContent = item.comment;
+        body.appendChild(c);
+      }
+
       row.appendChild(body);
 
+      const actions = document.createElement('div');
+      actions.className = 'item-actions';
+
+      const edit = document.createElement('button');
+      edit.className = 'icon-btn edit-btn';
+      edit.innerHTML = '✎';
+      edit.title = 'Redigera';
+      edit.addEventListener('click', (e) => { e.stopPropagation(); openEditModal(item); });
+      actions.appendChild(edit);
+
       const del = document.createElement('button');
-      del.className = 'item-delete';
+      del.className = 'icon-btn delete-btn';
       del.innerHTML = '×';
+      del.title = 'Ta bort';
       del.addEventListener('click', async (e) => {
         e.stopPropagation();
         await deleteItem(item.id);
         render();
       });
-      row.appendChild(del);
+      actions.appendChild(del);
+      row.appendChild(actions);
 
       container.appendChild(row);
     });
@@ -876,20 +1318,46 @@
       const chip = document.createElement('button');
       chip.className = 'history-chip';
       chip.textContent = h.name;
-      chip.addEventListener('click', () => addItem(h.name, '', h.list));
+      chip.addEventListener('click', () => openHistoryAddModal(h));
       container.appendChild(chip);
     });
   }
 
-  async function addItem(name, qty, list) {
+  // ADD ITEM
+  async function addItem({ name, qty, list, comment, person, imageUrl }) {
     name = name.trim();
     if (!name) return;
     list = list || state.activeList;
+
+    // Check for duplicate (same name in same list, not checked)
+    const existing = state.items.find(i =>
+      i.list === list &&
+      !i.checked &&
+      i.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (existing) {
+      const merge = confirm(`"${name}" finns redan i listan med mängd "${existing.qty || 'ingen'}".\n\nVill du SLÅ IHOP (uppdatera mängd) eller lägga till SEPARAT?\n\nOK = Slå ihop\nAvbryt = Lägg till separat`);
+      if (merge) {
+        existing.qty = qty || existing.qty;
+        if (comment) existing.comment = comment;
+        if (imageUrl) existing.imageUrl = imageUrl;
+        if (person) existing.person = person;
+        await saveItem(existing);
+        render();
+        showToast(`"${name}" uppdaterad`);
+        return;
+      }
+    }
+
     const item = {
       id: Date.now().toString() + Math.random().toString(36).slice(2, 7),
       name,
-      qty: qty.trim(),
+      qty: qty || '',
       list,
+      comment: comment || '',
+      person: person || '',
+      imageUrl: imageUrl || '',
       checked: false,
       created: Date.now()
     };
@@ -918,60 +1386,336 @@
     showToast(`${checked.length} st rensade`);
   }
 
+  // EDIT MODAL
+  function openEditModal(item) {
+    const card = document.getElementById('actionModalCard');
+    const unitsForList = item.list === 'barnen' ? ['st'] : ['', 'st', 'kg', 'g', 'hg', 'liter', 'dl', 'cl', 'ml', 'paket', 'påse', 'burk', 'flaska'];
+
+    // Parse current qty to number + unit
+    let curNum = '', curUnit = '';
+    if (item.qty) {
+      const m = item.qty.match(/^([\d.,]+)\s*(.*)$/);
+      if (m) { curNum = m[1]; curUnit = m[2].trim(); }
+      else { curUnit = item.qty; }
+    }
+
+    const personHtml = item.list === 'barnen' ? `
+      <div class="form-row">
+        <label>Vem?</label>
+        <div style="display:flex;gap:6px;">
+          <button type="button" class="person-btn person-george ${item.person === 'george' ? 'active' : ''}" data-edit-person="george">George</button>
+          <button type="button" class="person-btn person-bob ${item.person === 'bob' ? 'active' : ''}" data-edit-person="bob">Bob</button>
+          <button type="button" class="person-btn person-bada ${item.person === 'bada' ? 'active' : ''}" data-edit-person="bada">Båda</button>
+        </div>
+      </div>
+    ` : '';
+
+    const commentHtml = (item.list === 'barnen' || item.list === 'ovrigt') ? `
+      <div class="form-row">
+        <label>Kommentar</label>
+        <input type="text" id="editComment" value="${(item.comment || '').replace(/"/g, '&quot;')}">
+      </div>
+    ` : '';
+
+    card.innerHTML = `
+      <h3>Redigera</h3>
+      <p>${item.name}</p>
+      <div class="form-row">
+        <label>Namn</label>
+        <input type="text" id="editName" value="${item.name.replace(/"/g, '&quot;')}">
+      </div>
+      <div class="form-row" style="display:grid;grid-template-columns:80px 1fr;gap:8px;">
+        <div>
+          <label>Antal</label>
+          <input type="number" id="editQty" value="${curNum}" min="0" step="0.5">
+        </div>
+        <div>
+          <label>Enhet</label>
+          <select id="editUnit">
+            ${unitsForList.map(u => `<option value="${u}" ${u === curUnit ? 'selected' : ''}>${u || 'enhet'}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      ${personHtml}
+      ${commentHtml}
+      <div class="modal-buttons">
+        <button class="btn-secondary" id="editCancel">Avbryt</button>
+        <button class="btn-primary" id="editSave">Spara</button>
+      </div>
+    `;
+
+    document.getElementById('actionModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+
+    let editPerson = item.person || '';
+    card.querySelectorAll('[data-edit-person]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        card.querySelectorAll('[data-edit-person]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        editPerson = btn.dataset.editPerson;
+      });
+    });
+
+    document.getElementById('editCancel').addEventListener('click', closeActionModal);
+    document.getElementById('editSave').addEventListener('click', async () => {
+      const newName = document.getElementById('editName').value.trim();
+      if (!newName) return;
+      const newNum = document.getElementById('editQty').value.trim();
+      const newUnit = document.getElementById('editUnit').value;
+      let newQty = '';
+      if (newNum && newUnit) newQty = `${newNum} ${newUnit}`;
+      else if (newNum) newQty = newNum;
+      else if (newUnit) newQty = newUnit;
+
+      item.name = newName;
+      item.qty = newQty;
+      if (item.list === 'barnen') item.person = editPerson;
+      if (item.list === 'barnen' || item.list === 'ovrigt') {
+        const c = document.getElementById('editComment');
+        if (c) item.comment = c.value.trim();
+      }
+      await saveItem(item);
+      closeActionModal();
+      render();
+      showToast('Sparat');
+    });
+  }
+
+  // HISTORY ADD MODAL
+  function openHistoryAddModal(historyEntry) {
+    const card = document.getElementById('actionModalCard');
+    const list = historyEntry.list;
+    const unitsForList = list === 'barnen' ? ['st'] : ['', 'st', 'kg', 'g', 'hg', 'liter', 'dl', 'cl', 'ml', 'paket', 'påse', 'burk', 'flaska'];
+
+    const personHtml = list === 'barnen' ? `
+      <div class="form-row">
+        <label>Vem?</label>
+        <div style="display:flex;gap:6px;">
+          <button type="button" class="person-btn person-george" data-hist-person="george">George</button>
+          <button type="button" class="person-btn person-bob" data-hist-person="bob">Bob</button>
+          <button type="button" class="person-btn person-bada active" data-hist-person="bada">Båda</button>
+        </div>
+      </div>
+    ` : '';
+
+    const commentHtml = (list === 'barnen' || list === 'ovrigt') ? `
+      <div class="form-row">
+        <label>Kommentar</label>
+        <input type="text" id="histComment" placeholder="${list === 'barnen' ? 'Storlek, modell...' : 'Detaljer, till vem...'}">
+      </div>
+    ` : '';
+
+    card.innerHTML = `
+      <h3>Lägg till igen</h3>
+      <p>${historyEntry.name}</p>
+      <div class="form-row" style="display:grid;grid-template-columns:80px 1fr;gap:8px;">
+        <div>
+          <label>Antal</label>
+          <input type="number" id="histQty" min="0" step="0.5" placeholder="${list === 'barnen' ? '1' : ''}">
+        </div>
+        <div>
+          <label>Enhet</label>
+          <select id="histUnit">
+            ${unitsForList.map(u => `<option value="${u}">${u || 'enhet'}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      ${personHtml}
+      ${commentHtml}
+      <div class="modal-buttons">
+        <button class="btn-secondary" id="histCancel">Avbryt</button>
+        <button class="btn-primary" id="histAdd">Lägg till</button>
+      </div>
+    `;
+
+    document.getElementById('actionModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+
+    let histPerson = 'bada';
+    card.querySelectorAll('[data-hist-person]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        card.querySelectorAll('[data-hist-person]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        histPerson = btn.dataset.histPerson;
+      });
+    });
+
+    document.getElementById('histCancel').addEventListener('click', closeActionModal);
+    document.getElementById('histAdd').addEventListener('click', async () => {
+      const num = document.getElementById('histQty').value.trim();
+      const unit = document.getElementById('histUnit').value;
+      let qty = '';
+      if (num && unit) qty = `${num} ${unit}`;
+      else if (num) qty = num;
+      else if (unit) qty = unit;
+
+      const c = document.getElementById('histComment');
+      const comment = c ? c.value.trim() : '';
+
+      closeActionModal();
+      await addItem({
+        name: historyEntry.name,
+        qty,
+        list,
+        comment,
+        person: list === 'barnen' ? histPerson : ''
+      });
+    });
+
+    setTimeout(() => document.getElementById('histQty').focus(), 100);
+  }
+
+  function closeActionModal() {
+    document.getElementById('actionModal').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  // IMAGE MODAL
+  function openImageModal(url) {
+    document.getElementById('imageModalImg').src = url;
+    document.getElementById('imageModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeImageModal() {
+    document.getElementById('imageModal').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  // TOAST
   let toastTimer = null;
   function showToast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
+    t.innerHTML = msg;
     t.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
   }
 
+  // EVENT LISTENERS
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       state.activeList = tab.dataset.list;
+      // Reset form when switching
+      document.getElementById('itemName').value = '';
+      document.getElementById('itemQty').value = '';
+      document.getElementById('itemComment').value = '';
+      state.pendingPhoto = null;
+      document.getElementById('photoPreview').classList.add('hidden');
+      document.getElementById('photoBtn').classList.remove('has-photo');
+      state.selectedPerson = 'bada';
+      document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('active'));
+      const badaBtn = document.querySelector('[data-person="bada"]');
+      if (badaBtn) badaBtn.classList.add('active');
       render();
     });
   });
 
-  document.getElementById('addBtn').addEventListener('click', () => {
-    const name = document.getElementById('itemName').value;
-    const qtyNum = document.getElementById('itemQty').value.trim();
-    const unit = document.getElementById('itemUnit').value;
-    if (!name.trim()) {
-      document.getElementById('itemName').focus();
-      return;
+  document.querySelectorAll('.person-row .person-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.person-row .person-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.selectedPerson = btn.dataset.person;
+    });
+  });
+
+  // PHOTO upload
+  document.getElementById('photoBtn').addEventListener('click', () => {
+    document.getElementById('photoInput').click();
+  });
+
+  document.getElementById('photoInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      showToast('<span class="upload-spinner"></span>Komprimerar bild...');
+      const blob = await compressImage(file);
+      const previewUrl = URL.createObjectURL(blob);
+      state.pendingPhoto = blob;
+      document.getElementById('photoPreviewImg').src = previewUrl;
+      document.getElementById('photoPreviewText').textContent = 'Bild klar';
+      document.getElementById('photoPreview').classList.remove('hidden');
+      document.getElementById('photoBtn').classList.add('has-photo');
+      showToast('Bild redo att laddas upp');
+    } catch (err) {
+      console.error(err);
+      showToast('Kunde inte bearbeta bilden');
     }
+    e.target.value = '';
+  });
+
+  document.getElementById('photoPreviewRemove').addEventListener('click', () => {
+    state.pendingPhoto = null;
+    document.getElementById('photoPreview').classList.add('hidden');
+    document.getElementById('photoBtn').classList.remove('has-photo');
+  });
+
+  document.getElementById('addBtn').addEventListener('click', async () => {
+    const name = document.getElementById('itemName').value;
+    if (!name.trim()) { document.getElementById('itemName').focus(); return; }
+
+    const num = document.getElementById('itemQty').value.trim();
+    const unit = document.getElementById('itemUnit').value;
     let qty = '';
-    if (qtyNum && unit) qty = `${qtyNum} ${unit}`;
-    else if (qtyNum) qty = qtyNum;
+    if (num && unit) qty = `${num} ${unit}`;
+    else if (num) qty = num;
     else if (unit) qty = unit;
 
-    addItem(name, qty, state.activeList);
+    const comment = document.getElementById('itemComment').value.trim();
+    const person = state.activeList === 'barnen' ? state.selectedPerson : '';
+
+    // Upload photo if any
+    let imageUrl = '';
+    if (state.pendingPhoto) {
+      const tempId = Date.now().toString() + Math.random().toString(36).slice(2, 7);
+      try {
+        showToast('<span class="upload-spinner"></span>Laddar upp bild...');
+        imageUrl = await uploadImage(state.pendingPhoto, tempId);
+      } catch (err) {
+        console.error('Image upload failed', err);
+        showToast('Bilduppladdning misslyckades, sparar utan bild');
+      }
+    }
+
+    await addItem({ name, qty, list: state.activeList, comment, person, imageUrl });
+
+    // Reset form
     document.getElementById('itemName').value = '';
     document.getElementById('itemQty').value = '';
-    document.getElementById('itemUnit').value = '';
+    document.getElementById('itemComment').value = '';
+    state.pendingPhoto = null;
+    document.getElementById('photoPreview').classList.add('hidden');
+    document.getElementById('photoBtn').classList.remove('has-photo');
     document.getElementById('itemName').focus();
   });
 
-  document.getElementById('itemName').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.getElementById('addBtn').click();
-    }
-  });
-
-  document.getElementById('itemQty').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.getElementById('addBtn').click();
-    }
+  ['itemName', 'itemQty', 'itemComment'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('addBtn').click(); }
+    });
   });
 
   document.getElementById('clearChecked').addEventListener('click', clearChecked);
 
+  document.getElementById('imageModalClose').addEventListener('click', closeImageModal);
+  document.getElementById('imageModal').addEventListener('click', (e) => {
+    if (e.target.id === 'imageModal') closeImageModal();
+  });
+
+  document.getElementById('actionModal').addEventListener('click', (e) => {
+    if (e.target.id === 'actionModal') closeActionModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('imageModal').classList.contains('show')) closeImageModal();
+      else if (document.getElementById('actionModal').classList.contains('show')) closeActionModal();
+    }
+  });
+
+  // BOOT
   (async () => {
     setupSyncStatus();
     render();
@@ -981,4 +1725,4 @@
 </script>
 
 </body>
-</html>
+</html> 
