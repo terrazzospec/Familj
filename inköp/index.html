@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Inköp – Familjen Reis">
+<meta name="theme-color" content="#f4efe6">
+<title>Inköp – Familjen Reis</title>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+  function initFirebase() {
+    if (typeof firebase === 'undefined') {
+      console.error('Firebase failed to load');
+      window.firebaseFailed = true;
+      return;
+    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyBGEXGTew8kXBixMQlEhvyljvMQUBiqOL0",
+      authDomain: "familjekalender-reis.firebaseapp.com",
+      databaseURL: "https://familjekalender-reis-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "familjekalender-reis",
+      storageBucket: "familjekalender-reis.firebasestorage.app",
+      messagingSenderId: "197443174169",
+      appId: "1:197443174169:web:3c0731c8b267f2b019cf88"
+    };
+    try {
+      firebase.initializeApp(firebaseConfig);
+      window.db = firebase.database();
+      window.firebaseReady = true;
+    } catch (e) {
+      console.error('Firebase init failed', e);
+      window.firebaseFailed = true;
+    }
+  }
+  initFirebase();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4efe6;
+    --bg-card: #fbf8f1;
+    --ink: #1a1a1a;
+    --ink-soft: #5a5550;
+    --line: #d9d2c2;
+    --accent: #c44536;
+    --accent-deep: #8b2e23;
+    --mat: #2d5a4f;
+    --mat-light: #d4e3dd;
+    --ovrigt: #c44536;
+    --ovrigt-light: #f4d6cf;
+    --barnen: #d4a574;
+    --barnen-light: #f5e8d4;
+    --display: 'Fraunces', Georgia, serif;
+    --body: 'Inter Tight', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--body);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(196, 69, 54, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 85% 70%, rgba(45, 90, 79, 0.05) 0%, transparent 45%);
+    padding-bottom: 120px;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 24px 60px;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-family: var(--body);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+
+  .nav-back:hover { border-color: var(--ink); color: var(--ink); }
+
+  .sync-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .sync-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4caf50;
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.5);
+    animation: sync-pulse 2s infinite;
+  }
+
+  .sync-status.offline .sync-dot {
+    background: #ff5722;
+    animation: none;
+  }
+
+  @keyframes sync-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.5); }
+    70% { box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .tab {
+    padding: 16px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+  }
+
+  .tab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+
+  .tab.active.tab-mat { background: var(--mat); color: white; border-color: var(--mat); }
+  .tab.active.tab-ovrigt { background: var(--ovrigt); color: white; border-color: var(--ovrigt); }
+  .tab.active.tab-barnen { background: var(--barnen); color: white; border-color: var(--barnen); }
+
+  .tab-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+  .tab-name {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1;
+  }
+
+  .tab-count {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    min-width: 22px;
+    text-align: center;
+  }
+
+  .tab.active .tab-count {
+    background: white;
+    color: var(--ink);
+  }
+
+  .tab-count.zero { display: none; }
+
+  .add-row {
+    display: grid;
+    grid-template-columns: 70px 90px 1fr 46px;
+    gap: 6px;
+    margin-bottom: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 8px;
+    align-items: center;
+  }
+
+  .add-row input, .add-row select {
+    border: 1px solid var(--line);
+    background: white;
+    padding: 11px 10px;
+    font-family: var(--body);
+    font-size: 14px;
+    color: var(--ink);
+    border-radius: 10px;
+    outline: none;
+    min-height: 44px;
+  }
+
+  .add-row #itemName {
+    border: none;
+    background: transparent;
+  }
+
+  .add-row input::placeholder { color: var(--ink-soft); }
+
+  .add-row .qty-num {
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .add-row .qty-unit {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a5550' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 12px;
+    padding-right: 22px;
+  }
+
+  .add-btn {
+    width: 46px;
+    height: 46px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .add-btn:hover { background: var(--accent-deep); }
+
+  .list-section {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 8px;
+    margin-bottom: 16px;
+  }
+
+  .list-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ink-soft);
+  }
+
+  .list-empty .display {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 20px;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  .item:hover { background: rgba(0,0,0,0.02); }
+
+  .item + .item {
+    border-top: 1px solid var(--line);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .checkbox {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--ink-soft);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: white;
+  }
+
+  .item.checked .checkbox {
+    background: var(--mat);
+    border-color: var(--mat);
+    color: white;
+  }
+
+  .item.checked.list-ovrigt .checkbox { background: var(--ovrigt); border-color: var(--ovrigt); }
+  .item.checked.list-barnen .checkbox { background: var(--barnen); border-color: var(--barnen); }
+
+  .checkbox::after {
+    content: "";
+    width: 8px;
+    height: 4px;
+    border-left: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(-45deg) translate(1px, -1px);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .item.checked .checkbox::after { opacity: 1; }
+
+  .item-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .item-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+    transition: all 0.2s;
+  }
+
+  .item.checked .item-name {
+    text-decoration: line-through;
+    color: var(--ink-soft);
+  }
+
+  .item-qty {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    background: rgba(0,0,0,0.05);
+    padding: 2px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .item.checked .item-qty {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .item-delete {
+    background: transparent;
+    border: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 20px;
+    padding: 6px 10px;
+    line-height: 1;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+    font-family: var(--display);
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .item-delete:hover { opacity: 1; color: var(--accent); }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding: 14px 14px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .section-action {
+    background: transparent;
+    border: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+
+  .section-action:hover { color: var(--accent); }
+
+  .hidden { display: none !important; }
+
+  .history-section { margin-top: 32px; }
+
+  .history-title {
+    font-family: var(--display);
+    font-size: 18px;
+    font-style: italic;
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+
+  .history-sub {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+
+  .history-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .history-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .history-chip:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .history-chip::before {
+    content: "+";
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  .history-chip:hover::before { color: white; }
+
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 14px 22px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 1000;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  @media (max-width: 700px) {
+    .container { padding: 16px 14px 80px; }
+    h1 { font-size: 2rem; }
+    .tabs { gap: 6px; }
+    .tab { padding: 14px 8px; }
+    .tab-icon { font-size: 22px; }
+    .tab-name { font-size: 16px; }
+    .add-row {
+      grid-template-columns: 60px 80px 1fr 44px;
+      gap: 4px;
+      padding: 6px;
+    }
+    .add-row input, .add-row select { font-size: 16px; padding: 10px 8px; }
+    .add-row .qty-unit { font-size: 13px; padding-right: 18px; }
+    .add-btn { min-height: 44px; min-width: 44px; }
+    .item { padding: 14px 12px; }
+    .item-name { font-size: 16px; }
+    .item-qty { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+  <header>
+    <div>
+      <span class="eyebrow">Familjen Reis</span>
+      <h1>Vad ska vi <em>handla</em>?</h1>
+    </div>
+    <div style="display:flex;gap:8px;flex-direction:column;align-items:flex-end;">
+      <a href="../" class="nav-back">← Kalender</a>
+      <div class="sync-status" id="syncStatus">
+        <span class="sync-dot"></span>
+        <span class="sync-text">Synkad</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab tab-mat active" data-list="mat">
+      <span class="tab-icon">🍞</span>
+      <span class="tab-name">Mat</span>
+      <span class="tab-count zero" id="countMat">0</span>
+    </div>
+    <div class="tab tab-ovrigt" data-list="ovrigt">
+      <span class="tab-icon">📦</span>
+      <span class="tab-name">Övrigt</span>
+      <span class="tab-count zero" id="countOvrigt">0</span>
+    </div>
+    <div class="tab tab-barnen" data-list="barnen">
+      <span class="tab-icon">👦</span>
+      <span class="tab-name">Barnen</span>
+      <span class="tab-count zero" id="countBarnen">0</span>
+    </div>
+  </div>
+
+  <div class="add-row">
+    <input type="number" id="itemQty" class="qty-num" placeholder="2" min="0" step="0.5" autocomplete="off">
+    <select id="itemUnit" class="qty-unit">
+      <option value="">enhet</option>
+      <option value="st">st</option>
+      <option value="kg">kg</option>
+      <option value="g">g</option>
+      <option value="hg">hg</option>
+      <option value="liter">liter</option>
+      <option value="dl">dl</option>
+      <option value="cl">cl</option>
+      <option value="ml">ml</option>
+      <option value="paket">paket</option>
+      <option value="påse">påse</option>
+      <option value="burk">burk</option>
+      <option value="flaska">flaska</option>
+    </select>
+    <input type="text" id="itemName" placeholder="Vad?" autocomplete="off">
+    <button class="add-btn" id="addBtn" title="Lägg till">+</button>
+  </div>
+
+  <div class="list-section" id="activeList">
+    <div class="section-title">
+      <span>Att handla <span id="activeCount" style="color:var(--ink);">(0)</span></span>
+      <button class="section-action hidden" id="clearChecked">Rensa avbockade</button>
+    </div>
+    <div id="itemsContainer">
+      <div class="list-empty">
+        <div class="display">Tom lista</div>
+        <div style="font-size:13px;">Skriv något i fältet ovan</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="history-section" id="historySection">
+    <div class="history-title">Senast köpta</div>
+    <div class="history-sub">Klicka för att lägga till igen</div>
+    <div class="history-chips" id="historyChips"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Tillagd</div>
+
+<script>
+  const LISTS = {
+    mat: { name: 'Mat', emoji: '🍞', color: 'mat' },
+    ovrigt: { name: 'Övrigt', emoji: '📦', color: 'ovrigt' },
+    barnen: { name: 'Barnen', emoji: '👦', color: 'barnen' }
+  };
+
+  let state = {
+    activeList: 'mat',
+    items: [],
+    history: []
+  };
+
+  let itemsRef = null;
+  let historyRef = null;
+  let suppressUpdate = false;
+  const FALLBACK_ITEMS = 'inkop_items_fallback';
+  const FALLBACK_HIST = 'inkop_history_fallback';
+
+  function getItemsRef() {
+    if (itemsRef) return itemsRef;
+    if (window.firebaseReady && window.db) {
+      itemsRef = window.db.ref('shopping/items');
+      return itemsRef;
+    }
+    return null;
+  }
+
+  function getHistoryRef() {
+    if (historyRef) return historyRef;
+    if (window.firebaseReady && window.db) {
+      historyRef = window.db.ref('shopping/history');
+      return historyRef;
+    }
+    return null;
+  }
+
+  async function loadData() {
+    const ir = getItemsRef();
+    const hr = getHistoryRef();
+
+    if (!ir) {
+      try { state.items = JSON.parse(localStorage.getItem(FALLBACK_ITEMS) || '[]'); } catch(e) { state.items = []; }
+      try { state.history = JSON.parse(localStorage.getItem(FALLBACK_HIST) || '[]'); } catch(e) { state.history = []; }
+      return;
+    }
+
+    return new Promise((resolve) => {
+      ir.once('value').then(snap => {
+        const data = snap.val();
+        state.items = data ? Object.values(data) : [];
+
+        ir.on('value', (s) => {
+          if (suppressUpdate) return;
+          const d = s.val();
+          state.items = d ? Object.values(d) : [];
+          render();
+        });
+
+        if (hr) {
+          hr.once('value').then(hsnap => {
+            const hdata = hsnap.val();
+            state.history = hdata ? Object.values(hdata) : [];
+            hr.on('value', (s) => {
+              if (suppressUpdate) return;
+              const d = s.val();
+              state.history = d ? Object.values(d) : [];
+              renderHistory();
+            });
+            resolve();
+          });
+        } else resolve();
+      }).catch(err => { console.error(err); state.items = []; resolve(); });
+    });
+  }
+
+  async function saveItem(item) {
+    const idx = state.items.findIndex(e => e.id === item.id);
+    if (idx === -1) state.items.push(item);
+    else state.items[idx] = item;
+    const ref = getItemsRef();
+    if (!ref) {
+      try { localStorage.setItem(FALLBACK_ITEMS, JSON.stringify(state.items)); } catch(e) {}
+      return;
+    }
+    try {
+      suppressUpdate = true;
+      await ref.child(item.id).set(item);
+      setTimeout(() => { suppressUpdate = false; }, 500);
+    } catch (e) { console.error(e); suppressUpdate = false; }
+  }
+
+  async function deleteItem(id) {
+    state.items = state.items.filter(e => e.id !== id);
+    const ref = getItemsRef();
+    if (!ref) {
+      try { localStorage.setItem(FALLBACK_ITEMS, JSON.stringify(state.items)); } catch(e) {}
+      return;
+    }
+    try {
+      suppressUpdate = true;
+      await ref.child(id).remove();
+      setTimeout(() => { suppressUpdate = false; }, 500);
+    } catch (e) { console.error(e); suppressUpdate = false; }
+  }
+
+  async function addToHistory(name, list) {
+    state.history = state.history.filter(h => !(h.name.toLowerCase() === name.toLowerCase() && h.list === list));
+    const entry = {
+      id: 'h-' + list + '-' + name.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 40),
+      name, list,
+      lastUsed: Date.now()
+    };
+    state.history.unshift(entry);
+    const perList = {};
+    state.history.forEach(h => {
+      if (!perList[h.list]) perList[h.list] = [];
+      if (perList[h.list].length < 30) perList[h.list].push(h);
+    });
+    state.history = [].concat(...Object.values(perList));
+
+    const ref = getHistoryRef();
+    if (!ref) {
+      try { localStorage.setItem(FALLBACK_HIST, JSON.stringify(state.history)); } catch(e) {}
+      return;
+    }
+    try {
+      suppressUpdate = true;
+      await ref.child(entry.id).set(entry);
+      setTimeout(() => { suppressUpdate = false; }, 500);
+    } catch (e) { console.error(e); suppressUpdate = false; }
+  }
+
+  function setupSyncStatus() {
+    const statusEl = document.getElementById('syncStatus');
+    const textEl = statusEl.querySelector('.sync-text');
+    if (window.firebaseFailed || !window.firebaseReady) {
+      statusEl.classList.add('offline');
+      textEl.textContent = 'Offline (lokalt)';
+      return;
+    }
+    const connectedRef = window.db.ref('.info/connected');
+    connectedRef.on('value', (snap) => {
+      if (snap.val() === true) {
+        statusEl.classList.remove('offline');
+        textEl.textContent = 'Synkad';
+      } else {
+        statusEl.classList.add('offline');
+        textEl.textContent = 'Offline';
+      }
+    });
+  }
+
+  function render() {
+    renderTabs();
+    renderItems();
+    renderHistory();
+  }
+
+  function renderTabs() {
+    ['mat','ovrigt','barnen'].forEach(list => {
+      const unchecked = state.items.filter(i => i.list === list && !i.checked).length;
+      const el = document.getElementById('count' + list.charAt(0).toUpperCase() + list.slice(1));
+      if (el) {
+        el.textContent = unchecked;
+        el.classList.toggle('zero', unchecked === 0);
+      }
+    });
+  }
+
+  function renderItems() {
+    const container = document.getElementById('itemsContainer');
+    const activeCount = document.getElementById('activeCount');
+    const clearBtn = document.getElementById('clearChecked');
+
+    const items = state.items.filter(i => i.list === state.activeList);
+    items.sort((a, b) => {
+      if (a.checked !== b.checked) return a.checked ? 1 : -1;
+      return (b.created || 0) - (a.created || 0);
+    });
+
+    const uncheckedCount = items.filter(i => !i.checked).length;
+    const checkedCount = items.filter(i => i.checked).length;
+    activeCount.textContent = `(${uncheckedCount})`;
+    clearBtn.classList.toggle('hidden', checkedCount === 0);
+
+    if (items.length === 0) {
+      container.innerHTML = `<div class="list-empty"><div class="display">Tom lista</div><div style="font-size:13px;">Skriv något i fältet ovan</div></div>`;
+      return;
+    }
+
+    container.innerHTML = '';
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = `item list-${item.list}` + (item.checked ? ' checked' : '');
+      row.addEventListener('click', (e) => {
+        if (e.target.classList.contains('item-delete')) return;
+        toggleChecked(item);
+      });
+
+      const check = document.createElement('div');
+      check.className = 'checkbox';
+      row.appendChild(check);
+
+      const body = document.createElement('div');
+      body.className = 'item-body';
+      const name = document.createElement('div');
+      name.className = 'item-name';
+      name.textContent = item.name;
+      body.appendChild(name);
+      if (item.qty) {
+        const qty = document.createElement('div');
+        qty.className = 'item-qty';
+        qty.textContent = item.qty;
+        body.appendChild(qty);
+      }
+      row.appendChild(body);
+
+      const del = document.createElement('button');
+      del.className = 'item-delete';
+      del.innerHTML = '×';
+      del.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await deleteItem(item.id);
+        render();
+      });
+      row.appendChild(del);
+
+      container.appendChild(row);
+    });
+  }
+
+  function renderHistory() {
+    const container = document.getElementById('historyChips');
+    const section = document.getElementById('historySection');
+
+    const historyForList = state.history
+      .filter(h => h.list === state.activeList)
+      .sort((a, b) => (b.lastUsed || 0) - (a.lastUsed || 0))
+      .slice(0, 20);
+
+    const activeNames = state.items
+      .filter(i => i.list === state.activeList && !i.checked)
+      .map(i => i.name.toLowerCase());
+
+    const available = historyForList.filter(h => !activeNames.includes(h.name.toLowerCase()));
+
+    if (available.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = '';
+
+    container.innerHTML = '';
+    available.forEach(h => {
+      const chip = document.createElement('button');
+      chip.className = 'history-chip';
+      chip.textContent = h.name;
+      chip.addEventListener('click', () => addItem(h.name, '', h.list));
+      container.appendChild(chip);
+    });
+  }
+
+  async function addItem(name, qty, list) {
+    name = name.trim();
+    if (!name) return;
+    list = list || state.activeList;
+    const item = {
+      id: Date.now().toString() + Math.random().toString(36).slice(2, 7),
+      name,
+      qty: qty.trim(),
+      list,
+      checked: false,
+      created: Date.now()
+    };
+    await saveItem(item);
+    render();
+    showToast(`"${name}" tillagd`);
+  }
+
+  async function toggleChecked(item) {
+    item.checked = !item.checked;
+    if (item.checked) {
+      await addToHistory(item.name, item.list);
+    }
+    await saveItem(item);
+    render();
+  }
+
+  async function clearChecked() {
+    const checked = state.items.filter(i => i.list === state.activeList && i.checked);
+    if (checked.length === 0) return;
+    if (!confirm(`Ta bort ${checked.length} avbockade?`)) return;
+    for (const item of checked) {
+      await deleteItem(item.id);
+    }
+    render();
+    showToast(`${checked.length} st rensade`);
+  }
+
+  let toastTimer = null;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.activeList = tab.dataset.list;
+      render();
+    });
+  });
+
+  document.getElementById('addBtn').addEventListener('click', () => {
+    const name = document.getElementById('itemName').value;
+    const qtyNum = document.getElementById('itemQty').value.trim();
+    const unit = document.getElementById('itemUnit').value;
+    if (!name.trim()) {
+      document.getElementById('itemName').focus();
+      return;
+    }
+    let qty = '';
+    if (qtyNum && unit) qty = `${qtyNum} ${unit}`;
+    else if (qtyNum) qty = qtyNum;
+    else if (unit) qty = unit;
+
+    addItem(name, qty, state.activeList);
+    document.getElementById('itemName').value = '';
+    document.getElementById('itemQty').value = '';
+    document.getElementById('itemUnit').value = '';
+    document.getElementById('itemName').focus();
+  });
+
+  document.getElementById('itemName').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('addBtn').click();
+    }
+  });
+
+  document.getElementById('itemQty').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('addBtn').click();
+    }
+  });
+
+  document.getElementById('clearChecked').addEventListener('click', clearChecked);
+
+  (async () => {
+    setupSyncStatus();
+    render();
+    await loadData();
+    render();
+  })();
+</script>
+
+</body>
+</html>
