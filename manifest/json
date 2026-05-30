@@ -1,0 +1,25 @@
+{
+  "name": "Vardagspusslet",
+  "short_name": "Vardagspusslet",
+  "description": "Planera. Samordna. Tillsammans.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4efe6",
+  "theme_color": "#c44536",
+  "icons": [
+    {
+      "src": "vardagspusslet.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "vardagspusslet.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
