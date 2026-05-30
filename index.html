@@ -5,9 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Familjen Reis">
+<meta name="apple-mobile-web-app-title" content="Vardagspusslet">
 <meta name="theme-color" content="#f4efe6">
-<title>Familjen Reis – Planering</title>
+<title>Vardagspusslet</title>
+
+<!-- PWA manifest -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="vardagspusslet.png">
+<link rel="icon" type="image/png" href="vardagspusslet.png">
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -39,6 +44,26 @@
   }
   initFirebase();
 </script>
+
+<!-- FAMILY CODES — edit here to add/remove families -->
+<script>
+  const FAMILIES = {
+    'reis': {
+      name: 'Familjen Reis',
+      members: ['jesper', 'tilda', 'george', 'bob']
+    },
+    'kassab': {
+      name: 'Familjen Kassab',
+      members: ['vuxen1', 'vuxen2', 'barn1', 'barn2', 'barn3']
+    },
+    'bagge-lindman': {
+      name: 'Familjen Bagge Lindman',
+      members: ['vuxen1', 'vuxen2', 'barn1', 'barn2']
+    }
+  };
+  window.FAMILIES = FAMILIES;
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -50,14 +75,16 @@
     --accent: #c44536;
     --accent-deep: #8b2e23;
 
-    --jesper: #2d5a4f;
-    --jesper-light: #d4e3dd;
-    --tilda: #c44536;
-    --tilda-light: #f4d6cf;
-    --george: #d4a574;
-    --george-light: #f5e8d4;
-    --bob: #4a6fa5;
-    --bob-light: #d6e0ed;
+    --p1: #2d5a4f;
+    --p1-light: #d4e3dd;
+    --p2: #c44536;
+    --p2-light: #f4d6cf;
+    --p3: #d4a574;
+    --p3-light: #f5e8d4;
+    --p4: #4a6fa5;
+    --p4-light: #d6e0ed;
+    --p5: #8b5cf6;
+    --p5-light: #e0d6ed;
     --familj: #6b4e8b;
     --familj-light: #e0d6ed;
     --ovrigt: #7a7268;
@@ -79,6 +106,129 @@
       radial-gradient(circle at 85% 70%, rgba(45, 90, 79, 0.05) 0%, transparent 45%);
   }
 
+  /* LOGIN SCREEN */
+  .login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .login-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 40px 32px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+  }
+
+  .login-logo {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 24px;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+
+  .login-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .login-card h1 {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: 3rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .login-card h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .login-tagline {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 16px;
+    color: var(--ink-soft);
+    margin-bottom: 32px;
+  }
+
+  .login-card label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    text-align: left;
+  }
+
+  .login-card input {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-family: var(--body);
+    font-size: 16px;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    text-align: center;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    text-transform: lowercase;
+  }
+
+  .login-card input:focus { border-color: var(--accent); }
+
+  .login-card .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: var(--body);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-transform: uppercase;
+  }
+
+  .login-card .submit-btn:hover { background: var(--accent-deep); }
+
+  .login-error {
+    color: var(--accent);
+    font-size: 13px;
+    margin-top: 12px;
+    font-weight: 600;
+  }
+
+  .login-error.hidden { display: none; }
+
+  .login-help {
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* APP HEADER */
   header {
     display: flex;
     justify-content: space-between;
@@ -91,6 +241,28 @@
   }
 
   .brand { display: flex; flex-direction: column; }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 4px;
+  }
+
+  .brand-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+
+  .brand-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
   .eyebrow {
     font-family: var(--body);
@@ -105,7 +277,7 @@
   h1 {
     font-family: var(--display);
     font-weight: 300;
-    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    font-size: clamp(2.4rem, 5vw, 4rem);
     line-height: 0.95;
     letter-spacing: -0.02em;
     color: var(--ink);
@@ -155,6 +327,7 @@
     letter-spacing: 0.05em;
     cursor: pointer;
     transition: all 0.2s;
+    text-decoration: none;
   }
 
   .overview-btn:hover {
@@ -186,10 +359,7 @@
     animation: sync-pulse 2s infinite;
   }
 
-  .sync-status.offline .sync-dot {
-    background: #ff5722;
-    animation: none;
-  }
+  .sync-status.offline .sync-dot { background: #ff5722; animation: none; }
 
   @keyframes sync-pulse {
     0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.5); }
@@ -208,6 +378,7 @@
     gap: 16px;
     margin-bottom: 32px;
     flex-wrap: wrap;
+    align-items: center;
   }
 
   .family-chip {
@@ -235,6 +406,35 @@
     border-color: var(--ink);
   }
 
+  .members-edit-btn {
+    margin-left: auto;
+    padding: 8px 14px;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .members-edit-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+  .logout-btn {
+    padding: 8px 14px;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .logout-btn:hover { color: var(--accent); border-color: var(--accent); }
+
   .dot {
     width: 10px;
     height: 10px;
@@ -242,13 +442,15 @@
     flex-shrink: 0;
   }
 
-  .dot-jesper { background: var(--jesper); }
-  .dot-tilda { background: var(--tilda); }
-  .dot-george { background: var(--george); }
-  .dot-bob { background: var(--bob); }
+  .dot-p1 { background: var(--p1); }
+  .dot-p2 { background: var(--p2); }
+  .dot-p3 { background: var(--p3); }
+  .dot-p4 { background: var(--p4); }
+  .dot-p5 { background: var(--p5); }
   .dot-familj { background: var(--familj); }
   .dot-ovrigt { background: var(--ovrigt); }
-
+</style>
+<style>
   .main-grid {
     display: grid;
     grid-template-columns: 1fr 380px;
@@ -336,10 +538,7 @@
     transition: all 0.2s;
   }
 
-  .view-btn.active {
-    background: var(--ink);
-    color: var(--bg);
-  }
+  .view-btn.active { background: var(--ink); color: var(--bg); }
 
   #weekView.hidden { display: none; }
   #monthView.hidden { display: none; }
@@ -362,6 +561,7 @@
     color: var(--bg);
     border-color: var(--ink);
   }
+
   .weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -419,9 +619,7 @@
   }
 
   .day.selected .day-num,
-  .day.selected .event-count {
-    color: white;
-  }
+  .day.selected .event-count { color: white; }
 
   .day-num {
     font-family: var(--display);
@@ -464,10 +662,11 @@
     min-width: 0;
   }
 
-  .pill-jesper { background: var(--jesper-light); color: var(--jesper); border-left-color: var(--jesper); }
-  .pill-tilda  { background: var(--tilda-light);  color: var(--accent-deep); border-left-color: var(--tilda); }
-  .pill-george { background: var(--george-light); color: #7a5320; border-left-color: var(--george); }
-  .pill-bob    { background: var(--bob-light);    color: var(--bob); border-left-color: var(--bob); }
+  .pill-p1 { background: var(--p1-light); color: var(--p1); border-left-color: var(--p1); }
+  .pill-p2 { background: var(--p2-light); color: var(--accent-deep); border-left-color: var(--p2); }
+  .pill-p3 { background: var(--p3-light); color: #7a5320; border-left-color: var(--p3); }
+  .pill-p4 { background: var(--p4-light); color: var(--p4); border-left-color: var(--p4); }
+  .pill-p5 { background: var(--p5-light); color: var(--p5); border-left-color: var(--p5); }
   .pill-familj { background: var(--familj-light); color: var(--familj); border-left-color: var(--familj); }
   .pill-ovrigt { background: var(--ovrigt-light); color: var(--ovrigt); border-left-color: var(--ovrigt); }
 
@@ -642,7 +841,7 @@
 
   #timeFields.hidden { display: none; }
   .form-row.hidden { display: none; }
-  .hidden { display: none; }
+  .hidden { display: none !important; }
 
   .repeat-mode-toggle {
     display: flex;
@@ -693,10 +892,11 @@
     flex-shrink: 0;
   }
 
-  .bar-jesper { background: var(--jesper); }
-  .bar-tilda { background: var(--tilda); }
-  .bar-george { background: var(--george); }
-  .bar-bob { background: var(--bob); }
+  .bar-p1 { background: var(--p1); }
+  .bar-p2 { background: var(--p2); }
+  .bar-p3 { background: var(--p3); }
+  .bar-p4 { background: var(--p4); }
+  .bar-p5 { background: var(--p5); }
   .bar-familj { background: var(--familj); }
   .bar-ovrigt { background: var(--ovrigt); }
 
@@ -735,7 +935,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    color: var(--bob);
+    color: var(--p4);
     text-decoration: none;
     font-weight: 500;
     font-size: 12px;
@@ -785,9 +985,6 @@
 
   .empty-state .small { font-size: 12px; }
 
-  .event-list::-webkit-scrollbar { width: 4px; }
-  .event-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
-
   .toast {
     position: fixed;
     bottom: 32px;
@@ -817,6 +1014,8 @@
     font-style: italic;
     font-family: var(--display);
   }
+</style>
+<style>
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -854,6 +1053,7 @@
   }
 
   .modal-card-wide { max-width: 880px; }
+  .modal-card-narrow { max-width: 480px; }
 
   .modal-overlay.show .modal-card {
     transform: translateY(0) scale(1);
@@ -938,18 +1138,37 @@
 
   .modal-action:hover { background: var(--accent-deep); }
 
-  .day-section { margin-bottom: 28px; }
-  .day-section:last-child { margin-bottom: 0; }
+  .members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
 
-  .day-section-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--line);
+  .member-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 14px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+
+  .member-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .member-row input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 6px 0;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
   }
 
   .big-event {
@@ -964,10 +1183,11 @@
     align-items: flex-start;
   }
 
-  .big-event.bg-jesper { border-left-color: var(--jesper); background: linear-gradient(to right, var(--jesper-light) 0%, white 40%); }
-  .big-event.bg-tilda  { border-left-color: var(--tilda);  background: linear-gradient(to right, var(--tilda-light) 0%, white 40%); }
-  .big-event.bg-george { border-left-color: var(--george); background: linear-gradient(to right, var(--george-light) 0%, white 40%); }
-  .big-event.bg-bob    { border-left-color: var(--bob);    background: linear-gradient(to right, var(--bob-light) 0%, white 40%); }
+  .big-event.bg-p1 { border-left-color: var(--p1); background: linear-gradient(to right, var(--p1-light) 0%, white 40%); }
+  .big-event.bg-p2 { border-left-color: var(--p2); background: linear-gradient(to right, var(--p2-light) 0%, white 40%); }
+  .big-event.bg-p3 { border-left-color: var(--p3); background: linear-gradient(to right, var(--p3-light) 0%, white 40%); }
+  .big-event.bg-p4 { border-left-color: var(--p4); background: linear-gradient(to right, var(--p4-light) 0%, white 40%); }
+  .big-event.bg-p5 { border-left-color: var(--p5); background: linear-gradient(to right, var(--p5-light) 0%, white 40%); }
   .big-event.bg-familj { border-left-color: var(--familj); background: linear-gradient(to right, var(--familj-light) 0%, white 40%); }
   .big-event.bg-ovrigt { border-left-color: var(--ovrigt); background: linear-gradient(to right, var(--ovrigt-light) 0%, white 40%); }
 
@@ -1036,7 +1256,7 @@
     border: 1px solid rgba(74, 111, 165, 0.2);
     border-radius: 8px;
     font-size: 13px;
-    color: var(--bob);
+    color: var(--p4);
     text-decoration: none;
     font-weight: 500;
   }
@@ -1118,10 +1338,11 @@
     cursor: pointer;
   }
 
-  .week-event.we-jesper { background: var(--jesper-light); border-left-color: var(--jesper); color: #1a3530; }
-  .week-event.we-tilda  { background: var(--tilda-light);  border-left-color: var(--tilda);  color: var(--accent-deep); }
-  .week-event.we-george { background: var(--george-light); border-left-color: var(--george); color: #6b4e23; }
-  .week-event.we-bob    { background: var(--bob-light);    border-left-color: var(--bob);    color: #2d4666; }
+  .week-event.we-p1 { background: var(--p1-light); border-left-color: var(--p1); color: #1a3530; }
+  .week-event.we-p2 { background: var(--p2-light); border-left-color: var(--p2); color: var(--accent-deep); }
+  .week-event.we-p3 { background: var(--p3-light); border-left-color: var(--p3); color: #6b4e23; }
+  .week-event.we-p4 { background: var(--p4-light); border-left-color: var(--p4); color: #2d4666; }
+  .week-event.we-p5 { background: var(--p5-light); border-left-color: var(--p5); color: var(--p5); }
   .week-event.we-familj { background: var(--familj-light); border-left-color: var(--familj); color: #4a3666; }
   .week-event.we-ovrigt { background: var(--ovrigt-light); border-left-color: var(--ovrigt); color: #5a544c; }
 
@@ -1197,10 +1418,18 @@
     min-height: 50px;
   }
 
+  .inkop-btn {
+    background: var(--accent) !important;
+    color: white !important;
+  }
+
+  .inkop-btn:hover { background: var(--accent-deep) !important; }
+
   @media (max-width: 700px) {
     .fab { display: inline-flex; }
     .container { padding: 16px 14px 100px; }
-    h1 { font-size: 2.4rem; line-height: 1; }
+    h1 { font-size: 2rem; line-height: 1; }
+    .brand-logo { width: 44px; height: 44px; }
     .calendar { padding: 16px; }
     .panel { padding: 18px 16px; }
     input, select, textarea { font-size: 16px !important; min-height: 46px; }
@@ -1212,23 +1441,49 @@
     .main-grid { gap: 16px; }
     .modal-overlay { padding: 0; }
     .modal-card { max-height: 100vh; border-radius: 0; }
+    .login-card h1 { font-size: 2.2rem; }
+    .login-logo { width: 100px; height: 100px; }
   }
 </style>
 </head>
 <body>
- <div class="container">
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="vardagspusslet.png" alt="Vardagspusslet">
+    </div>
+    <h1>Vardags<em>pusslet</em></h1>
+    <p class="login-tagline">Planera. Samordna. Tillsammans.</p>
+    <label>Familjekod</label>
+    <input type="text" id="familyCodeInput" placeholder="t.ex. reis" autocomplete="off" autocapitalize="none">
+    <button class="submit-btn" id="loginBtn">Logga in</button>
+    <div class="login-error hidden" id="loginError">Familjekoden känns inte igen</div>
+    <p class="login-help">Har du ingen kod? Kontakta Jesper.</p>
+  </div>
+</div>
+<!-- MAIN APP -->
+<div class="container hidden" id="appContainer">
 
   <header>
     <div class="brand">
-      <span class="eyebrow">Familjen Reis</span>
-      <h1>Vår <em>planering</em></h1>
+      <div class="brand-row">
+        <div class="brand-logo">
+          <img src="vardagspusslet.png" alt="Vardagspusslet">
+        </div>
+        <div>
+          <span class="eyebrow" id="familyNameLabel">Familjen</span>
+          <h1>Vardags<em>pusslet</em></h1>
+        </div>
+      </div>
     </div>
     <div class="header-right">
       <div class="sync-status" id="syncStatus">
         <span class="sync-dot"></span>
         <span class="sync-text">Synkad</span>
       </div>
-      <a href="inköp/" class="overview-btn" style="background:var(--accent);text-decoration:none;">
+      <a href="inköp/" class="overview-btn inkop-btn">
         <span>🛒 Inköp</span>
         <span style="font-size:14px;">↗</span>
       </a>
@@ -1247,24 +1502,15 @@
     <button class="family-chip active" data-person="all">
       <span class="dot" style="background: var(--ink);"></span> Alla
     </button>
-    <button class="family-chip" data-person="jesper">
-      <span class="dot dot-jesper"></span> Jesper
-    </button>
-    <button class="family-chip" data-person="tilda">
-      <span class="dot dot-tilda"></span> Tilda
-    </button>
-    <button class="family-chip" data-person="george">
-      <span class="dot dot-george"></span> George
-    </button>
-    <button class="family-chip" data-person="bob">
-      <span class="dot dot-bob"></span> Bob
-    </button>
+    <!-- Person filters added dynamically based on family members -->
     <button class="family-chip" data-person="familj">
       <span class="dot dot-familj"></span> Hela familjen
     </button>
     <button class="family-chip" data-person="ovrigt">
       <span class="dot dot-ovrigt"></span> Övrigt
     </button>
+    <button class="members-edit-btn" id="membersEditBtn">Redigera medlemmar</button>
+    <button class="logout-btn" id="logoutBtn">Logga ut</button>
   </div>
 
   <div class="main-grid">
@@ -1308,12 +1554,7 @@
         <div class="form-row">
           <label>Vem? <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-soft);font-size:11px;">(välj en eller flera)</span></label>
           <div class="person-picker" id="personPicker">
-            <div class="person-opt" data-person="jesper"><span class="dot dot-jesper"></span>Jesper</div>
-            <div class="person-opt" data-person="tilda"><span class="dot dot-tilda"></span>Tilda</div>
-            <div class="person-opt" data-person="george"><span class="dot dot-george"></span>George</div>
-            <div class="person-opt" data-person="bob"><span class="dot dot-bob"></span>Bob</div>
-            <div class="person-opt" data-person="familj"><span class="dot dot-familj"></span>Hela familjen</div>
-            <div class="person-opt" data-person="ovrigt"><span class="dot dot-ovrigt"></span>Övrigt</div>
+            <!-- Filled dynamically -->
           </div>
         </div>
 
@@ -1423,7 +1664,7 @@
   </div>
 </div>
 
-<button class="fab" id="fabBtn">
+<button class="fab hidden" id="fabBtn">
   <span style="font-size:24px;line-height:1;">+</span>
   <span>Lägg till</span>
 </button>
@@ -1458,17 +1699,30 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="membersModal">
+  <div class="modal-card modal-card-narrow">
+    <div class="modal-header">
+      <div>
+        <div class="modal-eyebrow">Redigera</div>
+        <h2 class="modal-title">Medlemmar</h2>
+      </div>
+      <button class="modal-close" id="membersCloseBtn">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px;">Skriv namnen på familjens medlemmar. Färgerna sätts automatiskt.</p>
+      <div class="members-list" id="membersListEdit"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-action" id="membersSaveBtn">Spara medlemmar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">Inbokat</div>
 
 <script>
-  const PEOPLE = {
-    jesper:  { name: 'Jesper',  bar: 'bar-jesper',  dot: 'dot-jesper' },
-    tilda:   { name: 'Tilda',   bar: 'bar-tilda',   dot: 'dot-tilda' },
-    george:  { name: 'George',  bar: 'bar-george',  dot: 'dot-george' },
-    bob:     { name: 'Bob',     bar: 'bar-bob',     dot: 'dot-bob' },
-    familj:  { name: 'Familjen',bar: 'bar-familj',  dot: 'dot-familj' },
-    ovrigt:  { name: 'Övrigt',  bar: 'bar-ovrigt',  dot: 'dot-ovrigt' }
-  };
+  const PERSON_KEYS = ['p1', 'p2', 'p3', 'p4', 'p5'];
+  const DEFAULT_NAMES = { p1: 'Person 1', p2: 'Person 2', p3: 'Person 3', p4: 'Person 4', p5: 'Person 5' };
 
   const MONTHS = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
   const DAYS_SV = ['söndag','måndag','tisdag','onsdag','torsdag','fredag','lördag'];
@@ -1488,6 +1742,9 @@
   };
 
   let state = {
+    familyCode: null,
+    familyName: '',
+    members: {},  // { p1: 'Jesper', p2: 'Tilda', ... }
     view: 'month',
     viewYear: new Date().getFullYear(),
     viewMonth: new Date().getMonth(),
@@ -1500,23 +1757,109 @@
     events: []
   };
 
-  let eventsRef = null;
-  let suppressFirebaseUpdate = false;
-  const FALLBACK_KEY = 'familjekalender_fallback';
+  // PERSON LOOKUP — dynamically built from members
+  function getPersonMap() {
+    const map = {};
+    PERSON_KEYS.forEach((k, idx) => {
+      const name = state.members[k];
+      if (name) {
+        map[k] = { name, bar: `bar-${k}`, dot: `dot-${k}` };
+      }
+    });
+    map.familj = { name: 'Familjen', bar: 'bar-familj', dot: 'dot-familj' };
+    map.ovrigt = { name: 'Övrigt', bar: 'bar-ovrigt', dot: 'dot-ovrigt' };
+    return map;
+  }
 
-  function getRef() {
+  function getActivePersonKeys() {
+    return PERSON_KEYS.filter(k => state.members[k]);
+  }
+
+  // STORAGE
+  let eventsRef = null;
+  let membersRef = null;
+  let suppressFirebaseUpdate = false;
+
+  function getEventsRef() {
     if (eventsRef) return eventsRef;
-    if (window.firebaseReady && window.db) {
-      eventsRef = window.db.ref('events');
+    if (window.firebaseReady && window.db && state.familyCode) {
+      eventsRef = window.db.ref(`families/${state.familyCode}/events`);
       return eventsRef;
     }
     return null;
   }
 
+  function getMembersRef() {
+    if (membersRef) return membersRef;
+    if (window.firebaseReady && window.db && state.familyCode) {
+      membersRef = window.db.ref(`families/${state.familyCode}/members`);
+      return membersRef;
+    }
+    return null;
+  }
+
+  async function migrateLegacyDataIfNeeded() {
+    // For 'reis' family - migrate existing root-level events to families/reis/events
+    if (state.familyCode !== 'reis' || !window.firebaseReady) return;
+    try {
+      const legacyRef = window.db.ref('events');
+      const newRef = window.db.ref('families/reis/events');
+      const snap = await newRef.once('value');
+      if (snap.exists() && Object.keys(snap.val() || {}).length > 0) return; // Already migrated
+      const legacySnap = await legacyRef.once('value');
+      if (!legacySnap.exists()) return;
+      await newRef.set(legacySnap.val());
+      console.log('Migration: events copied to families/reis/events');
+    } catch (e) { console.error('Migration failed', e); }
+  }
+
+  async function loadMembers() {
+    const ref = getMembersRef();
+    if (!ref) return;
+    try {
+      const snap = await ref.once('value');
+      if (snap.exists()) {
+        state.members = snap.val();
+      } else {
+        // First-time setup — use defaults based on FAMILIES config
+        const familyDef = window.FAMILIES[state.familyCode];
+        if (familyDef && familyDef.members) {
+          const m = {};
+          familyDef.members.forEach((name, i) => {
+            const key = PERSON_KEYS[i];
+            if (key) m[key] = name.charAt(0).toUpperCase() + name.slice(1);
+          });
+          state.members = m;
+        } else {
+          state.members = { p1: 'Person 1', p2: 'Person 2' };
+        }
+        await ref.set(state.members);
+      }
+
+      ref.on('value', (snap) => {
+        if (suppressFirebaseUpdate) return;
+        if (snap.exists()) {
+          state.members = snap.val();
+          rebuildPersonUI();
+        }
+      });
+    } catch (e) { console.error(e); }
+  }
+
+  async function saveMembers() {
+    const ref = getMembersRef();
+    if (!ref) return;
+    try {
+      suppressFirebaseUpdate = true;
+      await ref.set(state.members);
+      setTimeout(() => { suppressFirebaseUpdate = false; }, 500);
+    } catch (e) { console.error(e); suppressFirebaseUpdate = false; }
+  }
+
   async function loadEvents() {
-    const ref = getRef();
+    const ref = getEventsRef();
     if (!ref) {
-      try { state.events = JSON.parse(localStorage.getItem(FALLBACK_KEY) || '[]'); } catch(e) { state.events = []; }
+      state.events = [];
       return;
     }
     return new Promise((resolve) => {
@@ -1540,11 +1883,8 @@
   async function saveEvent(ev) {
     const idx = state.events.findIndex(e => e.id === ev.id);
     if (idx === -1) state.events.push(ev); else state.events[idx] = ev;
-    const ref = getRef();
-    if (!ref) {
-      try { localStorage.setItem(FALLBACK_KEY, JSON.stringify(state.events)); } catch(e) {}
-      return;
-    }
+    const ref = getEventsRef();
+    if (!ref) return;
     try {
       suppressFirebaseUpdate = true;
       await ref.child(ev.id).set(ev);
@@ -1554,11 +1894,8 @@
 
   async function deleteEventById(id) {
     state.events = state.events.filter(e => e.id !== id);
-    const ref = getRef();
-    if (!ref) {
-      try { localStorage.setItem(FALLBACK_KEY, JSON.stringify(state.events)); } catch(e) {}
-      return;
-    }
+    const ref = getEventsRef();
+    if (!ref) return;
     try {
       suppressFirebaseUpdate = true;
       await ref.child(id).remove();
@@ -1571,7 +1908,7 @@
     const textEl = statusEl.querySelector('.sync-text');
     if (window.firebaseFailed || !window.firebaseReady) {
       statusEl.classList.add('offline');
-      textEl.textContent = 'Offline (lokalt)';
+      textEl.textContent = 'Offline';
       return;
     }
     const connectedRef = window.db.ref('.info/connected');
@@ -1584,6 +1921,165 @@
         textEl.textContent = 'Offline';
       }
     });
+  }
+
+  // LOGIN
+  function checkSavedLogin() {
+    const saved = localStorage.getItem('vardagspusslet_family');
+    if (saved && window.FAMILIES[saved]) {
+      state.familyCode = saved;
+      state.familyName = window.FAMILIES[saved].name;
+      showApp();
+      return true;
+    }
+    return false;
+  }
+
+  function attemptLogin(code) {
+    code = code.trim().toLowerCase();
+    if (!code) return false;
+    if (window.FAMILIES[code]) {
+      state.familyCode = code;
+      state.familyName = window.FAMILIES[code].name;
+      localStorage.setItem('vardagspusslet_family', code);
+      showApp();
+      return true;
+    }
+    return false;
+  }
+
+  function logout() {
+    if (!confirm('Logga ut från ' + state.familyName + '?')) return;
+    localStorage.removeItem('vardagspusslet_family');
+    location.reload();
+  }
+
+  async function showApp() {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appContainer').classList.remove('hidden');
+    document.getElementById('fabBtn').classList.remove('hidden');
+    document.getElementById('familyNameLabel').textContent = state.familyName;
+
+    setupSyncStatus();
+    await migrateLegacyDataIfNeeded();
+    await loadMembers();
+    rebuildPersonUI();
+    renderTodayDate();
+    selectDate(dateKey(new Date()));
+    refreshCalendar();
+    renderEventList();
+    await loadEvents();
+    refreshCalendar();
+    renderEventList();
+  }
+
+  // BUILD PERSON UI based on members
+  function rebuildPersonUI() {
+    const filters = document.getElementById('familyFilters');
+    const picker = document.getElementById('personPicker');
+
+    // Remove old dynamic person filters/options (keep "Alla", "familj", "ovrigt", and buttons)
+    filters.querySelectorAll('.family-chip[data-person]:not([data-person="all"]):not([data-person="familj"]):not([data-person="ovrigt"])').forEach(el => el.remove());
+    picker.innerHTML = '';
+
+    // Add person filter chips
+    const familjChip = filters.querySelector('[data-person="familj"]');
+    PERSON_KEYS.forEach(k => {
+      const name = state.members[k];
+      if (!name) return;
+      const chip = document.createElement('button');
+      chip.className = 'family-chip';
+      chip.dataset.person = k;
+      chip.innerHTML = `<span class="dot dot-${k}"></span> ${escapeHtml(name)}`;
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#familyFilters .family-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        state.filterPerson = k;
+        refreshCalendar();
+        renderEventList();
+      });
+      filters.insertBefore(chip, familjChip);
+    });
+
+    // Add person picker options
+    PERSON_KEYS.forEach(k => {
+      const name = state.members[k];
+      if (!name) return;
+      const opt = document.createElement('div');
+      opt.className = 'person-opt';
+      opt.dataset.person = k;
+      opt.innerHTML = `<span class="dot dot-${k}"></span>${escapeHtml(name)}`;
+      opt.addEventListener('click', () => togglePersonInForm(k, opt));
+      picker.appendChild(opt);
+    });
+
+    // Add familj + ovrigt to picker
+    const familjOpt = document.createElement('div');
+    familjOpt.className = 'person-opt';
+    familjOpt.dataset.person = 'familj';
+    familjOpt.innerHTML = '<span class="dot dot-familj"></span>Hela familjen';
+    familjOpt.addEventListener('click', () => togglePersonInForm('familj', familjOpt));
+    picker.appendChild(familjOpt);
+
+    const ovrigtOpt = document.createElement('div');
+    ovrigtOpt.className = 'person-opt';
+    ovrigtOpt.dataset.person = 'ovrigt';
+    ovrigtOpt.innerHTML = '<span class="dot dot-ovrigt"></span>Övrigt';
+    ovrigtOpt.addEventListener('click', () => togglePersonInForm('ovrigt', ovrigtOpt));
+    picker.appendChild(ovrigtOpt);
+  }
+
+  function togglePersonInForm(person, optEl) {
+    if (state.formPersons.includes(person)) {
+      state.formPersons = state.formPersons.filter(p => p !== person);
+      optEl.classList.remove('selected');
+    } else {
+      state.formPersons.push(person);
+      optEl.classList.add('selected');
+    }
+    const nameRow = document.getElementById('ovrigtNameRow');
+    if (state.formPersons.includes('ovrigt')) nameRow.classList.remove('hidden');
+    else { nameRow.classList.add('hidden'); document.getElementById('ovrigtName').value = ''; }
+  }
+
+  // MEMBERS EDIT MODAL
+  function openMembersModal() {
+    const list = document.getElementById('membersListEdit');
+    list.innerHTML = '';
+    const colors = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)', 'var(--p5)'];
+    PERSON_KEYS.forEach((k, i) => {
+      const row = document.createElement('div');
+      row.className = 'member-row';
+      row.innerHTML = `
+        <div class="member-color" style="background:${colors[i]};"></div>
+        <input type="text" data-member-key="${k}" placeholder="Person ${i+1} (lämna tomt om inte använd)" value="${escapeHtml(state.members[k] || '')}">
+      `;
+      list.appendChild(row);
+    });
+    document.getElementById('membersModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  async function saveMembersFromModal() {
+    const inputs = document.querySelectorAll('#membersListEdit input');
+    const newMembers = {};
+    inputs.forEach(input => {
+      const k = input.dataset.memberKey;
+      const v = input.value.trim();
+      if (v) newMembers[k] = v;
+    });
+    state.members = newMembers;
+    await saveMembers();
+    closeMembersModal();
+    rebuildPersonUI();
+    refreshCalendar();
+    renderEventList();
+    showToast('Medlemmar sparade');
+  }
+
+  function closeMembersModal() {
+    document.getElementById('membersModal').classList.remove('show');
+    document.body.style.overflow = '';
   }
 
   function renderTodayDate() {
@@ -1663,27 +2159,21 @@
     }
     renderEventList();
   }
-
   function renderCalendar() {
     const monthLabel = document.getElementById('monthLabel');
     monthLabel.innerHTML = `${MONTHS[state.viewMonth]}<span class="year">${state.viewYear}</span>`;
-
     const grid = document.getElementById('daysGrid');
     grid.innerHTML = '';
-
     const firstDay = new Date(state.viewYear, state.viewMonth, 1);
     const lastDay = new Date(state.viewYear, state.viewMonth + 1, 0);
     let startOffset = firstDay.getDay() - 1;
     if (startOffset < 0) startOffset = 6;
-
     for (let i = 0; i < startOffset; i++) {
       const empty = document.createElement('div');
       empty.className = 'day empty';
       grid.appendChild(empty);
     }
-
     const todayKey = dateKey(new Date());
-
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const cellDate = new Date(state.viewYear, state.viewMonth, d);
       const key = dateKey(cellDate);
@@ -1691,35 +2181,27 @@
       cell.className = 'day';
       if (key === todayKey) cell.classList.add('today');
       if (state.selectedDate === key) cell.classList.add('selected');
-
       const num = document.createElement('div');
       num.className = 'day-num';
       num.textContent = d;
       cell.appendChild(num);
-
       const dayEvents = state.events.filter(e => e.date === key &&
         (state.filterPerson === 'all' || e.person === state.filterPerson));
-
       if (dayEvents.length > 0) {
         const pillsWrap = document.createElement('div');
         pillsWrap.className = 'day-events';
         const sorted = [...dayEvents].sort((a, b) => (a.start || '').localeCompare(b.start || ''));
         const visible = sorted.slice(0, 3);
         const overflow = sorted.length - 3;
-
         visible.forEach(ev => {
           const pill = document.createElement('div');
           pill.className = `event-pill pill-${ev.person}`;
           let label = ev.title;
           if (ev.person === 'ovrigt' && ev.ovrigtName) label = `${ev.ovrigtName}: ${ev.title}`;
           pill.innerHTML = `<span class="pill-title">${escapeHtml(label)}</span>`;
-          pill.addEventListener('click', (e) => {
-            e.stopPropagation();
-            openDayModal(key);
-          });
+          pill.addEventListener('click', (e) => { e.stopPropagation(); openDayModal(key); });
           pillsWrap.appendChild(pill);
         });
-
         if (overflow > 0) {
           const cnt = document.createElement('div');
           cnt.className = 'event-count';
@@ -1728,7 +2210,6 @@
         }
         cell.appendChild(pillsWrap);
       }
-
       cell.addEventListener('click', () => {
         if (state.selectedDate === key) openDayModal(key);
         else selectDate(key);
@@ -1739,20 +2220,17 @@
 
   function renderWeek() {
     const monthLabel = document.getElementById('monthLabel');
-    const anchorParts = (state.weekAnchor || dateKey(new Date())).split('-').map(Number);
-    const anchorDate = new Date(anchorParts[0], anchorParts[1]-1, anchorParts[2]);
+    const ap = (state.weekAnchor || dateKey(new Date())).split('-').map(Number);
+    const anchorDate = new Date(ap[0], ap[1]-1, ap[2]);
     const weekStart = startOfWeek(anchorDate);
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
-
     monthLabel.innerHTML = `${weekStart.getDate()}–${weekEnd.getDate()} ${MONTHS[weekStart.getMonth()].slice(0,3)} <span class="year">${weekStart.getFullYear()}</span>`;
-
     const view = document.getElementById('weekView');
     view.innerHTML = '';
     const grid = document.createElement('div');
     grid.className = 'week-grid';
     const todayKey = dateKey(new Date());
-
     for (let i = 0; i < 7; i++) {
       const cellDate = new Date(weekStart);
       cellDate.setDate(weekStart.getDate() + i);
@@ -1760,17 +2238,14 @@
       const cell = document.createElement('div');
       cell.className = 'week-day';
       if (key === todayKey) cell.classList.add('today');
-
       const header = document.createElement('div');
       header.className = 'week-day-header';
       header.innerHTML = `<div class="week-day-name">${DAYS_SV[cellDate.getDay()].slice(0,3)}</div><div class="week-day-num">${cellDate.getDate()}</div>`;
       cell.appendChild(header);
-
       const dayEvents = state.events.filter(e => e.date === key &&
         (state.filterPerson === 'all' || e.person === state.filterPerson));
       const eventsWrap = document.createElement('div');
       eventsWrap.className = 'week-events';
-
       const sorted = [...dayEvents].sort((a, b) => (a.start || '').localeCompare(b.start || ''));
       sorted.slice(0, 6).forEach(ev => {
         const item = document.createElement('div');
@@ -1818,11 +2293,12 @@
     const list = document.getElementById('eventList');
     const titleEl = document.getElementById('listTitle');
     const subEl = document.getElementById('listSub');
+    const PEOPLE = getPersonMap();
     let events;
 
     if (state.selectedDate) {
       titleEl.textContent = formatDateLabel(state.selectedDate);
-      subEl.textContent = state.filterPerson === 'all' ? 'Allt den här dagen' : `Bara ${PEOPLE[state.filterPerson].name}`;
+      subEl.textContent = state.filterPerson === 'all' ? 'Allt den här dagen' : `Bara ${PEOPLE[state.filterPerson]?.name || ''}`;
       events = state.events.filter(e => e.date === state.selectedDate &&
         (state.filterPerson === 'all' || e.person === state.filterPerson));
     } else {
@@ -1857,8 +2333,9 @@
     events.forEach(ev => {
       const item = document.createElement('div');
       item.className = 'event-item';
+      const personData = PEOPLE[ev.person];
       const bar = document.createElement('div');
-      bar.className = `event-bar ${PEOPLE[ev.person].bar}`;
+      bar.className = `event-bar ${personData?.bar || 'bar-ovrigt'}`;
       item.appendChild(bar);
 
       const body = document.createElement('div');
@@ -1872,7 +2349,7 @@
       meta.className = 'event-meta';
       const personTag = document.createElement('span');
       personTag.className = 'person-tag';
-      personTag.textContent = (ev.person === 'ovrigt' && ev.ovrigtName) ? ev.ovrigtName : PEOPLE[ev.person].name;
+      personTag.textContent = (ev.person === 'ovrigt' && ev.ovrigtName) ? ev.ovrigtName : (personData?.name || 'Okänd');
       personTag.style.color = `var(--${ev.person})`;
       meta.appendChild(personTag);
 
@@ -1910,25 +2387,23 @@
 
       const actions = document.createElement('div');
       actions.className = 'item-actions';
-
       const edit = document.createElement('button');
       edit.className = 'icon-btn';
       edit.innerHTML = '✎';
       edit.title = 'Redigera';
       edit.addEventListener('click', () => startEditingEvent(ev));
       actions.appendChild(edit);
-
       const del = document.createElement('button');
       del.className = 'icon-btn delete';
       del.innerHTML = '×';
       del.title = 'Ta bort';
       del.addEventListener('click', () => handleDeleteEvent(ev));
       actions.appendChild(del);
-
       item.appendChild(actions);
       list.appendChild(item);
     });
   }
+
   async function handleDeleteEvent(ev) {
     if (!confirm(`Ta bort "${ev.title}"?`)) return;
     const groupAll = ev.groupId ? state.events.filter(e => e.groupId === ev.groupId && e.person === ev.person) : [ev];
@@ -1951,18 +2426,15 @@
     document.getElementById('ovrigtName').value = ev.ovrigtName || '';
     document.getElementById('allDayToggle').checked = !!ev.allDay;
     document.getElementById('timeFields').classList.toggle('hidden', !!ev.allDay);
-
     state.formPersons = [ev.person];
     document.querySelectorAll('#personPicker .person-opt').forEach(o => {
       o.classList.toggle('selected', o.dataset.person === ev.person);
     });
     document.getElementById('ovrigtNameRow').classList.toggle('hidden', ev.person !== 'ovrigt');
-
     document.getElementById('formTitle').textContent = 'Redigerar';
     document.getElementById('addBtn').textContent = 'Spara ändringar';
     document.getElementById('cancelEditBtn').classList.remove('hidden');
     document.getElementById('formPanel').classList.add('editing');
-
     document.getElementById('formPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => document.getElementById('eventTitle').focus(), 300);
   }
@@ -1970,10 +2442,8 @@
   async function saveEdits() {
     const ev = state.events.find(e => e.id === state.editingEventId);
     if (!ev) { cancelEditing(); return; }
-
     const title = document.getElementById('eventTitle').value.trim();
     if (!title) { showToast('Skriv vad'); return; }
-
     ev.title = title;
     ev.start = document.getElementById('allDayToggle').checked ? '' : document.getElementById('eventStart').value;
     ev.end = document.getElementById('allDayToggle').checked ? '' : document.getElementById('eventEnd').value;
@@ -1982,7 +2452,6 @@
     ev.reminder = document.getElementById('eventReminder').value;
     ev.allDay = document.getElementById('allDayToggle').checked;
     if (ev.person === 'ovrigt') ev.ovrigtName = document.getElementById('ovrigtName').value.trim();
-
     await saveEvent(ev);
     cancelEditing();
     refreshCalendar();
@@ -1993,13 +2462,7 @@
   function cancelEditing() {
     state.editingEventId = null;
     state.formPersons = [];
-    document.getElementById('eventTitle').value = '';
-    document.getElementById('eventStart').value = '';
-    document.getElementById('eventEnd').value = '';
-    document.getElementById('eventNotes').value = '';
-    document.getElementById('eventAddress').value = '';
-    document.getElementById('eventReminder').value = '';
-    document.getElementById('ovrigtName').value = '';
+    ['eventTitle','eventStart','eventEnd','eventNotes','eventAddress','eventReminder','ovrigtName'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('ovrigtNameRow').classList.add('hidden');
     document.getElementById('allDayToggle').checked = false;
     document.getElementById('timeFields').classList.remove('hidden');
@@ -2018,7 +2481,6 @@
     if (new Date(endDate) < new Date(startDate)) { showToast('Till-datum kan inte vara före från-datum'); return; }
     const title = document.getElementById('eventTitle').value.trim();
     if (!title) { showToast('Skriv vad'); return; }
-
     const allDay = document.getElementById('allDayToggle').checked;
     const start = allDay ? '' : document.getElementById('eventStart').value;
     const end = allDay ? '' : document.getElementById('eventEnd').value;
@@ -2027,15 +2489,12 @@
     const reminder = document.getElementById('eventReminder').value;
     const ovrigtName = document.getElementById('ovrigtName').value.trim();
     const repeat = document.getElementById('eventRepeat').value;
-
-    // Calculate occurrence count based on mode
     let occurrenceCount = 1;
     if (repeat) {
       if (state.repeatMode === 'until') {
         const untilDate = document.getElementById('eventRepeatUntil').value;
         if (!untilDate) { showToast('Välj slutdatum'); return; }
         if (new Date(untilDate) < new Date(startDate)) { showToast('Slutdatum kan inte vara före startdatum'); return; }
-        // Count occurrences between start and until
         let count = 0;
         let cur = startDate;
         while (cur <= untilDate && count < 500) {
@@ -2050,18 +2509,14 @@
         occurrenceCount = parseInt(document.getElementById('eventRepeatCount').value, 10) || 1;
       }
     }
-
     const seriesId = repeat ? (Date.now().toString() + Math.random().toString(36).slice(2,7)) : null;
-
     for (let occ = 0; occ < occurrenceCount; occ++) {
       let occStart = startDate, occEnd = endDate;
       if (repeat === 'weekly') { occStart = shiftDateKey(startDate, occ*7); occEnd = shiftDateKey(endDate, occ*7); }
       else if (repeat === 'biweekly') { occStart = shiftDateKey(startDate, occ*14); occEnd = shiftDateKey(endDate, occ*14); }
       else if (repeat === 'monthly') { occStart = shiftDateKeyMonths(startDate, occ); occEnd = shiftDateKeyMonths(endDate, occ); }
-
       const groupId = (Date.now() + occ).toString() + Math.random().toString(36).slice(2,7);
       const dates = datesBetween(occStart, occEnd);
-
       for (const person of state.formPersons) {
         for (let i = 0; i < dates.length; i++) {
           const d = dates[i];
@@ -2079,31 +2534,22 @@
         }
       }
     }
-
-    document.getElementById('eventTitle').value = '';
-    document.getElementById('eventStart').value = '';
-    document.getElementById('eventEnd').value = '';
-    document.getElementById('eventNotes').value = '';
-    document.getElementById('eventAddress').value = '';
-    document.getElementById('eventReminder').value = '';
-    document.getElementById('ovrigtName').value = '';
+    ['eventTitle','eventStart','eventEnd','eventNotes','eventAddress','eventReminder','ovrigtName'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('ovrigtNameRow').classList.add('hidden');
     document.getElementById('eventRepeat').value = '';
     document.getElementById('repeatCountRow').classList.add('hidden');
     document.getElementById('allDayToggle').checked = false;
     document.getElementById('timeFields').classList.remove('hidden');
     document.querySelectorAll('#personPicker .person-opt').forEach(o => o.classList.remove('selected'));
-
-    const names = state.formPersons.map(p => PEOPLE[p].name).join(', ');
+    const PEOPLE = getPersonMap();
+    const names = state.formPersons.map(p => PEOPLE[p]?.name || p).join(', ');
     state.formPersons = [];
     refreshCalendar();
     renderEventList();
     showToast(`Inbokat för ${names}`);
   }
 
-  // DAY MODAL
   let modalCurrentDate = null;
-
   function openDayModal(key) {
     modalCurrentDate = key;
     selectDate(key);
@@ -2111,39 +2557,33 @@
     document.getElementById('dayModal').classList.add('show');
     document.body.style.overflow = 'hidden';
   }
-
   function closeDayModal() {
     document.getElementById('dayModal').classList.remove('show');
     document.body.style.overflow = '';
     modalCurrentDate = null;
   }
-
   function renderDayModal() {
     if (!modalCurrentDate) return;
     const [y, m, d] = modalCurrentDate.split('-').map(Number);
     const date = new Date(y, m-1, d);
     document.getElementById('modalDay').textContent = DAYS_SV[date.getDay()];
     document.getElementById('modalDate').textContent = `${d} ${MONTHS[m-1]}`;
-
     const body = document.getElementById('modalBody');
     body.innerHTML = '';
-
     const dayEvents = state.events.filter(e => e.date === modalCurrentDate &&
       (state.filterPerson === 'all' || e.person === state.filterPerson));
-
     if (dayEvents.length === 0) {
       body.innerHTML = `<div class="empty-state"><div class="display">Inget inbokat</div></div>`;
       return;
     }
-
     const sorted = [...dayEvents].sort((a, b) => (a.start || '').localeCompare(b.start || ''));
     sorted.forEach(ev => body.appendChild(renderBigEvent(ev)));
   }
 
   function renderBigEvent(ev) {
+    const PEOPLE = getPersonMap();
     const card = document.createElement('div');
     card.className = `big-event bg-${ev.person}`;
-
     const timeCol = document.createElement('div');
     if (ev.start && !ev.allDay) {
       timeCol.className = 'big-event-time';
@@ -2153,14 +2593,12 @@
       timeCol.textContent = 'heldag';
     }
     card.appendChild(timeCol);
-
     const body = document.createElement('div');
     body.className = 'big-event-body';
     const title = document.createElement('div');
     title.className = 'big-event-title';
     title.textContent = ev.title;
     body.appendChild(title);
-
     const meta = document.createElement('div');
     meta.className = 'big-event-meta';
     const tag = document.createElement('span');
@@ -2168,11 +2606,10 @@
     tag.style.textTransform = 'uppercase';
     tag.style.fontSize = '10px';
     tag.style.letterSpacing = '0.1em';
-    tag.textContent = (ev.person === 'ovrigt' && ev.ovrigtName) ? ev.ovrigtName : PEOPLE[ev.person].name;
+    tag.textContent = (ev.person === 'ovrigt' && ev.ovrigtName) ? ev.ovrigtName : (PEOPLE[ev.person]?.name || 'Okänd');
     tag.style.color = `var(--${ev.person})`;
     meta.appendChild(tag);
     body.appendChild(meta);
-
     if (ev.notes) {
       const n = document.createElement('div');
       n.className = 'big-event-notes';
@@ -2189,10 +2626,8 @@
       body.appendChild(a);
     }
     card.appendChild(body);
-
     const actions = document.createElement('div');
     actions.className = 'big-event-actions';
-
     const edit = document.createElement('button');
     edit.className = 'icon-btn';
     edit.innerHTML = '✎';
@@ -2200,7 +2635,6 @@
     edit.title = 'Redigera';
     edit.addEventListener('click', () => { closeDayModal(); startEditingEvent(ev); });
     actions.appendChild(edit);
-
     const del = document.createElement('button');
     del.className = 'icon-btn delete';
     del.innerHTML = '×';
@@ -2208,35 +2642,33 @@
     del.title = 'Ta bort';
     del.addEventListener('click', async () => { await handleDeleteEvent(ev); renderDayModal(); });
     actions.appendChild(del);
-
     card.appendChild(actions);
     return card;
   }
 
-  // OVERVIEW
-  let overviewActivePerson = 'jesper';
-
+  let overviewActivePerson = 'p1';
   function openOverview() {
+    overviewActivePerson = getActivePersonKeys()[0] || 'familj';
     document.getElementById('overviewModal').classList.add('show');
     document.body.style.overflow = 'hidden';
     renderOverviewTabs();
     renderOverviewBody();
   }
-
   function closeOverview() {
     document.getElementById('overviewModal').classList.remove('show');
     document.body.style.overflow = '';
   }
-
   function renderOverviewTabs() {
     const tabsEl = document.getElementById('overviewTabs');
     tabsEl.innerHTML = '';
     const todayKey = dateKey(new Date());
-    ['jesper','tilda','george','bob','familj','ovrigt'].forEach(p => {
+    const PEOPLE = getPersonMap();
+    const personKeys = [...getActivePersonKeys(), 'familj', 'ovrigt'];
+    personKeys.forEach(p => {
       const count = state.events.filter(e => e.person === p && e.date >= todayKey).length;
       const tab = document.createElement('button');
       tab.className = 'overview-tab' + (overviewActivePerson === p ? ' active' : '');
-      tab.innerHTML = `<span class="dot ${PEOPLE[p].dot}"></span><span>${PEOPLE[p].name}</span><span style="font-size:10px;color:var(--ink-soft);">(${count})</span>`;
+      tab.innerHTML = `<span class="dot ${PEOPLE[p]?.dot || 'dot-ovrigt'}"></span><span>${PEOPLE[p]?.name || p}</span><span style="font-size:10px;color:var(--ink-soft);">(${count})</span>`;
       tab.addEventListener('click', () => {
         overviewActivePerson = p;
         renderOverviewTabs();
@@ -2245,19 +2677,16 @@
       tabsEl.appendChild(tab);
     });
   }
-
   function renderOverviewBody() {
     const body = document.getElementById('overviewBody');
     body.innerHTML = '';
     const todayKey = dateKey(new Date());
     const events = state.events.filter(e => e.person === overviewActivePerson && e.date >= todayKey);
     events.sort((a, b) => a.date.localeCompare(b.date));
-
     if (events.length === 0) {
       body.innerHTML = `<div class="empty-state"><div class="display">Inget inbokat</div></div>`;
       return;
     }
-
     events.forEach(ev => {
       const [y, m, d] = ev.date.split('-').map(Number);
       const row = document.createElement('div');
@@ -2296,6 +2725,23 @@
   }
 
   // EVENT LISTENERS
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const code = document.getElementById('familyCodeInput').value;
+    if (!attemptLogin(code)) {
+      document.getElementById('loginError').classList.remove('hidden');
+    }
+  });
+  document.getElementById('familyCodeInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('loginBtn').click();
+  });
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('membersEditBtn').addEventListener('click', openMembersModal);
+  document.getElementById('membersCloseBtn').addEventListener('click', closeMembersModal);
+  document.getElementById('membersSaveBtn').addEventListener('click', saveMembersFromModal);
+  document.getElementById('membersModal').addEventListener('click', (e) => {
+    if (e.target.id === 'membersModal') closeMembersModal();
+  });
+
   document.getElementById('prevBtn').addEventListener('click', () => {
     if (state.view === 'week') {
       const ap = (state.weekAnchor || dateKey(new Date())).split('-').map(Number);
@@ -2309,7 +2755,6 @@
       renderCalendar();
     }
   });
-
   document.getElementById('nextBtn').addEventListener('click', () => {
     if (state.view === 'week') {
       const ap = (state.weekAnchor || dateKey(new Date())).split('-').map(Number);
@@ -2323,7 +2768,6 @@
       renderCalendar();
     }
   });
-
   document.getElementById('todayBtn').addEventListener('click', () => {
     const t = new Date();
     state.viewYear = t.getFullYear();
@@ -2331,55 +2775,46 @@
     state.weekAnchor = dateKey(t);
     selectDate(dateKey(t));
   });
-
   document.querySelectorAll('.view-btn').forEach(btn => {
     btn.addEventListener('click', () => setView(btn.dataset.view));
   });
 
-  document.querySelectorAll('#familyFilters .family-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('#familyFilters .family-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      state.filterPerson = chip.dataset.person;
-      refreshCalendar();
-      renderEventList();
-    });
+  document.querySelector('[data-person="all"]').addEventListener('click', (e) => {
+    document.querySelectorAll('#familyFilters .family-chip').forEach(c => c.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+    state.filterPerson = 'all';
+    refreshCalendar();
+    renderEventList();
   });
-
-  document.querySelectorAll('#personPicker .person-opt').forEach(opt => {
-    opt.addEventListener('click', () => {
-      const person = opt.dataset.person;
-      if (state.formPersons.includes(person)) {
-        state.formPersons = state.formPersons.filter(p => p !== person);
-        opt.classList.remove('selected');
-      } else {
-        state.formPersons.push(person);
-        opt.classList.add('selected');
-      }
-      const nameRow = document.getElementById('ovrigtNameRow');
-      if (state.formPersons.includes('ovrigt')) nameRow.classList.remove('hidden');
-      else { nameRow.classList.add('hidden'); document.getElementById('ovrigtName').value = ''; }
-    });
+  document.querySelector('[data-person="familj"]').addEventListener('click', (e) => {
+    document.querySelectorAll('#familyFilters .family-chip').forEach(c => c.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+    state.filterPerson = 'familj';
+    refreshCalendar();
+    renderEventList();
+  });
+  document.querySelector('[data-person="ovrigt"]').addEventListener('click', (e) => {
+    document.querySelectorAll('#familyFilters .family-chip').forEach(c => c.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+    state.filterPerson = 'ovrigt';
+    refreshCalendar();
+    renderEventList();
   });
 
   document.getElementById('addBtn').addEventListener('click', () => {
     if (state.editingEventId) saveEdits();
     else addEvent();
   });
-
   document.getElementById('cancelEditBtn').addEventListener('click', cancelEditing);
-
   document.getElementById('overviewBtn').addEventListener('click', openOverview);
   document.getElementById('overviewCloseBtn').addEventListener('click', closeOverview);
   document.getElementById('overviewModal').addEventListener('click', (e) => {
     if (e.target.id === 'overviewModal') closeOverview();
   });
-
   document.getElementById('modalCloseBtn').addEventListener('click', closeDayModal);
   document.getElementById('dayModal').addEventListener('click', (e) => {
     if (e.target.id === 'dayModal') closeDayModal();
   });
-
   document.getElementById('modalAddBtn').addEventListener('click', () => {
     closeDayModal();
     setTimeout(() => {
@@ -2387,23 +2822,19 @@
       document.getElementById('eventTitle').focus();
     }, 100);
   });
-
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (document.getElementById('dayModal').classList.contains('show')) closeDayModal();
       else if (document.getElementById('overviewModal').classList.contains('show')) closeOverview();
+      else if (document.getElementById('membersModal').classList.contains('show')) closeMembersModal();
     }
   });
-
   document.getElementById('allDayToggle').addEventListener('change', (e) => {
     document.getElementById('timeFields').classList.toggle('hidden', e.target.checked);
   });
-
   document.getElementById('eventRepeat').addEventListener('change', (e) => {
     document.getElementById('repeatCountRow').classList.toggle('hidden', !e.target.value);
   });
-
-  // Repeat mode toggle (count vs until)
   document.querySelectorAll('.repeat-mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.repeat-mode-btn').forEach(b => b.classList.remove('active'));
@@ -2413,21 +2844,16 @@
       document.getElementById('eventRepeatUntil').classList.toggle('hidden', btn.dataset.mode !== 'until');
     });
   });
-
   document.getElementById('fabBtn').addEventListener('click', () => {
     document.getElementById('formPanel').scrollIntoView({ behavior: 'smooth' });
     setTimeout(() => document.getElementById('eventTitle').focus(), 400);
   });
 
+  // BOOT
   (async () => {
-    renderTodayDate();
-    setupSyncStatus();
-    selectDate(dateKey(new Date()));
-    refreshCalendar();
-    renderEventList();
-    await loadEvents();
-    refreshCalendar();
-    renderEventList();
+    if (!checkSavedLogin()) {
+      document.getElementById('familyCodeInput').focus();
+    }
   })();
 </script>
 
