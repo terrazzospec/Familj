@@ -17,6 +17,7 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 <script>
   function initFirebase() {
     if (typeof firebase === 'undefined') {
@@ -36,6 +37,7 @@
     try {
       firebase.initializeApp(firebaseConfig);
       window.db = firebase.database();
+      try { window.messaging = firebase.messaging(); } catch(e) { console.warn('Messaging init failed', e); }
       window.firebaseReady = true;
     } catch (e) {
       console.error('Firebase init failed', e);
@@ -2023,6 +2025,7 @@
     await loadEvents();
     refreshCalendar();
     renderEventList();
+    setupPushNotifications();
   }
 
   // BUILD PERSON UI based on members
@@ -2938,6 +2941,80 @@
     setTimeout(() => document.getElementById('eventTitle').focus(), 400);
   });
 
+ // ============ PUSH NOTIFICATIONS ============
+  const VAPID_KEY = 'BH2WJwt8Ysszywh11vwjo47DF6FOSZRcw9FRdhbWw55oR-ZJXLZb-mSmI7ZTkauE633frW84tJIBP_g2Te3jjog';
+
+  async function setupPushNotifications() {
+    if (!('serviceWorker' in navigator) || !('Notification' in window) || !window.messaging) {
+      console.log('Push not supported');
+      return;
+    }
+
+    try {
+      const swReg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+      console.log('Service Worker registered:', swReg.scope);
+
+      if (Notification.permission === 'denied') {
+        console.log('Notifications denied');
+        return;
+      }
+
+      if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          console.log('Permission not granted');
+          return;
+        }
+      }
+
+      const token = await window.messaging.getToken({
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: swReg
+      });
+
+      if (token) {
+        console.log('FCM token obtained');
+        await saveFcmToken(token);
+      }
+
+      window.messaging.onMessage((payload) => {
+        console.log('Foreground message:', payload);
+        const title = payload.notification?.title || 'Vardagspusslet';
+        const body = payload.notification?.body || '';
+        if (Notification.permission === 'granted') {
+          new Notification(title, {
+            body,
+            icon: 'vardagspusslet.png',
+            tag: payload.data?.eventId || 'vardagspusslet'
+          });
+        }
+        showToast(`🔔 ${title}: ${body}`);
+      });
+    } catch (err) {
+      console.error('Push setup failed:', err);
+    }
+  }
+
+  async function saveFcmToken(token) {
+    if (!state.familyCode || !window.firebaseReady) return;
+    let deviceId = localStorage.getItem('vardagspusslet_device_id');
+    if (!deviceId) {
+      deviceId = 'd-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+      localStorage.setItem('vardagspusslet_device_id', deviceId);
+    }
+    try {
+      const ref = window.db.ref(`families/${state.familyCode}/fcmTokens/${deviceId}`);
+      await ref.set({
+        token,
+        updated: Date.now(),
+        userAgent: navigator.userAgent.slice(0, 200)
+      });
+      console.log('FCM token saved');
+    } catch (e) {
+      console.error('Failed to save token:', e);
+    }
+  } 
+ 
   // BOOT
   (async () => {
     if (!checkSavedLogin()) {
