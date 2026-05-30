@@ -747,7 +747,8 @@
   .time-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 14px;
+    margin-bottom: 4px;
   }
 
   .person-picker {
@@ -1465,7 +1466,7 @@
   .inkop-btn:hover { background: var(--accent-deep) !important; }
 
   @media (max-width: 700px) {
-    .fab { display: inline-flex; }
+    .fab { display: none; }
     .container { padding: 16px 14px 100px; }
     h1 { font-size: 2rem; line-height: 1; }
     .brand-logo { width: 44px; height: 44px; }
@@ -1477,7 +1478,9 @@
     .event-pill { font-size: 9px; padding: 1px 3px; }
     .person-picker { grid-template-columns: repeat(2, 1fr); }
     .submit-btn { padding: 16px; font-size: 15px; }
-    .main-grid { gap: 16px; }
+    .main-grid { gap: 16px; }.form-row { margin-bottom: 18px; }
+    .time-row { gap: 12px; }
+    .panel { padding: 22px 18px; }
     .modal-overlay { padding: 0; }
     .modal-card { max-height: 100vh; border-radius: 0; }
     .login-card h1 { font-size: 2.2rem; }
