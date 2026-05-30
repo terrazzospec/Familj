@@ -48,17 +48,17 @@
 <!-- FAMILY CODES — edit here to add/remove families -->
 <script>
   const FAMILIES = {
-    'reis': {
+    'vonreis': {
       name: 'Familjen Reis',
       members: ['jesper', 'tilda', 'george', 'bob']
     },
-    'kassab': {
+    'kassab-ht': {
       name: 'Familjen Kassab',
-      members: ['vuxen1', 'vuxen2', 'barn1', 'barn2', 'barn3']
-    },
-    'bagge-lindman': {
-      name: 'Familjen Bagge Lindman',
       members: ['vuxen1', 'vuxen2', 'barn1', 'barn2']
+    },
+    'cg-bagge-lindman': {
+      name: 'Familjen Bagge Lindman',
+      members: ['vuxen1', 'vuxen2', 'barn1', 'barn2', 'barn3']
     }
   };
   window.FAMILIES = FAMILIES;
@@ -1494,7 +1494,7 @@
     <h1>Vardags<em>pusslet</em></h1>
     <p class="login-tagline">Planera. Samordna. Tillsammans.</p>
     <label>Familjekod</label>
-    <input type="text" id="familyCodeInput" placeholder="t.ex. reis" autocomplete="off" autocapitalize="none">
+    <input type="text" id="familyCodeInput" placeholder="tilldelad kod" autocomplete="off" autocapitalize="none">
     <button class="submit-btn" id="loginBtn">Logga in</button>
     <div class="login-error hidden" id="loginError">Familjekoden känns inte igen</div>
     <p class="login-help">Har du ingen kod? Kontakta Jesper.</p>
@@ -1836,17 +1836,32 @@
   }
 
   async function migrateLegacyDataIfNeeded() {
-    // For 'reis' family - migrate existing root-level events to families/reis/events
-    if (state.familyCode !== 'reis' || !window.firebaseReady) return;
+    // For 'vonreis' family - migrate existing data from root-level OR families/reis/ to families/vonreis/
+    if (state.familyCode !== 'vonreis' || !window.firebaseReady) return;
     try {
+      const newRef = window.db.ref('families/vonreis/events');
+      const newSnap = await newRef.once('value');
+      if (newSnap.exists() && Object.keys(newSnap.val() || {}).length > 0) {
+        console.log('Migration: vonreis already has data');
+        return;
+      }
+
+      // Try families/reis/events first
+      const reisRef = window.db.ref('families/reis/events');
+      const reisSnap = await reisRef.once('value');
+      if (reisSnap.exists() && Object.keys(reisSnap.val() || {}).length > 0) {
+        await newRef.set(reisSnap.val());
+        console.log('Migration: events copied from families/reis to families/vonreis');
+        return;
+      }
+
+      // Fall back to root-level /events
       const legacyRef = window.db.ref('events');
-      const newRef = window.db.ref('families/reis/events');
-      const snap = await newRef.once('value');
-      if (snap.exists() && Object.keys(snap.val() || {}).length > 0) return; // Already migrated
       const legacySnap = await legacyRef.once('value');
-      if (!legacySnap.exists()) return;
-      await newRef.set(legacySnap.val());
-      console.log('Migration: events copied to families/reis/events');
+      if (legacySnap.exists() && Object.keys(legacySnap.val() || {}).length > 0) {
+        await newRef.set(legacySnap.val());
+        console.log('Migration: events copied from root to families/vonreis');
+      }
     } catch (e) { console.error('Migration failed', e); }
   }
 
