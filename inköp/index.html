@@ -1126,32 +1126,53 @@
     return null;
   }
 
-  async function migrateLegacyDataIfNeeded() {
-    if (state.familyCode !== 'vonreis' || !window.firebaseReady) return;
-    try {
-      const newItemsRef = window.db.ref('families/vonreis/shopping/items');
-      const newItemsSnap = await newItemsRef.once('value');
-      if (newItemsSnap.exists() && Object.keys(newItemsSnap.val() || {}).length > 0) {
-        console.log('Migration: vonreis shopping already migrated');
-        return;
-      }
-      const legacyItemsRef = window.db.ref('shopping/items');
-      const legacyItemsSnap = await legacyItemsRef.once('value');
-      if (legacyItemsSnap.exists() && Object.keys(legacyItemsSnap.val() || {}).length > 0) {
-        await newItemsRef.set(legacyItemsSnap.val());
-        console.log('Migration: shopping items copied to families/vonreis');
-      }
-      const newHistoryRef = window.db.ref('families/vonreis/shopping/history');
-      const newHistorySnap = await newHistoryRef.once('value');
-      if (!(newHistorySnap.exists() && Object.keys(newHistorySnap.val() || {}).length > 0)) {
-        const legacyHistoryRef = window.db.ref('shopping/history');
-        const legacyHistorySnap = await legacyHistoryRef.once('value');
-        if (legacyHistorySnap.exists() && Object.keys(legacyHistorySnap.val() || {}).length > 0) {
-          await newHistoryRef.set(legacyHistorySnap.val());
-          console.log('Migration: shopping history copied to families/vonreis');
+async function migrateLegacyDataIfNeeded() {
+    if (!window.firebaseReady) return;
+
+    // Migration 1: Move data from root-level or families/reis to families/vonreis
+    if (state.familyCode === 'vonreis') {
+      try {
+        const newRef = window.db.ref('families/vonreis/events');
+        const newSnap = await newRef.once('value');
+        if (!(newSnap.exists() && Object.keys(newSnap.val() || {}).length > 0)) {
+          const reisRef = window.db.ref('families/reis/events');
+          const reisSnap = await reisRef.once('value');
+          if (reisSnap.exists() && Object.keys(reisSnap.val() || {}).length > 0) {
+            await newRef.set(reisSnap.val());
+            console.log('Migration: events copied from families/reis to families/vonreis');
+          } else {
+            const legacyRef = window.db.ref('events');
+            const legacySnap = await legacyRef.once('value');
+            if (legacySnap.exists() && Object.keys(legacySnap.val() || {}).length > 0) {
+              await newRef.set(legacySnap.val());
+              console.log('Migration: events copied from root to families/vonreis');
+            }
+          }
         }
+      } catch (e) { console.error('Family migration failed', e); }
+    }
+
+    // Migration 2: Convert old person names (jesper, tilda, etc.) to new keys (p1, p2, etc.)
+    try {
+      const PERSON_MAP_REIS = { 'jesper': 'p1', 'tilda': 'p2', 'george': 'p3', 'bob': 'p4' };
+      const eventsRef = window.db.ref(`families/${state.familyCode}/events`);
+      const snap = await eventsRef.once('value');
+      if (!snap.exists()) return;
+      const events = snap.val();
+      let migratedCount = 0;
+      const updates = {};
+      Object.keys(events).forEach(id => {
+        const ev = events[id];
+        if (ev.person && PERSON_MAP_REIS[ev.person]) {
+          updates[`${id}/person`] = PERSON_MAP_REIS[ev.person];
+          migratedCount++;
+        }
+      });
+      if (migratedCount > 0) {
+        await eventsRef.update(updates);
+        console.log(`Person migration: updated ${migratedCount} events`);
       }
-    } catch (e) { console.error('Shopping migration failed', e); }
+    } catch (e) { console.error('Person migration failed', e); }
   }
 
   async function loadFamilyMembers() {
