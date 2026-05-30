@@ -5,9 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Inköp – Familjen Reis">
+<meta name="apple-mobile-web-app-title" content="Vardagspusslet - Inköp">
 <meta name="theme-color" content="#f4efe6">
-<title>Inköp – Familjen Reis</title>
+<title>Vardagspusslet - Inköp</title>
+
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../vardagspusslet.png">
+<link rel="icon" type="image/png" href="../vardagspusslet.png">
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -41,6 +45,17 @@
   }
   initFirebase();
 </script>
+
+<!-- FAMILY CODES — must match the calendar -->
+<script>
+  const FAMILIES = {
+    'vonreis': { name: 'Familjen Reis' },
+    'kassab-ht': { name: 'Familjen Kassab' },
+    'cg-bagge-lindman': { name: 'Familjen Bagge Lindman' }
+  };
+  window.FAMILIES = FAMILIES;
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -76,6 +91,129 @@
     padding-bottom: 120px;
   }
 
+  /* LOGIN SCREEN */
+  .login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .login-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 40px 32px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+  }
+
+  .login-logo {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 24px;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+
+  .login-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .login-card h1 {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: 3rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .login-card h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .login-tagline {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 16px;
+    color: var(--ink-soft);
+    margin-bottom: 32px;
+  }
+
+  .login-card label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    text-align: left;
+  }
+
+  .login-card input {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-family: var(--body);
+    font-size: 16px;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    text-align: center;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    text-transform: lowercase;
+  }
+
+  .login-card input:focus { border-color: var(--accent); }
+
+  .login-card .submit-btn-login {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: var(--body);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-transform: uppercase;
+  }
+
+  .login-card .submit-btn-login:hover { background: var(--accent-deep); }
+
+  .login-error {
+    color: var(--accent);
+    font-size: 13px;
+    margin-top: 12px;
+    font-weight: 600;
+  }
+
+  .login-error.hidden { display: none; }
+
+  .login-help {
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* APP */
   .container {
     max-width: 720px;
     margin: 0 auto;
@@ -93,6 +231,23 @@
     gap: 16px;
   }
 
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+
+  .brand-logo img { width: 100%; height: 100%; object-fit: cover; }
+
   .eyebrow {
     font-size: 11px;
     font-weight: 600;
@@ -105,7 +260,7 @@
   h1 {
     font-family: var(--display);
     font-weight: 300;
-    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
     line-height: 0.95;
     letter-spacing: -0.02em;
     color: var(--ink);
@@ -115,6 +270,13 @@
     font-style: italic;
     font-weight: 400;
     color: var(--accent);
+  }
+
+  .header-right {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   .nav-back {
@@ -167,6 +329,20 @@
     100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
   }
 
+  .logout-btn {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .logout-btn:hover { color: var(--accent); border-color: var(--accent); }
+
   .tabs {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -217,7 +393,6 @@
   .tab.active .tab-count { background: white; color: var(--ink); }
   .tab-count.zero { display: none; }
 
-  /* ADD FORM */
   .add-form {
     background: var(--bg-card);
     border: 1px solid var(--line);
@@ -234,9 +409,7 @@
     margin-bottom: 8px;
   }
 
-  .add-row.barnen-row {
-    grid-template-columns: 70px 60px 1fr;
-  }
+  .add-row.barnen-row { grid-template-columns: 70px 60px 1fr; }
 
   .add-form input, .add-form select, .add-form textarea {
     border: 1px solid var(--line);
@@ -257,10 +430,7 @@
 
   .add-form input::placeholder, .add-form textarea::placeholder { color: var(--ink-soft); }
 
-  .add-form .qty-num {
-    text-align: center;
-    font-weight: 600;
-  }
+  .add-form .qty-num { text-align: center; font-weight: 600; }
 
   .add-form .qty-unit {
     font-size: 13px;
@@ -275,19 +445,9 @@
     padding-right: 22px;
   }
 
-  .add-form .comment-row {
-    margin-top: 8px;
-  }
-
-  .add-form .comment-row input {
-    width: 100%;
-  }
-
-  .add-form .person-row {
-    display: flex;
-    gap: 6px;
-    margin-top: 8px;
-  }
+  .add-form .comment-row { margin-top: 8px; }
+  .add-form .comment-row input { width: 100%; }
+  .add-form .person-row { display: flex; gap: 6px; margin-top: 8px; }
 
   .person-btn {
     flex: 1;
@@ -433,11 +593,7 @@
     cursor: pointer;
   }
 
-  .item.checked .checkbox {
-    background: var(--mat);
-    border-color: var(--mat);
-  }
-
+  .item.checked .checkbox { background: var(--mat); border-color: var(--mat); }
   .item.checked.list-ovrigt .checkbox { background: var(--ovrigt); border-color: var(--ovrigt); }
   .item.checked.list-barnen .checkbox { background: var(--barnen); border-color: var(--barnen); }
 
@@ -464,10 +620,7 @@
     border: 1px solid var(--line);
   }
 
-  .item-thumb:hover {
-    transform: scale(1.05);
-    transition: transform 0.15s;
-  }
+  .item-thumb:hover { transform: scale(1.05); transition: transform 0.15s; }
 
   .item-body {
     flex: 1;
@@ -490,10 +643,7 @@
     transition: all 0.2s;
   }
 
-  .item.checked .item-name {
-    text-decoration: line-through;
-    color: var(--ink-soft);
-  }
+  .item.checked .item-name { text-decoration: line-through; color: var(--ink-soft); }
 
   .item-qty {
     font-size: 13px;
@@ -505,10 +655,7 @@
     white-space: nowrap;
   }
 
-  .item.checked .item-qty {
-    text-decoration: line-through;
-    opacity: 0.6;
-  }
+  .item.checked .item-qty { text-decoration: line-through; opacity: 0.6; }
 
   .item-person-tag {
     font-size: 10px;
@@ -518,11 +665,8 @@
     padding: 2px 8px;
     border-radius: 999px;
     color: white;
+    background: var(--ink);
   }
-
-  .item-person-tag.person-george { background: var(--george); }
-  .item-person-tag.person-bob { background: var(--bob); }
-  .item-person-tag.person-bada { background: var(--ink); }
 
   .item-comment {
     font-size: 12px;
@@ -552,12 +696,7 @@
     min-height: 36px;
   }
 
-  .icon-btn:hover {
-    opacity: 1;
-    color: var(--accent);
-    background: rgba(196, 69, 54, 0.08);
-  }
-
+  .icon-btn:hover { opacity: 1; color: var(--accent); background: rgba(196, 69, 54, 0.08); }
   .icon-btn.edit-btn { font-size: 14px; }
   .icon-btn.delete-btn { font-size: 22px; font-family: var(--display); }
 
@@ -587,7 +726,6 @@
   }
 
   .section-action:hover { color: var(--accent); }
-
   .hidden { display: none !important; }
 
   .history-section { margin-top: 32px; }
@@ -606,11 +744,7 @@
     margin-bottom: 14px;
   }
 
-  .history-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
+  .history-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 
   .history-chip {
     display: inline-flex;
@@ -626,21 +760,10 @@
     transition: all 0.15s;
   }
 
-  .history-chip:hover {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-  }
-
-  .history-chip::before {
-    content: "+";
-    font-weight: 700;
-    color: var(--ink-soft);
-  }
-
+  .history-chip:hover { background: var(--accent); color: white; border-color: var(--accent); }
+  .history-chip::before { content: "+"; font-weight: 700; color: var(--ink-soft); }
   .history-chip:hover::before { color: white; }
 
-  /* MODAL — for image preview, edit, and confirmations */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -655,10 +778,7 @@
     padding: 16px;
   }
 
-  .modal-overlay.show {
-    opacity: 1;
-    pointer-events: auto;
-  }
+  .modal-overlay.show { opacity: 1; pointer-events: auto; }
 
   .image-modal img {
     max-width: 95vw;
@@ -691,9 +811,7 @@
     margin-bottom: 16px;
   }
 
-  .modal-card .form-row {
-    margin-bottom: 12px;
-  }
+  .modal-card .form-row { margin-bottom: 12px; }
 
   .modal-card label {
     display: block;
@@ -782,9 +900,7 @@
     vertical-align: -2px;
   }
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   .toast {
     position: fixed;
@@ -803,20 +919,17 @@
     z-index: 3000;
   }
 
-  .toast.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
   @media (max-width: 700px) {
     .container { padding: 16px 14px 80px; }
-    h1 { font-size: 2rem; }
+    h1 { font-size: 1.8rem; }
+    .brand-logo { width: 44px; height: 44px; }
     .tabs { gap: 6px; }
     .tab { padding: 14px 8px; }
     .tab-icon { font-size: 22px; }
     .tab-name { font-size: 16px; }
-    .add-row { gap: 4px; }
-    .add-row { grid-template-columns: 56px 78px 1fr; }
+    .add-row { gap: 4px; grid-template-columns: 56px 78px 1fr; }
     .add-row.barnen-row { grid-template-columns: 56px 56px 1fr; }
     .add-form input, .add-form select, .add-form textarea { font-size: 16px; padding: 10px 8px; }
     .add-form .qty-unit { font-size: 13px; padding-right: 18px; }
@@ -826,24 +939,49 @@
     .item-qty { font-size: 12px; }
     .modal-card { padding: 20px 18px; }
     .modal-card h3 { font-size: 19px; }
+    .login-card h1 { font-size: 2rem; }
+    .login-logo { width: 100px; height: 100px; }
   }
 </style>
 </head>
 <body>
 
-<div class="container">
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="../vardagspusslet.png" alt="Vardagspusslet">
+    </div>
+    <h1>Vardags<em>pusslet</em></h1>
+    <p class="login-tagline">Planera. Samordna. Tillsammans.</p>
+    <label>Familjekod</label>
+    <input type="text" id="familyCodeInput" placeholder="Tilldelad kod" autocomplete="off" autocapitalize="none">
+    <button class="submit-btn-login" id="loginBtn">Logga in</button>
+    <div class="login-error hidden" id="loginError">Familjekoden känns inte igen</div>
+    <p class="login-help">Har du ingen kod? Kontakta Jesper.</p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="container hidden" id="appContainer">
 
   <header>
-    <div>
-      <span class="eyebrow">Familjen Reis</span>
-      <h1>Vad ska vi <em>handla</em>?</h1>
+    <div class="brand-row">
+      <div class="brand-logo">
+        <img src="../vardagspusslet.png" alt="Vardagspusslet">
+      </div>
+      <div>
+        <span class="eyebrow">Inköpslista</span>
+        <h1>Vad ska vi <em>handla</em>?</h1>
+      </div>
     </div>
-    <div style="display:flex;gap:8px;flex-direction:column;align-items:flex-end;">
+    <div class="header-right">
       <a href="../" class="nav-back">← Kalender</a>
       <div class="sync-status" id="syncStatus">
         <span class="sync-dot"></span>
         <span class="sync-text">Synkad</span>
       </div>
+      <button class="logout-btn" id="logoutBtn">Logga ut</button>
     </div>
   </header>
 
@@ -887,13 +1025,11 @@
     </div>
 
     <div class="person-row hidden" id="personRow">
-      <button class="person-btn person-george" data-person="george">👦 George</button>
-      <button class="person-btn person-bob" data-person="bob">👦 Bob</button>
-      <button class="person-btn person-bada" data-person="bada">Båda</button>
+      <!-- Filled dynamically based on family members -->
     </div>
 
     <div class="comment-row hidden" id="commentRow">
-      <input type="text" id="itemComment" placeholder="Kommentar (t.ex. storlek 110, till mormor...)" autocomplete="off">
+      <input type="text" id="itemComment" placeholder="Kommentar" autocomplete="off">
     </div>
 
     <div class="bottom-row">
@@ -945,24 +1081,28 @@
 <div class="toast" id="toast">Tillagd</div>
 
 <script>
- let state = {
+  const PERSON_KEYS = ['p1', 'p2', 'p3', 'p4', 'p5'];
+
+  let state = {
+    familyCode: null,
+    familyName: '',
+    familyMembers: {},  // From kalender's medlemmar
     activeList: 'mat',
     items: [],
     history: [],
     pendingPhoto: null,
-    selectedPerson: 'bada'
+    selectedPerson: 'alla'
   };
 
   let itemsRef = null;
   let historyRef = null;
+  let membersRef = null;
   let suppressUpdate = false;
-  const FALLBACK_ITEMS = 'inkop_items_fallback';
-  const FALLBACK_HIST = 'inkop_history_fallback';
 
   function getItemsRef() {
     if (itemsRef) return itemsRef;
-    if (window.firebaseReady && window.db) {
-      itemsRef = window.db.ref('shopping/items');
+    if (window.firebaseReady && window.db && state.familyCode) {
+      itemsRef = window.db.ref(`families/${state.familyCode}/shopping/items`);
       return itemsRef;
     }
     return null;
@@ -970,23 +1110,80 @@
 
   function getHistoryRef() {
     if (historyRef) return historyRef;
-    if (window.firebaseReady && window.db) {
-      historyRef = window.db.ref('shopping/history');
+    if (window.firebaseReady && window.db && state.familyCode) {
+      historyRef = window.db.ref(`families/${state.familyCode}/shopping/history`);
       return historyRef;
     }
     return null;
   }
 
+  function getMembersRef() {
+    if (membersRef) return membersRef;
+    if (window.firebaseReady && window.db && state.familyCode) {
+      membersRef = window.db.ref(`families/${state.familyCode}/members`);
+      return membersRef;
+    }
+    return null;
+  }
+
+  async function migrateLegacyDataIfNeeded() {
+    if (state.familyCode !== 'vonreis' || !window.firebaseReady) return;
+    try {
+      const newItemsRef = window.db.ref('families/vonreis/shopping/items');
+      const newItemsSnap = await newItemsRef.once('value');
+      if (newItemsSnap.exists() && Object.keys(newItemsSnap.val() || {}).length > 0) {
+        console.log('Migration: vonreis shopping already migrated');
+        return;
+      }
+      const legacyItemsRef = window.db.ref('shopping/items');
+      const legacyItemsSnap = await legacyItemsRef.once('value');
+      if (legacyItemsSnap.exists() && Object.keys(legacyItemsSnap.val() || {}).length > 0) {
+        await newItemsRef.set(legacyItemsSnap.val());
+        console.log('Migration: shopping items copied to families/vonreis');
+      }
+      const newHistoryRef = window.db.ref('families/vonreis/shopping/history');
+      const newHistorySnap = await newHistoryRef.once('value');
+      if (!(newHistorySnap.exists() && Object.keys(newHistorySnap.val() || {}).length > 0)) {
+        const legacyHistoryRef = window.db.ref('shopping/history');
+        const legacyHistorySnap = await legacyHistoryRef.once('value');
+        if (legacyHistorySnap.exists() && Object.keys(legacyHistorySnap.val() || {}).length > 0) {
+          await newHistoryRef.set(legacyHistorySnap.val());
+          console.log('Migration: shopping history copied to families/vonreis');
+        }
+      }
+    } catch (e) { console.error('Shopping migration failed', e); }
+  }
+
+  async function loadFamilyMembers() {
+    const ref = getMembersRef();
+    if (!ref) return;
+    try {
+      const snap = await ref.once('value');
+      if (snap.exists()) {
+        state.familyMembers = snap.val();
+      } else {
+        state.familyMembers = {};
+      }
+      ref.on('value', (s) => {
+        if (suppressUpdate) return;
+        if (s.exists()) {
+          state.familyMembers = s.val();
+        } else {
+          state.familyMembers = {};
+        }
+        renderForm();
+      });
+    } catch (e) { console.error(e); }
+  }
+
   async function loadData() {
     const ir = getItemsRef();
     const hr = getHistoryRef();
-
     if (!ir) {
-      try { state.items = JSON.parse(localStorage.getItem(FALLBACK_ITEMS) || '[]'); } catch(e) { state.items = []; }
-      try { state.history = JSON.parse(localStorage.getItem(FALLBACK_HIST) || '[]'); } catch(e) { state.history = []; }
+      state.items = [];
+      state.history = [];
       return;
     }
-
     return new Promise((resolve) => {
       ir.once('value').then(snap => {
         const data = snap.val();
@@ -1016,10 +1213,7 @@
     const idx = state.items.findIndex(e => e.id === item.id);
     if (idx === -1) state.items.push(item); else state.items[idx] = item;
     const ref = getItemsRef();
-    if (!ref) {
-      try { localStorage.setItem(FALLBACK_ITEMS, JSON.stringify(state.items)); } catch(e) {}
-      return;
-    }
+    if (!ref) return;
     try {
       suppressUpdate = true;
       await ref.child(item.id).set(item);
@@ -1030,10 +1224,7 @@
   async function deleteItem(id) {
     state.items = state.items.filter(e => e.id !== id);
     const ref = getItemsRef();
-    if (!ref) {
-      try { localStorage.setItem(FALLBACK_ITEMS, JSON.stringify(state.items)); } catch(e) {}
-      return;
-    }
+    if (!ref) return;
     try {
       suppressUpdate = true;
       await ref.child(id).remove();
@@ -1055,12 +1246,8 @@
       if (perList[h.list].length < 30) perList[h.list].push(h);
     });
     state.history = [].concat(...Object.values(perList));
-
     const ref = getHistoryRef();
-    if (!ref) {
-      try { localStorage.setItem(FALLBACK_HIST, JSON.stringify(state.history)); } catch(e) {}
-      return;
-    }
+    if (!ref) return;
     try {
       suppressUpdate = true;
       await ref.child(entry.id).set(entry);
@@ -1068,7 +1255,6 @@
     } catch (e) { console.error(e); suppressUpdate = false; }
   }
 
-  // IMAGE COMPRESSION + UPLOAD
   function compressImage(file, maxWidth = 800) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -1093,10 +1279,8 @@
   }
 
   async function uploadImage(blob, itemId) {
-    if (!window.firebaseReady || !window.storage) {
-      throw new Error('Storage not available');
-    }
-    const path = `items/${itemId}.jpg`;
+    if (!window.firebaseReady || !window.storage) throw new Error('Storage not available');
+    const path = `families/${state.familyCode}/items/${itemId}.jpg`;
     const ref = window.storage.ref(path);
     await ref.put(blob);
     return await ref.getDownloadURL();
@@ -1107,7 +1291,7 @@
     const textEl = statusEl.querySelector('.sync-text');
     if (window.firebaseFailed || !window.firebaseReady) {
       statusEl.classList.add('offline');
-      textEl.textContent = 'Offline (lokalt)';
+      textEl.textContent = 'Offline';
       return;
     }
     const connectedRef = window.db.ref('.info/connected');
@@ -1120,6 +1304,48 @@
         textEl.textContent = 'Offline';
       }
     });
+  }
+
+  // LOGIN
+  function checkSavedLogin() {
+    const saved = localStorage.getItem('vardagspusslet_family');
+    if (saved && window.FAMILIES[saved]) {
+      state.familyCode = saved;
+      state.familyName = window.FAMILIES[saved].name;
+      showApp();
+      return true;
+    }
+    return false;
+  }
+
+  function attemptLogin(code) {
+    code = code.trim().toLowerCase();
+    if (!code) return false;
+    if (window.FAMILIES[code]) {
+      state.familyCode = code;
+      state.familyName = window.FAMILIES[code].name;
+      localStorage.setItem('vardagspusslet_family', code);
+      showApp();
+      return true;
+    }
+    return false;
+  }
+
+  function logout() {
+    if (!confirm('Logga ut från ' + state.familyName + '?')) return;
+    localStorage.removeItem('vardagspusslet_family');
+    location.reload();
+  }
+
+  async function showApp() {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appContainer').classList.remove('hidden');
+    setupSyncStatus();
+    await migrateLegacyDataIfNeeded();
+    await loadFamilyMembers();
+    render();
+    await loadData();
+    render();
   }
 
   function render() {
@@ -1153,6 +1379,7 @@
       commentRow.classList.remove('hidden');
       commentInput.placeholder = 'Storlek, modell, märke...';
       unitSelect.innerHTML = '<option value="st" selected>st</option>';
+      buildPersonButtons();
     } else if (state.activeList === 'ovrigt') {
       addRow.classList.remove('barnen-row');
       personRow.classList.add('hidden');
@@ -1188,6 +1415,57 @@
         <option value="flaska">flaska</option>
       `;
     }
+  }
+
+  function buildPersonButtons() {
+    const personRow = document.getElementById('personRow');
+    personRow.innerHTML = '';
+    const memberKeys = PERSON_KEYS.filter(k => state.familyMembers[k]);
+
+    if (memberKeys.length === 0) {
+      personRow.innerHTML = `<div style="color:var(--ink-soft);font-size:12px;padding:8px;font-style:italic;">Lägg till familjemedlemmar i kalendern först</div>`;
+      return;
+    }
+
+    memberKeys.forEach(k => {
+      const btn = document.createElement('button');
+      btn.className = 'person-btn';
+      btn.dataset.person = k;
+      btn.textContent = state.familyMembers[k];
+      btn.addEventListener('click', () => {
+        personRow.querySelectorAll('.person-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        btn.style.background = 'var(--ink)';
+        btn.style.color = 'var(--bg)';
+        btn.style.borderColor = 'var(--ink)';
+        state.selectedPerson = k;
+      });
+      personRow.appendChild(btn);
+    });
+
+    // "Alla"-knapp
+    const allBtn = document.createElement('button');
+    allBtn.className = 'person-btn active';
+    allBtn.dataset.person = 'alla';
+    allBtn.textContent = 'Alla';
+    allBtn.style.background = 'var(--ink)';
+    allBtn.style.color = 'var(--bg)';
+    allBtn.style.borderColor = 'var(--ink)';
+    allBtn.addEventListener('click', () => {
+      personRow.querySelectorAll('.person-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = '';
+        b.style.color = '';
+        b.style.borderColor = '';
+      });
+      allBtn.classList.add('active');
+      allBtn.style.background = 'var(--ink)';
+      allBtn.style.color = 'var(--bg)';
+      allBtn.style.borderColor = 'var(--ink)';
+      state.selectedPerson = 'alla';
+    });
+    personRow.appendChild(allBtn);
+    state.selectedPerson = 'alla';
   }
 
   function renderItems() {
@@ -1248,10 +1526,10 @@
         nameRow.appendChild(qty);
       }
 
-      if (item.list === 'barnen' && item.person) {
+      if (item.list === 'barnen' && item.person && item.person !== 'alla') {
         const pTag = document.createElement('span');
-        pTag.className = `item-person-tag person-${item.person}`;
-        pTag.textContent = item.person === 'bada' ? 'Båda' : item.person.charAt(0).toUpperCase() + item.person.slice(1);
+        pTag.className = 'item-person-tag';
+        pTag.textContent = state.familyMembers[item.person] || item.person;
         nameRow.appendChild(pTag);
       }
 
@@ -1295,24 +1573,19 @@
   function renderHistory() {
     const container = document.getElementById('historyChips');
     const section = document.getElementById('historySection');
-
     const historyForList = state.history
       .filter(h => h.list === state.activeList)
       .sort((a, b) => (b.lastUsed || 0) - (a.lastUsed || 0))
       .slice(0, 20);
-
     const activeNames = state.items
       .filter(i => i.list === state.activeList && !i.checked)
       .map(i => i.name.toLowerCase());
-
     const available = historyForList.filter(h => !activeNames.includes(h.name.toLowerCase()));
-
     if (available.length === 0) {
       section.style.display = 'none';
       return;
     }
     section.style.display = '';
-
     container.innerHTML = '';
     available.forEach(h => {
       const chip = document.createElement('button');
@@ -1323,19 +1596,14 @@
     });
   }
 
-  // ADD ITEM
   async function addItem({ name, qty, list, comment, person, imageUrl }) {
     name = name.trim();
     if (!name) return;
     list = list || state.activeList;
-
-    // Check for duplicate (same name in same list, not checked)
     const existing = state.items.find(i =>
-      i.list === list &&
-      !i.checked &&
+      i.list === list && !i.checked &&
       i.name.toLowerCase() === name.toLowerCase()
     );
-
     if (existing) {
       const merge = confirm(`"${name}" finns redan i listan med mängd "${existing.qty || 'ingen'}".\n\nVill du SLÅ IHOP (uppdatera mängd) eller lägga till SEPARAT?\n\nOK = Slå ihop\nAvbryt = Lägg till separat`);
       if (merge) {
@@ -1349,12 +1617,9 @@
         return;
       }
     }
-
     const item = {
       id: Date.now().toString() + Math.random().toString(36).slice(2, 7),
-      name,
-      qty: qty || '',
-      list,
+      name, qty: qty || '', list,
       comment: comment || '',
       person: person || '',
       imageUrl: imageUrl || '',
@@ -1368,9 +1633,7 @@
 
   async function toggleChecked(item) {
     item.checked = !item.checked;
-    if (item.checked) {
-      await addToHistory(item.name, item.list);
-    }
+    if (item.checked) await addToHistory(item.name, item.list);
     await saveItem(item);
     render();
   }
@@ -1379,44 +1642,36 @@
     const checked = state.items.filter(i => i.list === state.activeList && i.checked);
     if (checked.length === 0) return;
     if (!confirm(`Ta bort ${checked.length} avbockade?`)) return;
-    for (const item of checked) {
-      await deleteItem(item.id);
-    }
+    for (const item of checked) await deleteItem(item.id);
     render();
     showToast(`${checked.length} st rensade`);
   }
 
-  // EDIT MODAL
   function openEditModal(item) {
     const card = document.getElementById('actionModalCard');
     const unitsForList = item.list === 'barnen' ? ['st'] : ['', 'st', 'kg', 'g', 'hg', 'liter', 'dl', 'cl', 'ml', 'paket', 'påse', 'burk', 'flaska'];
-
-    // Parse current qty to number + unit
     let curNum = '', curUnit = '';
     if (item.qty) {
       const m = item.qty.match(/^([\d.,]+)\s*(.*)$/);
       if (m) { curNum = m[1]; curUnit = m[2].trim(); }
       else { curUnit = item.qty; }
     }
-
-    const personHtml = item.list === 'barnen' ? `
+    const memberKeys = PERSON_KEYS.filter(k => state.familyMembers[k]);
+    const personHtml = item.list === 'barnen' && memberKeys.length > 0 ? `
       <div class="form-row">
         <label>Vem?</label>
-        <div style="display:flex;gap:6px;">
-          <button type="button" class="person-btn person-george ${item.person === 'george' ? 'active' : ''}" data-edit-person="george">George</button>
-          <button type="button" class="person-btn person-bob ${item.person === 'bob' ? 'active' : ''}" data-edit-person="bob">Bob</button>
-          <button type="button" class="person-btn person-bada ${item.person === 'bada' ? 'active' : ''}" data-edit-person="bada">Båda</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${memberKeys.map(k => `<button type="button" class="person-btn ${item.person === k ? 'active' : ''}" data-edit-person="${k}" style="${item.person === k ? 'background:var(--ink);color:var(--bg);border-color:var(--ink);' : ''}">${escapeHtml(state.familyMembers[k])}</button>`).join('')}
+          <button type="button" class="person-btn ${item.person === 'alla' || !item.person ? 'active' : ''}" data-edit-person="alla" style="${(item.person === 'alla' || !item.person) ? 'background:var(--ink);color:var(--bg);border-color:var(--ink);' : ''}">Alla</button>
         </div>
       </div>
     ` : '';
-
     const commentHtml = (item.list === 'barnen' || item.list === 'ovrigt') ? `
       <div class="form-row">
         <label>Kommentar</label>
         <input type="text" id="editComment" value="${(item.comment || '').replace(/"/g, '&quot;')}">
       </div>
     ` : '';
-
     card.innerHTML = `
       <h3>Redigera</h3>
       <p>${item.name}</p>
@@ -1443,19 +1698,24 @@
         <button class="btn-primary" id="editSave">Spara</button>
       </div>
     `;
-
     document.getElementById('actionModal').classList.add('show');
     document.body.style.overflow = 'hidden';
-
-    let editPerson = item.person || '';
+    let editPerson = item.person || 'alla';
     card.querySelectorAll('[data-edit-person]').forEach(btn => {
       btn.addEventListener('click', () => {
-        card.querySelectorAll('[data-edit-person]').forEach(b => b.classList.remove('active'));
+        card.querySelectorAll('[data-edit-person]').forEach(b => {
+          b.classList.remove('active');
+          b.style.background = '';
+          b.style.color = '';
+          b.style.borderColor = '';
+        });
         btn.classList.add('active');
+        btn.style.background = 'var(--ink)';
+        btn.style.color = 'var(--bg)';
+        btn.style.borderColor = 'var(--ink)';
         editPerson = btn.dataset.editPerson;
       });
     });
-
     document.getElementById('editCancel').addEventListener('click', closeActionModal);
     document.getElementById('editSave').addEventListener('click', async () => {
       const newName = document.getElementById('editName').value.trim();
@@ -1466,7 +1726,6 @@
       if (newNum && newUnit) newQty = `${newNum} ${newUnit}`;
       else if (newNum) newQty = newNum;
       else if (newUnit) newQty = newUnit;
-
       item.name = newName;
       item.qty = newQty;
       if (item.list === 'barnen') item.person = editPerson;
@@ -1481,30 +1740,26 @@
     });
   }
 
-  // HISTORY ADD MODAL
   function openHistoryAddModal(historyEntry) {
     const card = document.getElementById('actionModalCard');
     const list = historyEntry.list;
     const unitsForList = list === 'barnen' ? ['st'] : ['', 'st', 'kg', 'g', 'hg', 'liter', 'dl', 'cl', 'ml', 'paket', 'påse', 'burk', 'flaska'];
-
-    const personHtml = list === 'barnen' ? `
+    const memberKeys = PERSON_KEYS.filter(k => state.familyMembers[k]);
+    const personHtml = list === 'barnen' && memberKeys.length > 0 ? `
       <div class="form-row">
         <label>Vem?</label>
-        <div style="display:flex;gap:6px;">
-          <button type="button" class="person-btn person-george" data-hist-person="george">George</button>
-          <button type="button" class="person-btn person-bob" data-hist-person="bob">Bob</button>
-          <button type="button" class="person-btn person-bada active" data-hist-person="bada">Båda</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${memberKeys.map(k => `<button type="button" class="person-btn" data-hist-person="${k}">${escapeHtml(state.familyMembers[k])}</button>`).join('')}
+          <button type="button" class="person-btn active" data-hist-person="alla" style="background:var(--ink);color:var(--bg);border-color:var(--ink);">Alla</button>
         </div>
       </div>
     ` : '';
-
     const commentHtml = (list === 'barnen' || list === 'ovrigt') ? `
       <div class="form-row">
         <label>Kommentar</label>
         <input type="text" id="histComment" placeholder="${list === 'barnen' ? 'Storlek, modell...' : 'Detaljer, till vem...'}">
       </div>
     ` : '';
-
     card.innerHTML = `
       <h3>Lägg till igen</h3>
       <p>${historyEntry.name}</p>
@@ -1527,19 +1782,24 @@
         <button class="btn-primary" id="histAdd">Lägg till</button>
       </div>
     `;
-
     document.getElementById('actionModal').classList.add('show');
     document.body.style.overflow = 'hidden';
-
-    let histPerson = 'bada';
+    let histPerson = 'alla';
     card.querySelectorAll('[data-hist-person]').forEach(btn => {
       btn.addEventListener('click', () => {
-        card.querySelectorAll('[data-hist-person]').forEach(b => b.classList.remove('active'));
+        card.querySelectorAll('[data-hist-person]').forEach(b => {
+          b.classList.remove('active');
+          b.style.background = '';
+          b.style.color = '';
+          b.style.borderColor = '';
+        });
         btn.classList.add('active');
+        btn.style.background = 'var(--ink)';
+        btn.style.color = 'var(--bg)';
+        btn.style.borderColor = 'var(--ink)';
         histPerson = btn.dataset.histPerson;
       });
     });
-
     document.getElementById('histCancel').addEventListener('click', closeActionModal);
     document.getElementById('histAdd').addEventListener('click', async () => {
       const num = document.getElementById('histQty').value.trim();
@@ -1548,20 +1808,15 @@
       if (num && unit) qty = `${num} ${unit}`;
       else if (num) qty = num;
       else if (unit) qty = unit;
-
       const c = document.getElementById('histComment');
       const comment = c ? c.value.trim() : '';
-
       closeActionModal();
       await addItem({
         name: historyEntry.name,
-        qty,
-        list,
-        comment,
+        qty, list, comment,
         person: list === 'barnen' ? histPerson : ''
       });
     });
-
     setTimeout(() => document.getElementById('histQty').focus(), 100);
   }
 
@@ -1570,7 +1825,6 @@
     document.body.style.overflow = '';
   }
 
-  // IMAGE MODAL
   function openImageModal(url) {
     document.getElementById('imageModalImg').src = url;
     document.getElementById('imageModal').classList.add('show');
@@ -1582,7 +1836,12 @@
     document.body.style.overflow = '';
   }
 
-  // TOAST
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
   let toastTimer = null;
   function showToast(msg) {
     const t = document.getElementById('toast');
@@ -1593,35 +1852,33 @@
   }
 
   // EVENT LISTENERS
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const code = document.getElementById('familyCodeInput').value;
+    if (!attemptLogin(code)) {
+      document.getElementById('loginError').classList.remove('hidden');
+    }
+  });
+  document.getElementById('familyCodeInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('loginBtn').click();
+  });
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       state.activeList = tab.dataset.list;
-      // Reset form when switching
       document.getElementById('itemName').value = '';
       document.getElementById('itemQty').value = '';
       document.getElementById('itemComment').value = '';
       state.pendingPhoto = null;
       document.getElementById('photoPreview').classList.add('hidden');
       document.getElementById('photoBtn').classList.remove('has-photo');
-      state.selectedPerson = 'bada';
-      document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('active'));
-      const badaBtn = document.querySelector('[data-person="bada"]');
-      if (badaBtn) badaBtn.classList.add('active');
+      state.selectedPerson = 'alla';
       render();
     });
   });
 
-  document.querySelectorAll('.person-row .person-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.person-row .person-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.selectedPerson = btn.dataset.person;
-    });
-  });
-
-  // PHOTO upload
   document.getElementById('photoBtn').addEventListener('click', () => {
     document.getElementById('photoInput').click();
   });
@@ -1655,18 +1912,14 @@
   document.getElementById('addBtn').addEventListener('click', async () => {
     const name = document.getElementById('itemName').value;
     if (!name.trim()) { document.getElementById('itemName').focus(); return; }
-
     const num = document.getElementById('itemQty').value.trim();
     const unit = document.getElementById('itemUnit').value;
     let qty = '';
     if (num && unit) qty = `${num} ${unit}`;
     else if (num) qty = num;
     else if (unit) qty = unit;
-
     const comment = document.getElementById('itemComment').value.trim();
     const person = state.activeList === 'barnen' ? state.selectedPerson : '';
-
-    // Upload photo if any
     let imageUrl = '';
     if (state.pendingPhoto) {
       const tempId = Date.now().toString() + Math.random().toString(36).slice(2, 7);
@@ -1678,10 +1931,7 @@
         showToast('Bilduppladdning misslyckades, sparar utan bild');
       }
     }
-
     await addItem({ name, qty, list: state.activeList, comment, person, imageUrl });
-
-    // Reset form
     document.getElementById('itemName').value = '';
     document.getElementById('itemQty').value = '';
     document.getElementById('itemComment').value = '';
@@ -1703,11 +1953,9 @@
   document.getElementById('imageModal').addEventListener('click', (e) => {
     if (e.target.id === 'imageModal') closeImageModal();
   });
-
   document.getElementById('actionModal').addEventListener('click', (e) => {
     if (e.target.id === 'actionModal') closeActionModal();
   });
-
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (document.getElementById('imageModal').classList.contains('show')) closeImageModal();
@@ -1717,12 +1965,11 @@
 
   // BOOT
   (async () => {
-    setupSyncStatus();
-    render();
-    await loadData();
-    render();
+    if (!checkSavedLogin()) {
+      document.getElementById('familyCodeInput').focus();
+    }
   })();
 </script>
 
 </body>
-</html> 
+</html>
