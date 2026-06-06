@@ -2,69 +2,48 @@
 <html lang="sv">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Vardagspusslet">
+<meta name="apple-mobile-web-app-title" content="Inköp">
 <meta name="theme-color" content="#f4efe6">
-<title>Vardagspusslet</title>
-
-<!-- PWA manifest -->
-<link rel="manifest" href="../manifest.json">
+<title>Inköpslista – Vardagspusslet</title>
 <link rel="apple-touch-icon" href="../vardagspusslet.png">
 <link rel="icon" type="image/png" href="../vardagspusslet.png">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- Firebase SDK -->
+<!-- Firebase (compat SDK, samma som kalendern) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script>
-  function initFirebase() {
-    if (typeof firebase === 'undefined') {
-      console.error('Firebase failed to load');
-      window.firebaseFailed = true;
-      return;
-    }
-    const firebaseConfig = {
-      apiKey: "AIzaSyBGEXGTew8kXBixMQlEhvyljvMQUBiqOL0",
-      authDomain: "familjekalender-reis.firebaseapp.com",
-      databaseURL: "https://familjekalender-reis-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "familjekalender-reis",
-      storageBucket: "familjekalender-reis.firebasestorage.app",
-      messagingSenderId: "197443174169",
-      appId: "1:197443174169:web:3c0731c8b267f2b019cf88"
-    };
-    try {
-      firebase.initializeApp(firebaseConfig);
-      window.db = firebase.database();
-      window.firebaseReady = true;
-    } catch (e) {
-      console.error('Firebase init failed', e);
-      window.firebaseFailed = true;
-    }
-  }
-  initFirebase();
-</script>
 
-<!-- FAMILY CODES — edit here to add/remove families -->
+<!-- FAMILJEKODER — samma som kalendern -->
 <script>
   const FAMILIES = {
-    'vonreis': {
-      name: 'Familjen Reis',
-      members: ['jesper', 'tilda', 'george', 'bob']
-    },
-    'kassab-ht': {
-      name: 'Familjen Kassab',
-      members: ['vuxen1', 'vuxen2', 'barn1', 'barn2']
-    },
-    'cg-bagge-lindman': {
-      name: 'Familjen Bagge Lindman',
-      members: ['vuxen1', 'vuxen2', 'barn1', 'barn2', 'barn3']
-    }
+    'vonreis': { name: 'Familjen Reis', members: ['jesper', 'tilda', 'george', 'bob'] },
+    'kassab-ht': { name: 'Familjen Kassab', members: ['vuxen1', 'vuxen2', 'barn1', 'barn2'] },
+    'cg-bagge-lindman': { name: 'Familjen Bagge Lindman', members: ['vuxen1', 'vuxen2', 'barn1', 'barn2', 'barn3'] }
   };
   window.FAMILIES = FAMILIES;
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBGEXGTew8kXBixMQlEhvyljvMQUBiqOL0",
+    authDomain: "familjekalender-reis.firebaseapp.com",
+    databaseURL: "https://familjekalender-reis-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "familjekalender-reis",
+    storageBucket: "familjekalender-reis.firebasestorage.app",
+    messagingSenderId: "197443174169",
+    appId: "1:197443174169:web:3c0731c8b267f2b019cf88"
+  };
+  try {
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.database();
+    window.firebaseReady = true;
+  } catch (e) {
+    console.error('Firebase failed to load', e);
+    window.firebaseReady = false;
+  }
 </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #f4efe6;
@@ -74,22 +53,12 @@
     --line: #d9d2c2;
     --accent: #c44536;
     --accent-deep: #8b2e23;
-
-    --p1: #2d5a4f;
-    --p1-light: #d4e3dd;
-    --p2: #c44536;
-    --p2-light: #f4d6cf;
-    --p3: #d4a574;
-    --p3-light: #f5e8d4;
-    --p4: #4a6fa5;
-    --p4-light: #d6e0ed;
-    --p5: #8b5cf6;
-    --p5-light: #e0d6ed;
-    --familj: #6b4e8b;
-    --familj-light: #e0d6ed;
-    --ovrigt: #7a7268;
-    --ovrigt-light: #e0dcd5;
-
+    --p1: #2d5a4f; --p1-light: #d4e3dd;
+    --p2: #c44536; --p2-light: #f4d6cf;
+    --p3: #d4a574; --p3-light: #f5e8d4;
+    --p4: #4a6fa5; --p4-light: #d6e0ed;
+    --p5: #8b5cf6; --p5-light: #e0d6ed;
+    --familj: #6b4e8b; --familj-light: #e0d6ed;
     --display: 'Fraunces', Georgia, serif;
     --body: 'Inter Tight', system-ui, sans-serif;
   }
@@ -100,2873 +69,627 @@
     font-family: var(--body);
     background: var(--bg);
     color: var(--ink);
-    min-height: 100vh;
-    background-image:
-      radial-gradient(circle at 15% 20%, rgba(196, 69, 54, 0.04) 0%, transparent 40%),
-      radial-gradient(circle at 85% 70%, rgba(45, 90, 79, 0.05) 0%, transparent 45%);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 40px;
   }
 
-  /* LOGIN SCREEN */
-  .login-screen {
+  .hidden { display: none !important; }
+
+  input, select, button, textarea {
+    font-family: var(--body);
+    font-size: 16px;
+  }
+
+  /* ---------- LOGIN ---------- */
+  .login-wrap {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
   }
-
   .login-card {
     background: var(--bg-card);
     border: 1px solid var(--line);
-    border-radius: 28px;
+    border-radius: 24px;
     padding: 40px 32px;
-    max-width: 440px;
+    max-width: 420px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.06);
   }
-
   .login-logo {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 24px;
+    width: 120px; height: 120px;
     border-radius: 28px;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  }
-
-  .login-logo img {
-    width: 100%;
-    height: 100%;
     object-fit: cover;
+    margin: 0 auto 20px;
+    display: block;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    background: #fff;
   }
-
   .login-card h1 {
     font-family: var(--display);
-    font-weight: 300;
-    font-size: 3rem;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-    margin-bottom: 8px;
-  }
-
-  .login-card h1 em {
-    font-style: italic;
     font-weight: 400;
-    color: var(--accent);
+    font-size: 38px;
+    line-height: 1.05;
+    margin-bottom: 6px;
   }
-
+  .login-card h1 em { color: var(--accent); font-style: italic; }
   .login-tagline {
     font-family: var(--display);
     font-style: italic;
-    font-size: 16px;
     color: var(--ink-soft);
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
-
   .login-card label {
     display: block;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: 8px;
     text-align: left;
-  }
-
-  .login-card input {
-    width: 100%;
-    padding: 16px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    font-family: var(--body);
-    font-size: 16px;
-    color: var(--ink);
-    background: white;
-    outline: none;
-    text-align: center;
-    letter-spacing: 0.1em;
-    margin-bottom: 16px;
-    text-transform: lowercase;
-  }
-
-  .login-card input:focus { border-color: var(--accent); }
-
-  .login-card .submit-btn {
-    width: 100%;
-    padding: 16px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-family: var(--body);
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: background 0.2s;
-    text-transform: uppercase;
-  }
-
-  .login-card .submit-btn:hover { background: var(--accent-deep); }
-
-  .login-error {
-    color: var(--accent);
-    font-size: 13px;
-    margin-top: 12px;
-    font-weight: 600;
-  }
-
-  .login-error.hidden { display: none; }
-
-  .login-help {
-    margin-top: 24px;
-    font-size: 12px;
-    color: var(--ink-soft);
-    line-height: 1.6;
-  }
-
-  /* APP HEADER */
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 48px;
-    padding-bottom: 32px;
-    border-bottom: 1px solid var(--line);
-    flex-wrap: wrap;
-    gap: 24px;
-  }
-
-  .brand { display: flex; flex-direction: column; }
-
-  .brand-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 4px;
-  }
-
-  .brand-logo {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    flex-shrink: 0;
-  }
-
-  .brand-logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .eyebrow {
-    font-family: var(--body);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: 8px;
-  }
-
-  h1 {
-    font-family: var(--display);
-    font-weight: 300;
-    font-size: clamp(2.4rem, 5vw, 4rem);
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-  }
-
-  h1 em {
-    font-style: italic;
-    font-weight: 400;
-    color: var(--accent);
-  }
-
-  .date-display {
-    font-family: var(--display);
-    font-size: 14px;
-    color: var(--ink-soft);
-    text-align: right;
-    line-height: 1.5;
-  }
-
-  .date-display .big {
-    font-size: 28px;
-    font-weight: 400;
-    color: var(--ink);
-    display: block;
-    font-style: italic;
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-
-  .overview-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    background: var(--ink);
-    color: var(--bg);
-    border: none;
-    border-radius: 999px;
-    font-family: var(--body);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-  }
-
-  .overview-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-  }
-
-  .sync-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--ink-soft);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .sync-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #4caf50;
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.5);
-    animation: sync-pulse 2s infinite;
-  }
-
-  .sync-status.offline .sync-dot { background: #ff5722; animation: none; }
-
-  @keyframes sync-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.5); }
-    70% { box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-  }
-
-  .container {
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 40px 32px 80px;
-  }
-
-  .family-row {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 32px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .family-chip {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 18px;
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .family-chip:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  }
-
-  .family-chip.active {
-    background: var(--ink);
-    color: var(--bg);
-    border-color: var(--ink);
-  }
-
-  .members-edit-btn {
-    margin-left: auto;
-    padding: 8px 14px;
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ink-soft);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .members-edit-btn:hover { border-color: var(--ink); color: var(--ink); }
-
-  .logout-btn {
-    padding: 8px 14px;
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ink-soft);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .logout-btn:hover { color: var(--accent); border-color: var(--accent); }
-
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .dot-p1 { background: var(--p1); }
-  .dot-p2 { background: var(--p2); }
-  .dot-p3 { background: var(--p3); }
-  .dot-p4 { background: var(--p4); }
-  .dot-p5 { background: var(--p5); }
-  .dot-familj { background: var(--familj); }
-  .dot-ovrigt { background: var(--ovrigt); }
-</style>
-<style>
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 32px;
-  }
-
-  @media (max-width: 1000px) {
-    .main-grid { grid-template-columns: 1fr; }
-  }
-
-  .calendar {
-    background: var(--bg-card);
-    border-radius: 24px;
-    padding: 32px;
-    border: 1px solid var(--line);
-  }
-
-  .cal-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .cal-month {
-    font-family: var(--display);
-    font-size: 32px;
-    font-weight: 400;
-    font-style: italic;
-    text-transform: lowercase;
-  }
-
-  .cal-month .year {
-    color: var(--ink-soft);
-    font-style: normal;
-    font-weight: 300;
-    margin-left: 8px;
-  }
-
-  .nav-btn {
-    background: transparent;
-    border: 1px solid var(--line);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 18px;
-    color: var(--ink);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    font-family: var(--display);
-  }
-
-  .nav-btn:hover {
-    background: var(--ink);
-    color: var(--bg);
-    border-color: var(--ink);
-  }
-
-  .cal-controls { display: flex; gap: 8px; align-items: center; }
-
-  .view-switcher {
-    display: inline-flex;
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 3px;
-    gap: 2px;
-  }
-
-  .view-btn {
-    padding: 7px 16px;
-    background: transparent;
-    border: none;
-    border-radius: 999px;
-    font-family: var(--body);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ink-soft);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .view-btn.active { background: var(--ink); color: var(--bg); }
-
-  #weekView.hidden { display: none; }
-  #monthView.hidden { display: none; }
-
-  .today-btn {
-    padding: 8px 18px;
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-right: 8px;
-    font-family: var(--body);
-  }
-
-  .today-btn:hover {
-    background: var(--ink);
-    color: var(--bg);
-    border-color: var(--ink);
-  }
-
-  .weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    margin-bottom: 12px;
-    gap: 4px;
-  }
-
-  .weekday {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    text-align: center;
-    padding: 8px 0;
-  }
-
-  .days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-  }
-
-  .day {
-    min-height: 92px;
-    border-radius: 12px;
-    padding: 6px 6px 4px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    background: transparent;
-    border: 1px solid transparent;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .day:hover {
-    background: rgba(196, 69, 54, 0.05);
-    border-color: var(--line);
-  }
-
-  .day.empty { cursor: default; pointer-events: none; }
-
-  .day.today {
-    background: var(--ink);
-    color: var(--bg);
-  }
-
-  .day.today .day-num { color: var(--bg); }
-
-  .day.selected {
-    background: var(--accent);
-    color: white;
-  }
-
-  .day.selected .day-num,
-  .day.selected .event-count { color: white; }
-
-  .day-num {
-    font-family: var(--display);
-    font-size: 16px;
-    font-weight: 400;
-    color: var(--ink);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-
-  .day-events {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin-top: 2px;
-    overflow: hidden;
-  }
-
-  .event-pill {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 5px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    line-height: 1.25;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-left: 3px solid transparent;
-    cursor: pointer;
-  }
-
-  .pill-title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .pill-p1 { background: var(--p1-light); color: var(--p1); border-left-color: var(--p1); }
-  .pill-p2 { background: var(--p2-light); color: var(--accent-deep); border-left-color: var(--p2); }
-  .pill-p3 { background: var(--p3-light); color: #7a5320; border-left-color: var(--p3); }
-  .pill-p4 { background: var(--p4-light); color: var(--p4); border-left-color: var(--p4); }
-  .pill-p5 { background: var(--p5-light); color: var(--p5); border-left-color: var(--p5); }
-  .pill-familj { background: var(--familj-light); color: var(--familj); border-left-color: var(--familj); }
-  .pill-ovrigt { background: var(--ovrigt-light); color: var(--ovrigt); border-left-color: var(--ovrigt); }
-
-  .event-count {
-    font-size: 9px;
-    color: var(--ink-soft);
-    font-weight: 600;
-    margin-top: 1px;
-    padding-left: 2px;
-    letter-spacing: 0.05em;
-  }
-
-  .sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .panel {
-    background: var(--bg-card);
-    border-radius: 24px;
-    padding: 28px;
-    border: 1px solid var(--line);
-  }
-
-  .panel.editing {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(196, 69, 54, 0.1);
-  }
-
-  .panel-title {
-    font-family: var(--display);
-    font-size: 22px;
-    font-weight: 400;
-    font-style: italic;
-    margin-bottom: 4px;
-  }
-
-  .panel-sub {
-    font-size: 13px;
-    color: var(--ink-soft);
-    margin-bottom: 20px;
-  }
-
-  .form-row { margin-bottom: 14px; }
-
-  label {
-    display: block;
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--ink-soft);
-    margin-bottom: 6px;
-  }
-
-  input, select, textarea {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    font-family: var(--body);
-    font-size: 14px;
-    background: white;
-    color: var(--ink);
-    transition: border-color 0.2s;
-  }
-
-  input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
-
-  /* Remove iPhone's automatic invalid red ring */
-  input:invalid { box-shadow: none; }
-
-  textarea { resize: vertical; min-height: 60px; }
-
-  .time-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .person-picker {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-  }
-
-  .person-opt {
-    padding: 10px 6px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: white;
-    cursor: pointer;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.15s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .person-opt:hover { border-color: var(--ink); }
-
-  .person-opt.selected {
-    background: var(--ink);
-    color: var(--bg);
-    border-color: var(--ink);
-  }
-
-  .person-opt .dot { width: 8px; height: 8px; }
-
-  .submit-btn {
-    width: 100%;
-    padding: 14px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-family: var(--body);
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 8px;
-  }
-
-  .submit-btn:hover {
-    background: var(--accent-deep);
-    transform: translateY(-1px);
-  }
-
-  .cancel-edit-btn {
-    width: 100%;
-    padding: 10px;
-    background: transparent;
-    color: var(--ink-soft);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    font-family: var(--body);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-top: 8px;
-  }
-
-  .cancel-edit-btn:hover { color: var(--ink); border-color: var(--ink); }
-  .cancel-edit-btn.hidden { display: none; }
-
-  .toggle-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    text-transform: none;
-    letter-spacing: 0;
-    font-weight: 500;
-    font-size: 13px;
-    color: var(--ink);
-    margin-bottom: 0 !important;
-  }
-
-  .toggle-row input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    margin: 0;
-    accent-color: var(--accent);
-    cursor: pointer;
-  }
-
-  #timeFields.hidden { display: none; }
-  .form-row.hidden { display: none; }
-  .hidden { display: none !important; }
-
-  .repeat-mode-toggle {
-    display: flex;
-    gap: 6px;
     margin-bottom: 8px;
   }
-
-  .repeat-mode-btn {
-    flex: 1;
-    padding: 8px;
+  .login-card input {
+    width: 100%;
+    padding: 14px 16px;
     border: 1px solid var(--line);
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    font-family: var(--body);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ink-soft);
-    transition: all 0.15s;
+    border-radius: 12px;
+    background: #fff;
+    margin-bottom: 16px;
   }
-
-  .repeat-mode-btn.active {
-    background: var(--ink);
-    color: var(--bg);
-    border-color: var(--ink);
-  }
-
-  .event-list {
-    max-height: 400px;
-    overflow-y: auto;
-    padding-right: 4px;
-  }
-
-  .event-item {
-    display: flex;
-    gap: 12px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--line);
-    align-items: flex-start;
-  }
-
-  .event-item:last-child { border-bottom: none; }
-
-  .event-bar {
-    width: 3px;
-    border-radius: 2px;
-    align-self: stretch;
-    flex-shrink: 0;
-  }
-
-  .bar-p1 { background: var(--p1); }
-  .bar-p2 { background: var(--p2); }
-  .bar-p3 { background: var(--p3); }
-  .bar-p4 { background: var(--p4); }
-  .bar-p5 { background: var(--p5); }
-  .bar-familj { background: var(--familj); }
-  .bar-ovrigt { background: var(--ovrigt); }
-
-  .event-body { flex: 1; min-width: 0; }
-
-  .event-title {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 2px;
-  }
-
-  .event-meta {
-    font-size: 12px;
-    color: var(--ink-soft);
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .event-meta .person-tag {
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 10px;
-  }
-
-  .event-notes {
-    font-size: 12px;
-    color: var(--ink-soft);
-    margin-top: 4px;
-    font-style: italic;
-  }
-
-  .event-address-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--p4);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 12px;
-    margin-top: 4px;
-  }
-
-  .event-address-link:hover { text-decoration: underline; }
-  .event-address-link::before { content: "📍"; font-size: 13px; }
-
-  .item-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex-shrink: 0;
-  }
-
-  .icon-btn {
-    background: transparent;
+  .login-card input:focus { outline: none; border-color: var(--accent); }
+  .btn-primary {
+    width: 100%;
+    padding: 15px;
     border: none;
-    color: var(--ink-soft);
-    cursor: pointer;
-    font-size: 16px;
-    padding: 4px 8px;
-    line-height: 1;
-    opacity: 0.5;
-    transition: opacity 0.2s;
-    border-radius: 6px;
-  }
-
-  .icon-btn:hover { opacity: 1; color: var(--accent); background: rgba(196, 69, 54, 0.08); }
-
-  .icon-btn.delete { font-size: 20px; font-family: var(--display); }
-
-  .empty-state {
-    text-align: center;
-    padding: 32px 20px;
-    color: var(--ink-soft);
-  }
-
-  .empty-state .display {
-    font-family: var(--display);
-    font-style: italic;
-    font-size: 18px;
-    margin-bottom: 4px;
-    color: var(--ink);
-  }
-
-  .empty-state .small { font-size: 12px; }
-
-  .toast {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    background: var(--ink);
-    color: var(--bg);
-    padding: 14px 22px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 500;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.3s;
-    z-index: 1000;
-  }
-
-  .toast.show {
-    transform: translateY(0);
-    opacity: 1;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 20px;
-    color: var(--ink-soft);
-    font-style: italic;
-    font-family: var(--display);
-  }
-</style>
-<style>
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(26, 26, 26, 0.55);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s;
-    padding: 24px;
-  }
-
-  .modal-overlay.show {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .modal-card {
-    background: var(--bg-card);
-    border-radius: 24px;
-    width: 100%;
-    max-width: 720px;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-    transform: translateY(20px) scale(0.98);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .modal-card-wide { max-width: 880px; }
-  .modal-card-narrow { max-width: 480px; }
-
-  .modal-overlay.show .modal-card {
-    transform: translateY(0) scale(1);
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 28px 32px 20px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .modal-eyebrow {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: 4px;
-  }
-
-  .modal-title {
-    font-family: var(--display);
-    font-size: clamp(2rem, 5vw, 2.8rem);
-    font-weight: 300;
-    font-style: italic;
-    line-height: 1;
-    letter-spacing: -0.01em;
-    color: var(--ink);
-  }
-
-  .modal-close {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid var(--line);
-    background: transparent;
-    cursor: pointer;
-    font-size: 24px;
-    line-height: 1;
-    color: var(--ink);
-    font-family: var(--display);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-
-  .modal-close:hover {
-    background: var(--ink);
-    color: var(--bg);
-    border-color: var(--ink);
-  }
-
-  .modal-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px 32px;
-  }
-
-  .modal-footer {
-    padding: 16px 32px 24px;
-    border-top: 1px solid var(--line);
-  }
-
-  .modal-action {
-    width: 100%;
-    padding: 14px;
+    border-radius: 12px;
     background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-family: var(--body);
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .modal-action:hover { background: var(--accent-deep); }
-
-  .members-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .member-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    padding: 10px 14px;
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-  }
-
-  .member-color {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .member-row input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 6px 0;
-    font-size: 15px;
-    color: var(--ink);
-    outline: none;
-  }
-
-  .member-add-btn {
-    width: 100%;
-    padding: 12px;
-    background: transparent;
-    border: 1px dashed var(--line);
-    border-radius: 12px;
-    color: var(--ink-soft);
-    cursor: pointer;
-    font-family: var(--body);
-    font-size: 14px;
-    font-weight: 600;
-    margin-top: 8px;
-    transition: all 0.15s;
-  }
-
-  .member-add-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    border-style: solid;
-  }
-
-  .member-remove-btn {
-    background: transparent;
-    border: none;
-    color: var(--ink-soft);
-    cursor: pointer;
-    font-size: 20px;
-    padding: 4px 10px;
-    line-height: 1;
-    opacity: 0.4;
-    font-family: var(--display);
-    transition: opacity 0.2s;
-    border-radius: 6px;
-  }
-
-  .member-remove-btn:hover { opacity: 1; color: var(--accent); }
-
-  .big-event {
-    background: white;
-    border: 1px solid var(--line);
-    border-left: 4px solid var(--ink);
-    border-radius: 14px;
-    padding: 16px 18px;
-    margin-bottom: 10px;
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-  }
-
-  .big-event.bg-p1 { border-left-color: var(--p1); background: linear-gradient(to right, var(--p1-light) 0%, white 40%); }
-  .big-event.bg-p2 { border-left-color: var(--p2); background: linear-gradient(to right, var(--p2-light) 0%, white 40%); }
-  .big-event.bg-p3 { border-left-color: var(--p3); background: linear-gradient(to right, var(--p3-light) 0%, white 40%); }
-  .big-event.bg-p4 { border-left-color: var(--p4); background: linear-gradient(to right, var(--p4-light) 0%, white 40%); }
-  .big-event.bg-p5 { border-left-color: var(--p5); background: linear-gradient(to right, var(--p5-light) 0%, white 40%); }
-  .big-event.bg-familj { border-left-color: var(--familj); background: linear-gradient(to right, var(--familj-light) 0%, white 40%); }
-  .big-event.bg-ovrigt { border-left-color: var(--ovrigt); background: linear-gradient(to right, var(--ovrigt-light) 0%, white 40%); }
-
-  .big-event-time {
-    font-family: var(--display);
-    font-size: 22px;
-    font-weight: 400;
-    line-height: 1.1;
-    color: var(--ink);
-    flex-shrink: 0;
-    width: 80px;
-  }
-
-  .big-event-time .time-end {
-    display: block;
-    font-size: 13px;
-    color: var(--ink-soft);
-    margin-top: 2px;
-  }
-
-  .big-event-time.no-time {
-    font-style: italic;
-    font-size: 13px;
-    color: var(--ink-soft);
-    padding-top: 4px;
-  }
-
-  .big-event-body { flex: 1; min-width: 0; }
-
-  .big-event-title {
-    font-family: var(--display);
-    font-size: 20px;
-    font-weight: 400;
-    color: var(--ink);
-    line-height: 1.2;
-    margin-bottom: 6px;
-  }
-
-  .big-event-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--ink-soft);
-    align-items: center;
-    margin-bottom: 4px;
-  }
-
-  .big-event-notes {
-    font-size: 13px;
-    color: var(--ink);
-    margin-top: 8px;
-    padding: 10px 12px;
-    background: rgba(0,0,0,0.03);
-    border-radius: 8px;
-    font-style: italic;
-  }
-
-  .big-event-address {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: rgba(74, 111, 165, 0.08);
-    border: 1px solid rgba(74, 111, 165, 0.2);
-    border-radius: 8px;
-    font-size: 13px;
-    color: var(--p4);
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .big-event-address::before { content: "📍"; font-size: 14px; }
-
-  .big-event-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  .week-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  .week-day {
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 14px 10px;
-    min-height: 320px;
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
-  }
-
-  .week-day.today {
-    background: var(--ink);
-    color: var(--bg);
-    border-color: var(--ink);
-  }
-
-  .week-day.today .week-day-name,
-  .week-day.today .week-day-num { color: var(--bg); }
-
-  .week-day-header {
-    text-align: center;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .week-day-name {
-    font-size: 10px;
+    color: #fff;
     font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: 4px;
-  }
-
-  .week-day-num {
-    font-family: var(--display);
-    font-size: 32px;
-    font-weight: 300;
-    line-height: 1;
-    color: var(--ink);
-  }
-
-  .week-events {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  .week-event {
-    padding: 6px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    line-height: 1.3;
-    border-left: 3px solid transparent;
     cursor: pointer;
+    transition: background 0.15s;
   }
+  .btn-primary:hover { background: var(--accent-deep); }
+  .login-help { margin-top: 18px; font-size: 13px; color: var(--ink-soft); }
+  .login-error { color: var(--accent); font-size: 13px; margin-bottom: 12px; min-height: 18px; }
 
-  .week-event.we-p1 { background: var(--p1-light); border-left-color: var(--p1); color: #1a3530; }
-  .week-event.we-p2 { background: var(--p2-light); border-left-color: var(--p2); color: var(--accent-deep); }
-  .week-event.we-p3 { background: var(--p3-light); border-left-color: var(--p3); color: #6b4e23; }
-  .week-event.we-p4 { background: var(--p4-light); border-left-color: var(--p4); color: #2d4666; }
-  .week-event.we-p5 { background: var(--p5-light); border-left-color: var(--p5); color: var(--p5); }
-  .week-event.we-familj { background: var(--familj-light); border-left-color: var(--familj); color: #4a3666; }
-  .week-event.we-ovrigt { background: var(--ovrigt-light); border-left-color: var(--ovrigt); color: #5a544c; }
+  /* ---------- APP ---------- */
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
 
-  .week-event-time { font-weight: 700; margin-right: 4px; font-size: 10px; }
-  .week-event-title { font-weight: 600; }
-
-  .overview-tabs {
+  header {
+    padding: 28px 0 18px;
     display: flex;
-    gap: 4px;
-    padding: 0 32px;
-    border-bottom: 1px solid var(--line);
-    overflow-x: auto;
-  }
-
-  .overview-tab {
-    padding: 14px 18px;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    font-family: var(--body);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink-soft);
-    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-    margin-bottom: -1px;
-  }
-
-  .overview-tab.active {
-    color: var(--ink);
-    border-bottom-color: var(--ink);
-  }
-
-  .overview-tab .dot { width: 10px; height: 10px; }
-
-  .overview-row {
-    display: grid;
-    grid-template-columns: 90px 1fr auto;
+    justify-content: space-between;
     gap: 16px;
-    padding: 14px 0;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand img { width: 56px; height: 56px; border-radius: 14px; object-fit: cover; background: #fff; }
+  .eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft);
+  }
+  .brand h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1;
+  }
+  .brand h1 em { color: var(--accent); font-style: italic; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+
+  .sync-status {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--ink-soft);
+    padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--bg-card);
+  }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #cfc8ba; transition: background 0.3s; }
+  .sync-dot.on { background: #4caf7d; }
+
+  .nav-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px;
+    border: none; border-radius: 999px;
+    background: var(--ink); color: #fff;
+    font-weight: 600; font-size: 14px;
+    text-decoration: none; cursor: pointer;
+  }
+  .nav-btn:hover { background: #000; }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 22px;
+    margin-bottom: 22px;
+  }
+  .card-title {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  /* Add form */
+  .add-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .add-row input.item-name {
+    flex: 1;
+    padding: 13px 15px;
+    border: 1px solid var(--line); border-radius: 12px; background: #fff;
+  }
+  .add-row input.item-qty {
+    width: 90px;
+    padding: 13px 12px;
+    border: 1px solid var(--line); border-radius: 12px; background: #fff;
+  }
+  .add-row input:focus { outline: none; border-color: var(--accent); }
+
+  .field-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px;
+  }
+
+  .cat-picker, .person-picker {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 13px;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: #fff; cursor: pointer; font-size: 13px; font-weight: 500;
+    transition: all 0.12s; user-select: none;
+  }
+  .chip:hover { border-color: var(--ink); }
+  .chip.selected { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .chip .dot { width: 9px; height: 9px; border-radius: 50%; }
+
+  .add-btn {
+    width: 100%; padding: 14px; border: none; border-radius: 12px;
+    background: var(--accent); color: #fff; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  }
+  .add-btn:hover { background: var(--accent-deep); }
+
+  /* List */
+  .cat-group { margin-bottom: 20px; }
+  .cat-group:last-child { margin-bottom: 0; }
+  .cat-head {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 600; font-size: 13px; letter-spacing: 0.04em;
+    color: var(--ink-soft); text-transform: uppercase;
+    padding-bottom: 8px; margin-bottom: 6px;
     border-bottom: 1px solid var(--line);
-    align-items: center;
   }
-
-  .overview-row:last-child { border-bottom: none; }
-  .overview-date { font-family: var(--display); font-size: 14px; color: var(--ink); }
-  .overview-date .day-num { font-size: 24px; display: block; }
-  .overview-title { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
-  .overview-meta { font-size: 12px; color: var(--ink-soft); }
-  .overview-time { font-family: var(--display); font-size: 14px; text-align: right; }
-
-  .fab {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    right: 16px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 999px;
-    padding: 14px 20px 14px 16px;
-    font-family: var(--body);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 6px 20px rgba(196, 69, 54, 0.35);
-    z-index: 500;
-    min-height: 50px;
+  .item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 4px;
+    border-bottom: 1px solid #ece6d9;
   }
-
-  .inkop-btn {
-    background: var(--accent) !important;
-    color: white !important;
+  .item:last-child { border-bottom: none; }
+  .check {
+    width: 24px; height: 24px; min-width: 24px;
+    border: 2px solid var(--line); border-radius: 50%;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px;
   }
+  .check:hover { border-color: var(--accent); }
+  .item-main { flex: 1; min-width: 0; }
+  .item-name-txt { font-weight: 500; font-size: 16px; }
+  .item-qty-txt { color: var(--ink-soft); font-weight: 400; }
+  .item-meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+  .person-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--ink-soft);
+  }
+  .person-tag .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .item-actions { display: flex; gap: 4px; }
+  .icon-btn {
+    border: none; background: transparent; cursor: pointer;
+    padding: 6px; border-radius: 8px; color: var(--ink-soft); font-size: 15px;
+  }
+  .icon-btn:hover { background: #ece6d9; color: var(--ink); }
 
-  .inkop-btn:hover { background: var(--accent-deep) !important; }
+  .empty {
+    text-align: center; padding: 28px 10px; color: var(--ink-soft);
+  }
+  .empty .big { font-family: var(--display); font-style: italic; font-size: 20px; }
 
-  @media (max-width: 700px) {
-    .fab { display: inline-flex; }
-    .container { padding: 16px 14px 100px; }
-    h1 { font-size: 2rem; line-height: 1; }
-    .brand-logo { width: 44px; height: 44px; }
-    .calendar { padding: 16px; }
-    .panel { padding: 18px 16px; }
-    input, select, textarea { font-size: 16px !important; min-height: 46px; }
-    .day { min-height: 56px; }
-    .day-num { font-size: 13px; }
-    .event-pill { font-size: 9px; padding: 1px 3px; }
-    .person-picker { grid-template-columns: repeat(2, 1fr); }
-    .submit-btn { padding: 16px; font-size: 15px; }
-    .main-grid { gap: 16px; }
-    .modal-overlay { padding: 0; }
-    .modal-card { max-height: 100vh; border-radius: 0; }
-    .login-card h1 { font-size: 2.2rem; }
-    .login-logo { width: 100px; height: 100px; }
+  /* History */
+  .hist-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .hist-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 4px; border-bottom: 1px solid #ece6d9;
+    color: var(--ink-soft);
+  }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-item .name { flex: 1; text-decoration: line-through; }
+  .text-btn {
+    border: none; background: transparent; color: var(--accent);
+    cursor: pointer; font-size: 13px; font-weight: 600;
+  }
+  .text-btn:hover { text-decoration: underline; }
+
+  @media (max-width: 560px) {
+    .brand h1 { font-size: 24px; }
+    .brand img { width: 46px; height: 46px; }
+    header { padding-top: 20px; }
   }
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
-<div class="login-screen" id="loginScreen">
+<!-- ===== LOGIN ===== -->
+<div id="loginScreen" class="login-wrap">
   <div class="login-card">
-    <div class="login-logo">
-      <img src="../vardagspusslet.png" alt="Vardagspusslet">
-    </div>
+    <img src="../vardagspusslet.png" alt="Vardagspusslet" class="login-logo">
     <h1>Vardags<em>pusslet</em></h1>
-    <p class="login-tagline">Planera. Samordna. Tillsammans.</p>
-    <label>Familjekod</label>
-    <input type="text" id="familyCodeInput" placeholder="Tilldelad kod" autocomplete="off" autocapitalize="none">
-    <button class="submit-btn" id="loginBtn">Logga in</button>
-    <div class="login-error hidden" id="loginError">Familjekoden känns inte igen</div>
+    <p class="login-tagline">Inköpslistan</p>
+    <div class="login-error" id="loginError"></div>
+    <label for="familyCodeInput">Familjekod</label>
+    <input type="text" id="familyCodeInput" placeholder="tilldelad kod" autocomplete="off" autocapitalize="none" spellcheck="false">
+    <button class="btn-primary" id="loginBtn">Logga in</button>
     <p class="login-help">Har du ingen kod? Kontakta Jesper.</p>
   </div>
 </div>
-<!-- MAIN APP -->
-<div class="container hidden" id="appContainer">
 
-  <header>
-    <div class="brand">
-      <div class="brand-row">
-        <div class="brand-logo">
-          <img src="../vardagspusslet.png" alt="Vardagspusslet">
-        </div>
+<!-- ===== APP ===== -->
+<div id="app" class="hidden">
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img src="../vardagspusslet.png" alt="">
         <div>
           <span class="eyebrow" id="familyNameLabel">Familjen</span>
           <h1>Vardags<em>pusslet</em></h1>
         </div>
       </div>
-    </div>
-    <div class="header-right">
-      <div class="sync-status" id="syncStatus">
-        <span class="sync-dot"></span>
-        <span class="sync-text">Synkad</span>
+      <div class="header-right">
+        <span class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">Ansluter…</span></span>
+        <a href="../" class="nav-btn"><span>📅 Kalender</span></a>
       </div>
-      <a href="../" class="overview-btn inkop-btn">
-        <span>📅 Kalender</span>
-        <span style="font-size:14px;">↗</span>
-      </a>
-      <button class="overview-btn" id="overviewBtn">
-        <span>Översikt per person</span>
-        <span style="font-size:14px;">↗</span>
-      </button>
-      <div class="date-display">
-        <span id="todayLabel" class="big">Idag</span>
-        <span id="todayDate"></span>
+    </header>
+
+    <!-- Lägg till -->
+    <div class="card">
+      <h2 class="card-title" id="addTitle">Lägg till vara</h2>
+      <div class="add-row">
+        <input type="text" class="item-name" id="itemName" placeholder="t.ex. Mjölk, bananer, tandkräm…">
+        <input type="text" class="item-qty" id="itemQty" placeholder="antal">
       </div>
-    </div>
-  </header>
-
-  <div class="family-row" id="familyFilters">
-    <button class="family-chip active" data-person="all">
-      <span class="dot" style="background: var(--ink);"></span> Alla
-    </button>
-    <!-- Person filters added dynamically based on family members -->
-    <button class="family-chip" data-person="familj">
-      <span class="dot dot-familj"></span> Hela familjen
-    </button>
-    <button class="family-chip" data-person="ovrigt">
-      <span class="dot dot-ovrigt"></span> Övrigt
-    </button>
-    <button class="members-edit-btn" id="membersEditBtn">Redigera medlemmar</button>
-    <button class="logout-btn" id="logoutBtn">Logga ut</button>
-  </div>
-
-  <div class="main-grid">
-
-    <div class="calendar" id="calendarTop">
-      <div class="cal-nav">
-        <div class="cal-controls">
-          <button class="today-btn" id="todayBtn">Idag</button>
-          <button class="nav-btn" id="prevBtn">‹</button>
-          <button class="nav-btn" id="nextBtn">›</button>
-        </div>
-        <div class="cal-month" id="monthLabel"></div>
-        <div class="view-switcher">
-          <button class="view-btn active" data-view="month">Månad</button>
-          <button class="view-btn" data-view="week">Vecka</button>
-        </div>
-      </div>
-
-      <div id="monthView">
-        <div class="weekdays">
-          <div class="weekday">Mån</div>
-          <div class="weekday">Tis</div>
-          <div class="weekday">Ons</div>
-          <div class="weekday">Tor</div>
-          <div class="weekday">Fre</div>
-          <div class="weekday">Lör</div>
-          <div class="weekday">Sön</div>
-        </div>
-        <div class="days" id="daysGrid"></div>
-      </div>
-
-      <div id="weekView" class="hidden"></div>
+      <div class="field-label">Kategori</div>
+      <div class="cat-picker" id="catPicker"></div>
+      <div class="field-label">Vem (valfritt)</div>
+      <div class="person-picker" id="personPicker"></div>
+      <button class="add-btn" id="addBtn">Lägg till i listan</button>
     </div>
 
-    <div class="sidebar">
+    <!-- Att handla -->
+    <div class="card">
+      <h2 class="card-title">Att handla</h2>
+      <div id="listContainer"></div>
+    </div>
 
-      <div class="panel" id="formPanel">
-        <h2 class="panel-title" id="formTitle">Lägg till</h2>
-        <p class="panel-sub" id="formDateLabel">Välj datum i kalendern</p>
-
-        <div class="form-row">
-          <label>Vem? <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-soft);font-size:11px;">(välj en eller flera)</span></label>
-          <div class="person-picker" id="personPicker">
-            <!-- Filled dynamically -->
-          </div>
-        </div>
-
-        <div class="form-row hidden" id="ovrigtNameRow">
-          <label>Namn på person/sak <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-soft);font-size:11px;">(valfritt)</span></label>
-          <input type="text" id="ovrigtName" placeholder="t.ex. Mormor, Klasen, Garaget...">
-        </div>
-
-        <div class="form-row">
-          <label>Vad?</label>
-          <input type="text" id="eventTitle" placeholder="t.ex. Tandläkare, Fotbollsträning, Semester…">
-        </div>
-
-        <div class="form-row time-row">
-          <div>
-            <label>Från datum</label>
-            <input type="date" id="eventDateStart">
-          </div>
-          <div>
-            <label>Till datum</label>
-            <input type="date" id="eventDateEnd">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="toggle-row">
-            <input type="checkbox" id="allDayToggle">
-            <span>Heldag (utan klockslag)</span>
-          </label>
-        </div>
-
-        <div class="form-row time-row" id="timeFields">
-          <div>
-            <label>Från kl.</label>
-            <input type="time" id="eventStart">
-          </div>
-          <div>
-            <label>Till kl.</label>
-            <input type="time" id="eventEnd">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label>Anteckning (valfritt)</label>
-          <textarea id="eventNotes" placeholder="Detaljer..."></textarea>
-        </div>
-
-        <div class="form-row">
-          <label>Adress (valfritt)</label>
-          <input type="text" id="eventAddress" placeholder="t.ex. Kungsgatan 12, Stockholm">
-        </div>
-
-        <div class="form-row">
-          <label>Påminnelse (valfritt)</label>
-          <select id="eventReminder">
-            <option value="">Ingen påminnelse</option>
-            <option value="20m">20 minuter innan</option>
-            <option value="1h">1 timme innan</option>
-            <option value="3h">3 timmar innan</option>
-            <option value="5h">5 timmar innan</option>
-            <option value="8h">8 timmar innan</option>
-            <option value="12h">12 timmar innan</option>
-            <option value="24h">1 dag innan</option>
-            <option value="2d">2 dagar innan</option>
-            <option value="3d">3 dagar innan</option>
-            <option value="4d">4 dagar innan</option>
-            <option value="5d">5 dagar innan</option>
-            <option value="6d">6 dagar innan</option>
-            <option value="7d">1 vecka innan</option>
-          </select>
-        </div>
-
-        <div class="form-row">
-          <label>Återkommande (valfritt)</label>
-          <select id="eventRepeat">
-            <option value="">Bara en gång</option>
-            <option value="weekly">Varje vecka</option>
-            <option value="biweekly">Varannan vecka</option>
-            <option value="monthly">Varje månad (samma datum)</option>
-          </select>
-        </div>
-
-        <div class="form-row hidden" id="repeatCountRow">
-          <label>Hur länge ska det pågå?</label>
-          <div class="repeat-mode-toggle">
-            <button type="button" class="repeat-mode-btn active" data-mode="count">Antal gånger</button>
-            <button type="button" class="repeat-mode-btn" data-mode="until">Tills datum</button>
-          </div>
-          <input type="number" id="eventRepeatCount" min="1" max="200" value="12" placeholder="Antal gånger">
-          <input type="date" id="eventRepeatUntil" class="hidden" placeholder="Slutdatum" style="margin-top:8px;">
-          <p style="font-size:11px;color:var(--ink-soft);margin-top:6px;">Välj hur du vill ange längden</p>
-        </div>
-
-        <button class="submit-btn" id="addBtn">Boka in</button>
-        <button class="cancel-edit-btn hidden" id="cancelEditBtn">Avbryt redigering</button>
+    <!-- Historik -->
+    <div class="card" id="historyCard">
+      <div class="hist-head">
+        <h2 class="card-title" style="margin:0;">Nyligen köpt</h2>
+        <button class="text-btn" id="clearHistBtn">Rensa</button>
       </div>
-
-      <div class="panel">
-        <h2 class="panel-title" id="listTitle">Kommande</h2>
-        <p class="panel-sub" id="listSub">Det som händer härnäst</p>
-        <div class="event-list" id="eventList">
-          <div class="loading">Laddar...</div>
-        </div>
-      </div>
-
+      <div id="historyContainer"></div>
     </div>
   </div>
 </div>
-
-<button class="fab hidden" id="fabBtn">
-  <span style="font-size:24px;line-height:1;">+</span>
-  <span>Lägg till</span>
-</button>
-
-<div class="modal-overlay" id="overviewModal">
-  <div class="modal-card modal-card-wide">
-    <div class="modal-header">
-      <div>
-        <div class="modal-eyebrow">Översikt</div>
-        <h2 class="modal-title">Per person</h2>
-      </div>
-      <button class="modal-close" id="overviewCloseBtn">×</button>
-    </div>
-    <div class="overview-tabs" id="overviewTabs"></div>
-    <div class="modal-body" id="overviewBody"></div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="dayModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <div>
-        <div class="modal-eyebrow" id="modalDay">måndag</div>
-        <h2 class="modal-title" id="modalDate">2 maj</h2>
-      </div>
-      <button class="modal-close" id="modalCloseBtn">×</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-footer">
-      <button class="modal-action" id="modalAddBtn">+ Lägg till för denna dag</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="membersModal">
-  <div class="modal-card modal-card-narrow">
-    <div class="modal-header">
-      <div>
-        <div class="modal-eyebrow">Redigera</div>
-        <h2 class="modal-title">Medlemmar</h2>
-      </div>
-      <button class="modal-close" id="membersCloseBtn">×</button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px;">Lägg till eller ta bort medlemmar. Färgerna sätts automatiskt baserat på ordningen.</p>
-      <div class="members-list" id="membersListEdit"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="modal-action" id="membersSaveBtn">Spara medlemmar</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast">Inbokat</div>
 
 <script>
+(function () {
+  'use strict';
+
   const PERSON_KEYS = ['p1', 'p2', 'p3', 'p4', 'p5'];
+  const CATEGORIES = [
+    { id: 'frukt',   label: 'Frukt & grönt', icon: '🥬' },
+    { id: 'mejeri',  label: 'Mejeri',        icon: '🥛' },
+    { id: 'kott',    label: 'Kött & fisk',   icon: '🥩' },
+    { id: 'brod',    label: 'Bröd',          icon: '🍞' },
+    { id: 'fryst',   label: 'Fryst',         icon: '🧊' },
+    { id: 'skafferi',label: 'Skafferi',      icon: '🥫' },
+    { id: 'dryck',   label: 'Dryck',         icon: '🧃' },
+    { id: 'hushall', label: 'Hushåll',       icon: '🧻' },
+    { id: 'ovrigt',  label: 'Övrigt',        icon: '📦' }
+  ];
+  const CAT_BY_ID = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+  const LS_KEY = 'vardagspusslet_family';
 
-  const MONTHS = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
-  const DAYS_SV = ['söndag','måndag','tisdag','onsdag','torsdag','fredag','lördag'];
-
-  const REMINDER_OFFSETS = {
-    '20m': 20*60*1000, '1h': 60*60*1000, '3h': 3*60*60*1000, '5h': 5*60*60*1000,
-    '8h': 8*60*60*1000, '12h': 12*60*60*1000, '24h': 24*60*60*1000,
-    '2d': 2*24*60*60*1000, '3d': 3*24*60*60*1000, '4d': 4*24*60*60*1000,
-    '5d': 5*24*60*60*1000, '6d': 6*24*60*60*1000, '7d': 7*24*60*60*1000
-  };
-
-  const REMINDER_LABELS = {
-    '20m': '20 min innan', '1h': '1 tim innan', '3h': '3 tim innan',
-    '5h': '5 tim innan', '8h': '8 tim innan', '12h': '12 tim innan',
-    '24h': '1 dag innan', '2d': '2 dagar innan', '3d': '3 dagar innan',
-    '4d': '4 dagar innan', '5d': '5 dagar innan', '6d': '6 dagar innan', '7d': '1 vecka innan'
-  };
-
-  let state = {
+  const state = {
     familyCode: null,
-    familyName: '',
-    members: {},
-    view: 'month',
-    viewYear: new Date().getFullYear(),
-    viewMonth: new Date().getMonth(),
-    weekAnchor: null,
-    selectedDate: null,
-    filterPerson: 'all',
-    formPersons: [],
-    editingEventId: null,
-    repeatMode: 'count',
-    events: []
+    members: {},          // { p1:'Jesper', ... }
+    items: {},            // { pushId: {name,qty,category,person,addedAt} }
+    history: {},          // { pushId: {name,category,person,boughtAt} }
+    selectedCat: 'ovrigt',
+    selectedPerson: ''    // '' = ingen, annars p1..p5 eller 'familj'
   };
 
-  function getPersonMap() {
-    const map = {};
-    PERSON_KEYS.forEach((k, idx) => {
-      const name = state.members[k];
-      if (name) map[k] = { name, bar: `bar-${k}`, dot: `dot-${k}` };
-    });
-    map.familj = { name: 'Familjen', bar: 'bar-familj', dot: 'dot-familj' };
-    map.ovrigt = { name: 'Övrigt', bar: 'bar-ovrigt', dot: 'dot-ovrigt' };
-    return map;
-  }
+  let itemsRef = null, historyRef = null, membersRef = null;
 
-  function getActivePersonKeys() {
+  // ---------- helpers ----------
+  function personColor(key) {
+    if (key === 'familj') return 'var(--familj)';
+    return `var(--${key})`;
+  }
+  function personName(key) {
+    if (!key) return '';
+    if (key === 'familj') return 'Hela familjen';
+    return state.members[key] || '';
+  }
+  function activePersonKeys() {
     return PERSON_KEYS.filter(k => state.members[k]);
   }
-
-  let eventsRef = null;
-  let membersRef = null;
-  let suppressFirebaseUpdate = false;
-
-  function getEventsRef() {
-    if (eventsRef) return eventsRef;
-    if (window.firebaseReady && window.db && state.familyCode) {
-      eventsRef = window.db.ref(`families/${state.familyCode}/events`);
-      return eventsRef;
-    }
-    return null;
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+      ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
   }
 
-  function getMembersRef() {
-    if (membersRef) return membersRef;
-    if (window.firebaseReady && window.db && state.familyCode) {
-      membersRef = window.db.ref(`families/${state.familyCode}/members`);
-      return membersRef;
+  // ---------- LOGIN ----------
+  function showLogin() {
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('app').classList.add('hidden');
+  }
+  function tryLogin(code) {
+    code = (code || '').trim().toLowerCase();
+    const err = document.getElementById('loginError');
+    if (!window.FAMILIES[code]) {
+      err.textContent = 'Ogiltig familjekod. Försök igen.';
+      return;
     }
-    return null;
+    err.textContent = '';
+    localStorage.setItem(LS_KEY, code);
+    startApp(code);
   }
 
-  async function migrateLegacyDataIfNeeded() {
-    if (!window.firebaseReady) return;
+  function startApp(code) {
+    state.familyCode = code;
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    const fam = window.FAMILIES[code];
+    document.getElementById('familyNameLabel').textContent = fam ? fam.name : 'Familjen';
 
-    // Migration 1: Move root-level or families/reis data to families/vonreis
-    if (state.familyCode === 'vonreis') {
-      try {
-        const newRef = window.db.ref('families/vonreis/events');
-        const newSnap = await newRef.once('value');
-        if (!(newSnap.exists() && Object.keys(newSnap.val() || {}).length > 0)) {
-          const reisRef = window.db.ref('families/reis/events');
-          const reisSnap = await reisRef.once('value');
-          if (reisSnap.exists() && Object.keys(reisSnap.val() || {}).length > 0) {
-            await newRef.set(reisSnap.val());
-            console.log('Migration: copied from families/reis');
-          } else {
-            const legacyRef = window.db.ref('events');
-            const legacySnap = await legacyRef.once('value');
-            if (legacySnap.exists() && Object.keys(legacySnap.val() || {}).length > 0) {
-              await newRef.set(legacySnap.val());
-              console.log('Migration: copied from root');
-            }
-          }
-        }
-      } catch (e) { console.error('Family migration failed', e); }
+    if (!window.firebaseReady || !window.db) {
+      setSync(false, 'Ingen anslutning');
+      return;
     }
 
-    // Migration 2: Convert old person names (jesper, tilda, etc.) to new keys (p1, p2, etc.)
-    try {
-      const PERSON_MAP = { 'jesper': 'p1', 'tilda': 'p2', 'george': 'p3', 'bob': 'p4' };
-      const ref = window.db.ref(`families/${state.familyCode}/events`);
-      const snap = await ref.once('value');
-      if (!snap.exists()) return;
-      const events = snap.val();
-      let migratedCount = 0;
-      const updates = {};
-      Object.keys(events).forEach(id => {
-        const ev = events[id];
-        if (ev.person && PERSON_MAP[ev.person]) {
-          updates[`${id}/person`] = PERSON_MAP[ev.person];
-          migratedCount++;
-        }
-      });
-      if (migratedCount > 0) {
-        await ref.update(updates);
-        console.log(`Person migration: updated ${migratedCount} events`);
-      }
-    } catch (e) { console.error('Person migration failed', e); }
-  }
+    membersRef = window.db.ref(`families/${code}/members`);
+    itemsRef   = window.db.ref(`families/${code}/shopping/items`);
+    historyRef = window.db.ref(`families/${code}/shopping/history`);
 
-  async function loadMembers() {
-    const ref = getMembersRef();
-    if (!ref) return;
-    try {
-      const snap = await ref.once('value');
+    // members (för namn/färger) — skapa default om saknas
+    membersRef.once('value').then(snap => {
       if (snap.exists()) {
         state.members = snap.val();
       } else {
-        const familyDef = window.FAMILIES[state.familyCode];
-        if (familyDef && familyDef.members) {
-          const m = {};
-          familyDef.members.forEach((name, i) => {
-            const key = PERSON_KEYS[i];
-            if (key) m[key] = name.charAt(0).toUpperCase() + name.slice(1);
-          });
-          state.members = m;
-        } else {
-          state.members = { p1: 'Person 1', p2: 'Person 2' };
-        }
-        await ref.set(state.members);
-      }
-      ref.on('value', (snap) => {
-        if (suppressFirebaseUpdate) return;
-        if (snap.exists()) {
-          state.members = snap.val();
-          rebuildPersonUI();
-        }
-      });
-    } catch (e) { console.error(e); }
-  }
-
-  async function saveMembers() {
-    const ref = getMembersRef();
-    if (!ref) return;
-    try {
-      suppressFirebaseUpdate = true;
-      await ref.set(state.members);
-      setTimeout(() => { suppressFirebaseUpdate = false; }, 500);
-    } catch (e) { console.error(e); suppressFirebaseUpdate = false; }
-  }
-
-  async function loadEvents() {
-    const ref = getEventsRef();
-    if (!ref) {
-      state.events = [];
-      return;
-    }
-    return new Promise((resolve) => {
-      ref.once('value').then(snap => {
-        const data = snap.val();
-        state.events = data ? Object.values(data) : [];
-        resolve();
-        ref.on('value', (s) => {
-          if (suppressFirebaseUpdate) return;
-          const d = s.val();
-          state.events = d ? Object.values(d) : [];
-          if (!state.editingEventId) {
-            refreshCalendar();
-            renderEventList();
-          }
+        const m = {};
+        (fam.members || []).forEach((name, i) => {
+          const k = PERSON_KEYS[i];
+          if (k) m[k] = name.charAt(0).toUpperCase() + name.slice(1);
         });
-      }).catch(err => { console.error(err); state.events = []; resolve(); });
+        state.members = m;
+        membersRef.set(m);
+      }
+      renderPickers();
+    });
+    membersRef.on('value', snap => {
+      if (snap.exists()) { state.members = snap.val(); renderPickers(); renderList(); }
+    });
+
+    // realtidssynk
+    itemsRef.on('value', snap => {
+      state.items = snap.val() || {};
+      setSync(true, 'Synkad');
+      renderList();
+    });
+    historyRef.on('value', snap => {
+      state.history = snap.val() || {};
+      renderHistory();
+    });
+
+    window.db.ref('.info/connected').on('value', snap => {
+      setSync(!!snap.val(), snap.val() ? 'Synkad' : 'Ansluter…');
     });
   }
 
-  async function saveEvent(ev) {
-    const idx = state.events.findIndex(e => e.id === ev.id);
-    if (idx === -1) state.events.push(ev); else state.events[idx] = ev;
-    const ref = getEventsRef();
-    if (!ref) return;
-    try {
-      suppressFirebaseUpdate = true;
-      await ref.child(ev.id).set(ev);
-      setTimeout(() => { suppressFirebaseUpdate = false; }, 500);
-    } catch (e) { console.error(e); suppressFirebaseUpdate = false; }
+  function setSync(on, text) {
+    document.getElementById('syncDot').classList.toggle('on', !!on);
+    document.getElementById('syncText').textContent = text;
   }
 
-  async function deleteEventById(id) {
-    state.events = state.events.filter(e => e.id !== id);
-    const ref = getEventsRef();
-    if (!ref) return;
-    try {
-      suppressFirebaseUpdate = true;
-      await ref.child(id).remove();
-      setTimeout(() => { suppressFirebaseUpdate = false; }, 500);
-    } catch (e) { console.error(e); suppressFirebaseUpdate = false; }
+  // ---------- PICKERS ----------
+  function renderPickers() {
+    // kategori
+    const cp = document.getElementById('catPicker');
+    cp.innerHTML = CATEGORIES.map(c =>
+      `<div class="chip${c.id === state.selectedCat ? ' selected' : ''}" data-cat="${c.id}">
+         <span>${c.icon}</span><span>${escapeHtml(c.label)}</span></div>`).join('');
+    cp.querySelectorAll('.chip').forEach(el => el.onclick = () => {
+      state.selectedCat = el.dataset.cat; renderPickers();
+    });
+
+    // person
+    const pp = document.getElementById('personPicker');
+    let chips = `<div class="chip${state.selectedPerson === '' ? ' selected' : ''}" data-person="">Ingen</div>`;
+    activePersonKeys().forEach(k => {
+      chips += `<div class="chip${state.selectedPerson === k ? ' selected' : ''}" data-person="${k}">
+        <span class="dot" style="background:${personColor(k)}"></span>${escapeHtml(personName(k))}</div>`;
+    });
+    chips += `<div class="chip${state.selectedPerson === 'familj' ? ' selected' : ''}" data-person="familj">
+      <span class="dot" style="background:${personColor('familj')}"></span>Hela familjen</div>`;
+    pp.innerHTML = chips;
+    pp.querySelectorAll('.chip').forEach(el => el.onclick = () => {
+      state.selectedPerson = el.dataset.person; renderPickers();
+    });
   }
 
-  function setupSyncStatus() {
-    const statusEl = document.getElementById('syncStatus');
-    const textEl = statusEl.querySelector('.sync-text');
-    if (window.firebaseFailed || !window.firebaseReady) {
-      statusEl.classList.add('offline');
-      textEl.textContent = 'Offline';
+  // ---------- ITEMS ----------
+  function addItem() {
+    const nameEl = document.getElementById('itemName');
+    const qtyEl = document.getElementById('itemQty');
+    const name = nameEl.value.trim();
+    if (!name) { nameEl.focus(); return; }
+    if (!itemsRef) return;
+    itemsRef.push({
+      name: name,
+      qty: qtyEl.value.trim(),
+      category: state.selectedCat,
+      person: state.selectedPerson,
+      addedAt: Date.now()
+    });
+    nameEl.value = '';
+    qtyEl.value = '';
+    nameEl.focus();
+  }
+
+  function markBought(id, item) {
+    if (!itemsRef || !historyRef) return;
+    historyRef.push({
+      name: item.name, qty: item.qty || '', category: item.category || 'ovrigt',
+      person: item.person || '', boughtAt: Date.now()
+    });
+    itemsRef.child(id).remove();
+  }
+
+  function editItem(id, item) {
+    const nytt = prompt('Ändra vara:', item.name);
+    if (nytt === null) return;
+    const namn = nytt.trim();
+    if (!namn) return;
+    itemsRef.child(id).update({ name: namn });
+  }
+
+  function deleteItem(id) {
+    if (itemsRef) itemsRef.child(id).remove();
+  }
+
+  function restoreItem(id, h) {
+    if (!itemsRef || !historyRef) return;
+    itemsRef.push({
+      name: h.name, qty: h.qty || '', category: h.category || 'ovrigt',
+      person: h.person || '', addedAt: Date.now()
+    });
+    historyRef.child(id).remove();
+  }
+
+  function clearHistory() {
+    if (!historyRef) return;
+    if (confirm('Rensa hela köp-historiken?')) historyRef.set(null);
+  }
+
+  // ---------- RENDER ----------
+  function renderList() {
+    const c = document.getElementById('listContainer');
+    const entries = Object.entries(state.items);
+    if (entries.length === 0) {
+      c.innerHTML = `<div class="empty"><div class="big">Inget på listan ännu</div>
+        <div>Lägg till det första du behöver handla.</div></div>`;
       return;
     }
-    const connectedRef = window.db.ref('.info/connected');
-    connectedRef.on('value', (snap) => {
-      if (snap.val() === true) {
-        statusEl.classList.remove('offline');
-        textEl.textContent = 'Synkad';
-      } else {
-        statusEl.classList.add('offline');
-        textEl.textContent = 'Offline';
-      }
+    // gruppera per kategori, i CATEGORIES-ordning
+    const groups = {};
+    entries.forEach(([id, it]) => {
+      const cat = CAT_BY_ID[it.category] ? it.category : 'ovrigt';
+      (groups[cat] = groups[cat] || []).push([id, it]);
     });
-  }
-
-  // LOGIN
-  function checkSavedLogin() {
-    const saved = localStorage.getItem('vardagspusslet_family');
-    if (saved && window.FAMILIES[saved]) {
-      state.familyCode = saved;
-      state.familyName = window.FAMILIES[saved].name;
-      showApp();
-      return true;
-    }
-    return false;
-  }
-
-  function attemptLogin(code) {
-    code = code.trim().toLowerCase();
-    if (!code) return false;
-    if (window.FAMILIES[code]) {
-      state.familyCode = code;
-      state.familyName = window.FAMILIES[code].name;
-      localStorage.setItem('vardagspusslet_family', code);
-      showApp();
-      return true;
-    }
-    return false;
-  }
-
-  function logout() {
-    if (!confirm('Logga ut från ' + state.familyName + '?')) return;
-    localStorage.removeItem('vardagspusslet_family');
-    location.reload();
-  }
-
-  async function showApp() {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('appContainer').classList.remove('hidden');
-    document.getElementById('fabBtn').classList.remove('hidden');
-    document.getElementById('familyNameLabel').textContent = state.familyName;
-
-    setupSyncStatus();
-    await migrateLegacyDataIfNeeded();
-    await loadMembers();
-    rebuildPersonUI();
-    renderTodayDate();
-    selectDate(dateKey(new Date()));
-    refreshCalendar();
-    renderEventList();
-    await loadEvents();
-    refreshCalendar();
-    renderEventList();
-  }
-
-  function rebuildPersonUI() {
-    const filters = document.getElementById('familyFilters');
-    const picker = document.getElementById('personPicker');
-
-    filters.querySelectorAll('.family-chip[data-person]:not([data-person="all"]):not([data-person="familj"]):not([data-person="ovrigt"])').forEach(el => el.remove());
-    picker.innerHTML = '';
-
-    const familjChip = filters.querySelector('[data-person="familj"]');
-    PERSON_KEYS.forEach(k => {
-      const name = state.members[k];
-      if (!name) return;
-      const chip = document.createElement('button');
-      chip.className = 'family-chip';
-      chip.dataset.person = k;
-      chip.innerHTML = `<span class="dot dot-${k}"></span> ${escapeHtml(name)}`;
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('#familyFilters .family-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        state.filterPerson = k;
-        refreshCalendar();
-        renderEventList();
+    let html = '';
+    CATEGORIES.forEach(cat => {
+      const g = groups[cat.id];
+      if (!g) return;
+      g.sort((a, b) => (a[1].addedAt || 0) - (b[1].addedAt || 0));
+      html += `<div class="cat-group"><div class="cat-head"><span>${cat.icon}</span><span>${escapeHtml(cat.label)}</span></div>`;
+      g.forEach(([id, it]) => {
+        const pkey = it.person || '';
+        const tag = pkey ? `<span class="person-tag"><span class="dot" style="background:${personColor(pkey)}"></span>${escapeHtml(personName(pkey))}</span>` : '';
+        const qty = it.qty ? ` <span class="item-qty-txt">· ${escapeHtml(it.qty)}</span>` : '';
+        html += `<div class="item" data-id="${id}">
+          <div class="check" data-act="buy" title="Markera köpt"></div>
+          <div class="item-main">
+            <div class="item-name-txt">${escapeHtml(it.name)}${qty}</div>
+            ${tag ? `<div class="item-meta">${tag}</div>` : ''}
+          </div>
+          <div class="item-actions">
+            <button class="icon-btn" data-act="edit" title="Ändra">✏️</button>
+            <button class="icon-btn" data-act="del" title="Ta bort">✕</button>
+          </div>
+        </div>`;
       });
-      filters.insertBefore(chip, familjChip);
+      html += `</div>`;
     });
+    c.innerHTML = html;
 
-    PERSON_KEYS.forEach(k => {
-      const name = state.members[k];
-      if (!name) return;
-      const opt = document.createElement('div');
-      opt.className = 'person-opt';
-      opt.dataset.person = k;
-      opt.innerHTML = `<span class="dot dot-${k}"></span>${escapeHtml(name)}`;
-      opt.addEventListener('click', () => togglePersonInForm(k, opt));
-      picker.appendChild(opt);
-    });
-
-    const familjOpt = document.createElement('div');
-    familjOpt.className = 'person-opt';
-    familjOpt.dataset.person = 'familj';
-    familjOpt.innerHTML = '<span class="dot dot-familj"></span>Hela familjen';
-    familjOpt.addEventListener('click', () => togglePersonInForm('familj', familjOpt));
-    picker.appendChild(familjOpt);
-
-    const ovrigtOpt = document.createElement('div');
-    ovrigtOpt.className = 'person-opt';
-    ovrigtOpt.dataset.person = 'ovrigt';
-    ovrigtOpt.innerHTML = '<span class="dot dot-ovrigt"></span>Övrigt';
-    ovrigtOpt.addEventListener('click', () => togglePersonInForm('ovrigt', ovrigtOpt));
-    picker.appendChild(ovrigtOpt);
-  }
-
-  function togglePersonInForm(person, optEl) {
-    if (state.editingEventId) {
-      // In edit mode: only allow one person
-      state.formPersons = [person];
-      document.querySelectorAll('#personPicker .person-opt').forEach(o => o.classList.remove('selected'));
-      optEl.classList.add('selected');
-    } else {
-      if (state.formPersons.includes(person)) {
-        state.formPersons = state.formPersons.filter(p => p !== person);
-        optEl.classList.remove('selected');
-      } else {
-        state.formPersons.push(person);
-        optEl.classList.add('selected');
-      }
-    }
-    const nameRow = document.getElementById('ovrigtNameRow');
-    if (state.formPersons.includes('ovrigt')) nameRow.classList.remove('hidden');
-    else { nameRow.classList.add('hidden'); document.getElementById('ovrigtName').value = ''; }
-  }
-
-  // MEMBERS EDIT MODAL — with add/remove
-  function buildMembersListUI(values) {
-    const list = document.getElementById('membersListEdit');
-    list.innerHTML = '';
-    const colors = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)', 'var(--p5)'];
-
-    values.forEach((name, i) => {
-      const row = document.createElement('div');
-      row.className = 'member-row';
-      row.innerHTML = `
-        <div class="member-color" style="background:${colors[i] || 'var(--ink-soft)'};"></div>
-        <input type="text" placeholder="Namn" value="${escapeHtml(name || '')}">
-        <button class="member-remove-btn" title="Ta bort">×</button>
-      `;
-      row.querySelector('.member-remove-btn').addEventListener('click', () => {
-        const currentValues = Array.from(document.querySelectorAll('#membersListEdit input')).map(inp => inp.value);
-        currentValues.splice(i, 1);
-        buildMembersListUI(currentValues);
-      });
-      list.appendChild(row);
-    });
-
-    if (values.length < 5) {
-      const addBtn = document.createElement('button');
-      addBtn.className = 'member-add-btn';
-      addBtn.innerHTML = '+ Lägg till medlem';
-      addBtn.addEventListener('click', () => {
-        const currentValues = Array.from(document.querySelectorAll('#membersListEdit input')).map(inp => inp.value);
-        currentValues.push('');
-        buildMembersListUI(currentValues);
-        setTimeout(() => {
-          const inputs = document.querySelectorAll('#membersListEdit input');
-          inputs[inputs.length - 1].focus();
-        }, 50);
-      });
-      list.appendChild(addBtn);
-    }
-  }
-
-  function openMembersModal() {
-    const values = PERSON_KEYS.map(k => state.members[k] || '').filter(v => v !== '');
-    if (values.length === 0) values.push('');
-    buildMembersListUI(values);
-    document.getElementById('membersModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
-  }
-
-  async function saveMembersFromModal() {
-    const inputs = document.querySelectorAll('#membersListEdit input');
-    const newMembers = {};
-    let idx = 0;
-    inputs.forEach(input => {
-      const v = input.value.trim();
-      if (v && idx < PERSON_KEYS.length) {
-        newMembers[PERSON_KEYS[idx]] = v;
-        idx++;
-      }
-    });
-    state.members = newMembers;
-    await saveMembers();
-    closeMembersModal();
-    rebuildPersonUI();
-    refreshCalendar();
-    renderEventList();
-    showToast('Medlemmar sparade');
-  }
-
-  function closeMembersModal() {
-    document.getElementById('membersModal').classList.remove('show');
-    document.body.style.overflow = '';
-  }
-
-  function renderTodayDate() {
-    const today = new Date();
-    document.getElementById('todayLabel').textContent = DAYS_SV[today.getDay()];
-    document.getElementById('todayDate').textContent = `${today.getDate()} ${MONTHS[today.getMonth()]} ${today.getFullYear()}`;
-  }
-
-  function dateKey(d) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
-
-  function formatDateLabel(key) {
-    const [y, m, d] = key.split('-').map(Number);
-    const date = new Date(y, m - 1, d);
-    return `${DAYS_SV[date.getDay()]} ${d} ${MONTHS[m - 1]}`;
-  }
-
-  function startOfWeek(date) {
-    const d = new Date(date);
-    const day = d.getDay();
-    const offset = day === 0 ? -6 : 1 - day;
-    d.setDate(d.getDate() + offset);
-    d.setHours(0,0,0,0);
-    return d;
-  }
-
-  function datesBetween(startKey, endKey) {
-    const dates = [];
-    const [sy, sm, sd] = startKey.split('-').map(Number);
-    const [ey, em, ed] = endKey.split('-').map(Number);
-    const start = new Date(sy, sm-1, sd);
-    const end = new Date(ey, em-1, ed);
-    const cur = new Date(start);
-    while (cur <= end) { dates.push(dateKey(cur)); cur.setDate(cur.getDate()+1); }
-    return dates;
-  }
-
-  function shiftDateKey(key, days) {
-    const [y, m, d] = key.split('-').map(Number);
-    const date = new Date(y, m-1, d);
-    date.setDate(date.getDate() + days);
-    return dateKey(date);
-  }
-
-  function shiftDateKeyMonths(key, months) {
-    const [y, m, d] = key.split('-').map(Number);
-    return dateKey(new Date(y, m-1+months, d));
-  }
-
-  function mapsLink(addr) {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
-  }
-
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  function selectDate(key) {
-    state.selectedDate = key;
-    document.getElementById('formDateLabel').textContent = formatDateLabel(key);
-    if (!state.editingEventId) {
-      document.getElementById('eventDateStart').value = key;
-      const endField = document.getElementById('eventDateEnd');
-      if (!endField.value || endField.value < key) endField.value = key;
-    }
-    if (state.view === 'week') {
-      state.weekAnchor = key;
-      renderWeek();
-    } else {
-      renderCalendar();
-    }
-    renderEventList();
-  }
-  function renderCalendar() {
-    const monthLabel = document.getElementById('monthLabel');
-    monthLabel.innerHTML = `${MONTHS[state.viewMonth]}<span class="year">${state.viewYear}</span>`;
-    const grid = document.getElementById('daysGrid');
-    grid.innerHTML = '';
-    const firstDay = new Date(state.viewYear, state.viewMonth, 1);
-    const lastDay = new Date(state.viewYear, state.viewMonth + 1, 0);
-    let startOffset = firstDay.getDay() - 1;
-    if (startOffset < 0) startOffset = 6;
-    for (let i = 0; i < startOffset; i++) {
-      const empty = document.createElement('div');
-      empty.className = 'day empty';
-      grid.appendChild(empty);
-    }
-    const todayKey = dateKey(new Date());
-    for (let d = 1; d <= lastDay.getDate(); d++) {
-      const cellDate = new Date(state.viewYear, state.viewMonth, d);
-      const key = dateKey(cellDate);
-      const cell = document.createElement('div');
-      cell.className = 'day';
-      if (key === todayKey) cell.classList.add('today');
-      if (state.selectedDate === key) cell.classList.add('selected');
-      const num = document.createElement('div');
-      num.className = 'day-num';
-      num.textContent = d;
-      cell.appendChild(num);
-      const dayEvents = state.events.filter(e => e.date === key &&
-        (state.filterPerson === 'all' || e.person === state.filterPerson));
-      if (dayEvents.length > 0) {
-        const pillsWrap = document.createElement('div');
-        pillsWrap.className = 'day-events';
-        const sorted = [...dayEvents].sort((a, b) => (a.start || '').localeCompare(b.start || ''));
-        const visible = sorted.slice(0, 3);
-        const overflow = sorted.length - 3;
-        visible.forEach(ev => {
-          const pill = document.createElement('div');
-          pill.className = `event-pill pill-${ev.person}`;
-          let label = ev.title;
-          if (ev.person === 'ovrigt' && ev.ovrigtName) label = `${ev.ovrigtName}: ${ev.title}`;
-          pill.innerHTML = `<span class="pill-title">${escapeHtml(label)}</span>`;
-          pill.addEventListener('click', (e) => { e.stopPropagation(); openDayModal(key); });
-          pillsWrap.appendChild(pill);
-        });
-        if (overflow > 0) {
-          const cnt = document.createElement('div');
-          cnt.className = 'event-count';
-          cnt.textContent = `+${overflow} till`;
-          pillsWrap.appendChild(cnt);
-        }
-        cell.appendChild(pillsWrap);
-      }
-      cell.addEventListener('click', () => {
-        if (state.selectedDate === key) openDayModal(key);
-        else selectDate(key);
-      });
-      grid.appendChild(cell);
-    }
-  }
-
-  function renderWeek() {
-    const monthLabel = document.getElementById('monthLabel');
-    const ap = (state.weekAnchor || dateKey(new Date())).split('-').map(Number);
-    const anchorDate = new Date(ap[0], ap[1]-1, ap[2]);
-    const weekStart = startOfWeek(anchorDate);
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-    monthLabel.innerHTML = `${weekStart.getDate()}–${weekEnd.getDate()} ${MONTHS[weekStart.getMonth()].slice(0,3)} <span class="year">${weekStart.getFullYear()}</span>`;
-    const view = document.getElementById('weekView');
-    view.innerHTML = '';
-    const grid = document.createElement('div');
-    grid.className = 'week-grid';
-    const todayKey = dateKey(new Date());
-    for (let i = 0; i < 7; i++) {
-      const cellDate = new Date(weekStart);
-      cellDate.setDate(weekStart.getDate() + i);
-      const key = dateKey(cellDate);
-      const cell = document.createElement('div');
-      cell.className = 'week-day';
-      if (key === todayKey) cell.classList.add('today');
-      const header = document.createElement('div');
-      header.className = 'week-day-header';
-      header.innerHTML = `<div class="week-day-name">${DAYS_SV[cellDate.getDay()].slice(0,3)}</div><div class="week-day-num">${cellDate.getDate()}</div>`;
-      cell.appendChild(header);
-      const dayEvents = state.events.filter(e => e.date === key &&
-        (state.filterPerson === 'all' || e.person === state.filterPerson));
-      const eventsWrap = document.createElement('div');
-      eventsWrap.className = 'week-events';
-      const sorted = [...dayEvents].sort((a, b) => (a.start || '').localeCompare(b.start || ''));
-      sorted.slice(0, 6).forEach(ev => {
-        const item = document.createElement('div');
-        item.className = `week-event we-${ev.person}`;
-        let label = ev.title;
-        if (ev.person === 'ovrigt' && ev.ovrigtName) label = `${ev.ovrigtName}: ${ev.title}`;
-        if (ev.start) {
-          item.innerHTML = `<span class="week-event-time">${ev.start}</span><span class="week-event-title">${escapeHtml(label)}</span>`;
-        } else {
-          item.innerHTML = `<span class="week-event-title">${escapeHtml(label)}</span>`;
-        }
-        item.addEventListener('click', (e) => { e.stopPropagation(); openDayModal(key); });
-        eventsWrap.appendChild(item);
-      });
-      cell.appendChild(eventsWrap);
-      cell.addEventListener('click', () => {
-        if (state.selectedDate === key) openDayModal(key);
-        else selectDate(key);
-      });
-      grid.appendChild(cell);
-    }
-    view.appendChild(grid);
-  }
-
-  function refreshCalendar() {
-    if (state.view === 'week') renderWeek();
-    else renderCalendar();
-  }
-
-  function setView(view) {
-    state.view = view;
-    document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-    document.getElementById('monthView').classList.toggle('hidden', view !== 'month');
-    document.getElementById('weekView').classList.toggle('hidden', view !== 'week');
-    if (view === 'week') {
-      if (!state.weekAnchor) state.weekAnchor = state.selectedDate || dateKey(new Date());
-      renderWeek();
-    } else renderCalendar();
-    setTimeout(() => {
-      document.querySelector('.calendar').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  }
-
-  function renderEventList() {
-    const list = document.getElementById('eventList');
-    const titleEl = document.getElementById('listTitle');
-    const subEl = document.getElementById('listSub');
-    const PEOPLE = getPersonMap();
-    let events;
-
-    if (state.selectedDate) {
-      titleEl.textContent = formatDateLabel(state.selectedDate);
-      subEl.textContent = state.filterPerson === 'all' ? 'Allt den här dagen' : `Bara ${PEOPLE[state.filterPerson]?.name || ''}`;
-      events = state.events.filter(e => e.date === state.selectedDate &&
-        (state.filterPerson === 'all' || e.person === state.filterPerson));
-    } else {
-      titleEl.textContent = 'Kommande';
-      subEl.textContent = 'Det som händer härnäst';
-      const todayKey = dateKey(new Date());
-      events = state.events.filter(e => e.date >= todayKey &&
-        (state.filterPerson === 'all' || e.person === state.filterPerson));
-      events.sort((a, b) => a.date.localeCompare(b.date));
-      const seen = new Set();
-      events = events.filter(e => {
-        if (e.seriesId) {
-          const k = `${e.seriesId}-${e.person}`;
-          if (seen.has(k)) return false;
-          seen.add(k);
-        }
-        return true;
-      });
-    }
-
-    events.sort((a, b) => {
-      if (a.date !== b.date) return a.date.localeCompare(b.date);
-      return (a.start || '').localeCompare(b.start || '');
-    });
-
-    if (events.length === 0) {
-      list.innerHTML = `<div class="empty-state"><div class="display">Inget inbokat</div><div class="small">Lägg till något i formuläret</div></div>`;
-      return;
-    }
-
-    list.innerHTML = '';
-    events.forEach(ev => {
-      const item = document.createElement('div');
-      item.className = 'event-item';
-      const personData = PEOPLE[ev.person];
-      const bar = document.createElement('div');
-      bar.className = `event-bar ${personData?.bar || 'bar-ovrigt'}`;
-      item.appendChild(bar);
-      const body = document.createElement('div');
-      body.className = 'event-body';
-      const title = document.createElement('div');
-      title.className = 'event-title';
-      title.textContent = ev.title;
-      body.appendChild(title);
-      const meta = document.createElement('div');
-      meta.className = 'event-meta';
-      const personTag = document.createElement('span');
-      personTag.className = 'person-tag';
-      personTag.textContent = (ev.person === 'ovrigt' && ev.ovrigtName) ? ev.ovrigtName : (personData?.name || 'Okänd');
-      personTag.style.color = `var(--${ev.person})`;
-      meta.appendChild(personTag);
-      if (!state.selectedDate) {
-        meta.appendChild(document.createTextNode('·'));
-        const ds = document.createElement('span');
-        ds.textContent = formatDateLabel(ev.date);
-        meta.appendChild(ds);
-      }
-      if (ev.start) {
-        meta.appendChild(document.createTextNode('·'));
-        const t = document.createElement('span');
-        t.textContent = ev.end ? `${ev.start}–${ev.end}` : ev.start;
-        meta.appendChild(t);
-      }
-      body.appendChild(meta);
-      if (ev.notes) {
-        const n = document.createElement('div');
-        n.className = 'event-notes';
-        n.textContent = ev.notes;
-        body.appendChild(n);
-      }
-      if (ev.address) {
-        const a = document.createElement('a');
-        a.className = 'event-address-link';
-        a.href = mapsLink(ev.address);
-        a.target = '_blank';
-        a.rel = 'noopener';
-        a.textContent = ev.address;
-        a.addEventListener('click', e => e.stopPropagation());
-        body.appendChild(a);
-      }
-      item.appendChild(body);
-      const actions = document.createElement('div');
-      actions.className = 'item-actions';
-      const edit = document.createElement('button');
-      edit.className = 'icon-btn';
-      edit.innerHTML = '✎';
-      edit.title = 'Redigera';
-      edit.addEventListener('click', () => startEditingEvent(ev));
-      actions.appendChild(edit);
-      const del = document.createElement('button');
-      del.className = 'icon-btn delete';
-      del.innerHTML = '×';
-      del.title = 'Ta bort';
-      del.addEventListener('click', () => handleDeleteEvent(ev));
-      actions.appendChild(del);
-      item.appendChild(actions);
-      list.appendChild(item);
+    c.querySelectorAll('.item').forEach(row => {
+      const id = row.dataset.id;
+      const it = state.items[id];
+      if (!it) return;
+      row.querySelector('[data-act="buy"]').onclick = () => markBought(id, it);
+      row.querySelector('[data-act="edit"]').onclick = () => editItem(id, it);
+      row.querySelector('[data-act="del"]').onclick = () => deleteItem(id);
     });
   }
 
-  async function handleDeleteEvent(ev) {
-    if (!confirm(`Ta bort "${ev.title}"?`)) return;
-    const groupAll = ev.groupId ? state.events.filter(e => e.groupId === ev.groupId && e.person === ev.person) : [ev];
-    for (const e of groupAll) await deleteEventById(e.id);
-    refreshCalendar();
-    renderEventList();
-    showToast('Borttagen');
-  }
-
-  function startEditingEvent(ev) {
-    state.editingEventId = ev.id;
-    document.getElementById('eventTitle').value = ev.title || '';
-    document.getElementById('eventDateStart').value = ev.spanStart || ev.date;
-    document.getElementById('eventDateEnd').value = ev.spanEnd || ev.date;
-    document.getElementById('eventStart').value = ev.start || '';
-    document.getElementById('eventEnd').value = ev.end || '';
-    document.getElementById('eventNotes').value = ev.notes || '';
-    document.getElementById('eventAddress').value = ev.address || '';
-    document.getElementById('eventReminder').value = ev.reminder || '';
-    document.getElementById('ovrigtName').value = ev.ovrigtName || '';
-    document.getElementById('allDayToggle').checked = !!ev.allDay;
-    document.getElementById('timeFields').classList.toggle('hidden', !!ev.allDay);
-    state.formPersons = [ev.person];
-    document.querySelectorAll('#personPicker .person-opt').forEach(o => {
-      o.classList.toggle('selected', o.dataset.person === ev.person);
-    });
-    document.getElementById('ovrigtNameRow').classList.toggle('hidden', ev.person !== 'ovrigt');
-    document.getElementById('formTitle').textContent = 'Redigerar';
-    document.getElementById('addBtn').textContent = 'Spara ändringar';
-    document.getElementById('cancelEditBtn').classList.remove('hidden');
-    document.getElementById('formPanel').classList.add('editing');
-    document.getElementById('formPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => document.getElementById('eventTitle').focus(), 300);
-  }
-
-  async function saveEdits() {
-    const ev = state.events.find(e => e.id === state.editingEventId);
-    if (!ev) { cancelEditing(); return; }
-    const title = document.getElementById('eventTitle').value.trim();
-    if (!title) { showToast('Skriv vad'); return; }
-
-    // Check if person changed
-    const newPerson = state.formPersons[0] || ev.person;
-    const personChanged = newPerson !== ev.person;
-
-    if (personChanged) {
-      // Delete old event first (because ID contains person key)
-      await deleteEventById(ev.id);
-      ev.person = newPerson;
-      // Generate new ID
-      ev.id = Date.now().toString() + Math.random().toString(36).slice(2,7) + '-' + newPerson + '-' + ev.date;
-    }
-
-    ev.title = title;
-    ev.start = document.getElementById('allDayToggle').checked ? '' : document.getElementById('eventStart').value;
-    ev.end = document.getElementById('allDayToggle').checked ? '' : document.getElementById('eventEnd').value;
-    ev.notes = document.getElementById('eventNotes').value.trim();
-    ev.address = document.getElementById('eventAddress').value.trim();
-    ev.reminder = document.getElementById('eventReminder').value;
-    ev.allDay = document.getElementById('allDayToggle').checked;
-    if (ev.person === 'ovrigt') ev.ovrigtName = document.getElementById('ovrigtName').value.trim();
-    else ev.ovrigtName = '';
-
-    await saveEvent(ev);
-    cancelEditing();
-    refreshCalendar();
-    renderEventList();
-    showToast(personChanged ? 'Flyttad' : 'Sparat');
-  }
-
-  function cancelEditing() {
-    state.editingEventId = null;
-    state.formPersons = [];
-    ['eventTitle','eventStart','eventEnd','eventNotes','eventAddress','eventReminder','ovrigtName'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('ovrigtNameRow').classList.add('hidden');
-    document.getElementById('allDayToggle').checked = false;
-    document.getElementById('timeFields').classList.remove('hidden');
-    document.querySelectorAll('#personPicker .person-opt').forEach(o => o.classList.remove('selected'));
-    document.getElementById('formTitle').textContent = 'Lägg till';
-    document.getElementById('addBtn').textContent = 'Boka in';
-    document.getElementById('cancelEditBtn').classList.add('hidden');
-    document.getElementById('formPanel').classList.remove('editing');
-  }
-
-  async function addEvent() {
-    if (state.formPersons.length === 0) { showToast('Välj minst en'); return; }
-    const startDate = document.getElementById('eventDateStart').value;
-    const endDate = document.getElementById('eventDateEnd').value || startDate;
-    if (!startDate) { showToast('Välj datum'); return; }
-    if (new Date(endDate) < new Date(startDate)) { showToast('Till-datum kan inte vara före från-datum'); return; }
-    const title = document.getElementById('eventTitle').value.trim();
-    if (!title) { showToast('Skriv vad'); return; }
-    const allDay = document.getElementById('allDayToggle').checked;
-    const start = allDay ? '' : document.getElementById('eventStart').value;
-    const end = allDay ? '' : document.getElementById('eventEnd').value;
-    const notes = document.getElementById('eventNotes').value.trim();
-    const address = document.getElementById('eventAddress').value.trim();
-    const reminder = document.getElementById('eventReminder').value;
-    const ovrigtName = document.getElementById('ovrigtName').value.trim();
-    const repeat = document.getElementById('eventRepeat').value;
-    let occurrenceCount = 1;
-    if (repeat) {
-      if (state.repeatMode === 'until') {
-        const untilDate = document.getElementById('eventRepeatUntil').value;
-        if (!untilDate) { showToast('Välj slutdatum'); return; }
-        if (new Date(untilDate) < new Date(startDate)) { showToast('Slutdatum kan inte vara före startdatum'); return; }
-        let count = 0;
-        let cur = startDate;
-        while (cur <= untilDate && count < 500) {
-          count++;
-          if (repeat === 'weekly') cur = shiftDateKey(cur, 7);
-          else if (repeat === 'biweekly') cur = shiftDateKey(cur, 14);
-          else if (repeat === 'monthly') cur = shiftDateKeyMonths(cur, 1);
-          else break;
-        }
-        occurrenceCount = count;
-      } else {
-        occurrenceCount = parseInt(document.getElementById('eventRepeatCount').value, 10) || 1;
-      }
-    }
-    const seriesId = repeat ? (Date.now().toString() + Math.random().toString(36).slice(2,7)) : null;
-    for (let occ = 0; occ < occurrenceCount; occ++) {
-      let occStart = startDate, occEnd = endDate;
-      if (repeat === 'weekly') { occStart = shiftDateKey(startDate, occ*7); occEnd = shiftDateKey(endDate, occ*7); }
-      else if (repeat === 'biweekly') { occStart = shiftDateKey(startDate, occ*14); occEnd = shiftDateKey(endDate, occ*14); }
-      else if (repeat === 'monthly') { occStart = shiftDateKeyMonths(startDate, occ); occEnd = shiftDateKeyMonths(endDate, occ); }
-      const groupId = (Date.now() + occ).toString() + Math.random().toString(36).slice(2,7);
-      const dates = datesBetween(occStart, occEnd);
-      for (const person of state.formPersons) {
-        for (let i = 0; i < dates.length; i++) {
-          const d = dates[i];
-          const ev = {
-            id: groupId + '-' + person + '-' + d,
-            groupId, seriesId, seriesType: repeat || '',
-            person,
-            ovrigtName: person === 'ovrigt' ? ovrigtName : '',
-            date: d, title, start, end, notes, address, allDay, reminder,
-            reminderFired: false,
-            spanStart: occStart, spanEnd: occEnd,
-            dayIndex: i+1, dayTotal: dates.length
-          };
-          await saveEvent(ev);
-        }
-      }
-    }
-    ['eventTitle','eventStart','eventEnd','eventNotes','eventAddress','eventReminder','ovrigtName'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('ovrigtNameRow').classList.add('hidden');
-    document.getElementById('eventRepeat').value = '';
-    document.getElementById('repeatCountRow').classList.add('hidden');
-    document.getElementById('allDayToggle').checked = false;
-    document.getElementById('timeFields').classList.remove('hidden');
-    document.querySelectorAll('#personPicker .person-opt').forEach(o => o.classList.remove('selected'));
-    const PEOPLE = getPersonMap();
-    const names = state.formPersons.map(p => PEOPLE[p]?.name || p).join(', ');
-    state.formPersons = [];
-    refreshCalendar();
-    renderEventList();
-    showToast(`Inbokat för ${names}`);
-  }
-
-  let modalCurrentDate = null;
-  function openDayModal(key) {
-    modalCurrentDate = key;
-    selectDate(key);
-    renderDayModal();
-    document.getElementById('dayModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeDayModal() {
-    document.getElementById('dayModal').classList.remove('show');
-    document.body.style.overflow = '';
-    modalCurrentDate = null;
-  }
-  function renderDayModal() {
-    if (!modalCurrentDate) return;
-    const [y, m, d] = modalCurrentDate.split('-').map(Number);
-    const date = new Date(y, m-1, d);
-    document.getElementById('modalDay').textContent = DAYS_SV[date.getDay()];
-    document.getElementById('modalDate').textContent = `${d} ${MONTHS[m-1]}`;
-    const body = document.getElementById('modalBody');
-    body.innerHTML = '';
-    const dayEvents = state.events.filter(e => e.date === modalCurrentDate &&
-      (state.filterPerson === 'all' || e.person === state.filterPerson));
-    if (dayEvents.length === 0) {
-      body.innerHTML = `<div class="empty-state"><div class="display">Inget inbokat</div></div>`;
-      return;
-    }
-    const sorted = [...dayEvents].sort((a, b) => (a.start || '').localeCompare(b.start || ''));
-    sorted.forEach(ev => body.appendChild(renderBigEvent(ev)));
-  }
-
-  function renderBigEvent(ev) {
-    const PEOPLE = getPersonMap();
-    const card = document.createElement('div');
-    card.className = `big-event bg-${ev.person}`;
-    const timeCol = document.createElement('div');
-    if (ev.start && !ev.allDay) {
-      timeCol.className = 'big-event-time';
-      timeCol.innerHTML = `<span>${ev.start}</span>${ev.end ? `<span class="time-end">– ${ev.end}</span>` : ''}`;
-    } else {
-      timeCol.className = 'big-event-time no-time';
-      timeCol.textContent = 'heldag';
-    }
-    card.appendChild(timeCol);
-    const body = document.createElement('div');
-    body.className = 'big-event-body';
-    const title = document.createElement('div');
-    title.className = 'big-event-title';
-    title.textContent = ev.title;
-    body.appendChild(title);
-    const meta = document.createElement('div');
-    meta.className = 'big-event-meta';
-    const tag = document.createElement('span');
-    tag.style.fontWeight = '700';
-    tag.style.textTransform = 'uppercase';
-    tag.style.fontSize = '10px';
-    tag.style.letterSpacing = '0.1em';
-    tag.textContent = (ev.person === 'ovrigt' && ev.ovrigtName) ? ev.ovrigtName : (PEOPLE[ev.person]?.name || 'Okänd');
-    tag.style.color = `var(--${ev.person})`;
-    meta.appendChild(tag);
-    body.appendChild(meta);
-    if (ev.notes) {
-      const n = document.createElement('div');
-      n.className = 'big-event-notes';
-      n.textContent = ev.notes;
-      body.appendChild(n);
-    }
-    if (ev.address) {
-      const a = document.createElement('a');
-      a.className = 'big-event-address';
-      a.href = mapsLink(ev.address);
-      a.target = '_blank';
-      a.textContent = ev.address;
-      a.addEventListener('click', e => e.stopPropagation());
-      body.appendChild(a);
-    }
-    card.appendChild(body);
-    const actions = document.createElement('div');
-    actions.className = 'big-event-actions';
-    const edit = document.createElement('button');
-    edit.className = 'icon-btn';
-    edit.innerHTML = '✎';
-    edit.style.fontSize = '18px';
-    edit.title = 'Redigera';
-    edit.addEventListener('click', () => { closeDayModal(); startEditingEvent(ev); });
-    actions.appendChild(edit);
-    const del = document.createElement('button');
-    del.className = 'icon-btn delete';
-    del.innerHTML = '×';
-    del.style.fontSize = '22px';
-    del.title = 'Ta bort';
-    del.addEventListener('click', async () => { await handleDeleteEvent(ev); renderDayModal(); });
-    actions.appendChild(del);
-    card.appendChild(actions);
-    return card;
-  }
-
-  let overviewActivePerson = 'p1';
-  function openOverview() {
-    overviewActivePerson = getActivePersonKeys()[0] || 'familj';
-    document.getElementById('overviewModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
-    renderOverviewTabs();
-    renderOverviewBody();
-  }
-  function closeOverview() {
-    document.getElementById('overviewModal').classList.remove('show');
-    document.body.style.overflow = '';
-  }
-  function renderOverviewTabs() {
-    const tabsEl = document.getElementById('overviewTabs');
-    tabsEl.innerHTML = '';
-    const todayKey = dateKey(new Date());
-    const PEOPLE = getPersonMap();
-    const personKeys = [...getActivePersonKeys(), 'familj', 'ovrigt'];
-    personKeys.forEach(p => {
-      const count = state.events.filter(e => e.person === p && e.date >= todayKey).length;
-      const tab = document.createElement('button');
-      tab.className = 'overview-tab' + (overviewActivePerson === p ? ' active' : '');
-      tab.innerHTML = `<span class="dot ${PEOPLE[p]?.dot || 'dot-ovrigt'}"></span><span>${PEOPLE[p]?.name || p}</span><span style="font-size:10px;color:var(--ink-soft);">(${count})</span>`;
-      tab.addEventListener('click', () => {
-        overviewActivePerson = p;
-        renderOverviewTabs();
-        renderOverviewBody();
-      });
-      tabsEl.appendChild(tab);
-    });
-  }
-  function renderOverviewBody() {
-    const body = document.getElementById('overviewBody');
-    body.innerHTML = '';
-    const todayKey = dateKey(new Date());
-    const events = state.events.filter(e => e.person === overviewActivePerson && e.date >= todayKey);
-    events.sort((a, b) => a.date.localeCompare(b.date));
-    if (events.length === 0) {
-      body.innerHTML = `<div class="empty-state"><div class="display">Inget inbokat</div></div>`;
-      return;
-    }
-    events.forEach(ev => {
-      const [y, m, d] = ev.date.split('-').map(Number);
-      const row = document.createElement('div');
-      row.className = 'overview-row';
-      row.style.cursor = 'pointer';
-      row.innerHTML = `
-        <div class="overview-date">
-          <span style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-soft);">${DAYS_SV[new Date(y,m-1,d).getDay()].slice(0,3)}</span>
-          <span class="day-num">${d}</span>
-          <span style="font-size:11px;color:var(--ink-soft);">${MONTHS[m-1].slice(0,3)}</span>
-        </div>
-        <div>
-          <div class="overview-title">${escapeHtml(ev.title)}</div>
-          <div class="overview-meta">${ev.notes ? escapeHtml(ev.notes) : ''}</div>
-        </div>
-        <div class="overview-time">${ev.start ? (ev.end ? ev.start+'–'+ev.end : ev.start) : 'heldag'}</div>
-      `;
-      row.addEventListener('click', () => {
-        closeOverview();
-        const [yy, mm] = ev.date.split('-').map(Number);
-        state.viewYear = yy;
-        state.viewMonth = mm - 1;
-        openDayModal(ev.date);
-      });
-      body.appendChild(row);
+  function renderHistory() {
+    const c = document.getElementById('historyContainer');
+    const card = document.getElementById('historyCard');
+    let entries = Object.entries(state.history);
+    if (entries.length === 0) { card.classList.add('hidden'); return; }
+    card.classList.remove('hidden');
+    entries.sort((a, b) => (b[1].boughtAt || 0) - (a[1].boughtAt || 0));
+    entries = entries.slice(0, 30);
+    c.innerHTML = entries.map(([id, h]) => {
+      const qty = h.qty ? ` · ${escapeHtml(h.qty)}` : '';
+      return `<div class="hist-item" data-id="${id}">
+        <span class="name">${escapeHtml(h.name)}${qty}</span>
+        <button class="text-btn" data-act="restore">↩ Tillbaka</button>
+      </div>`;
+    }).join('');
+    c.querySelectorAll('.hist-item').forEach(row => {
+      const id = row.dataset.id;
+      const h = state.history[id];
+      if (!h) return;
+      row.querySelector('[data-act="restore"]').onclick = () => restoreItem(id, h);
     });
   }
 
-  let toastTimer = null;
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  // ---------- INIT ----------
+  document.getElementById('loginBtn').onclick = () =>
+    tryLogin(document.getElementById('familyCodeInput').value);
+  document.getElementById('familyCodeInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') tryLogin(e.target.value);
+  });
+  document.getElementById('addBtn').onclick = addItem;
+  document.getElementById('itemName').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addItem();
+  });
+  document.getElementById('itemQty').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addItem();
+  });
+  document.getElementById('clearHistBtn').onclick = clearHistory;
+
+  // auto-login via delad localStorage-nyckel
+  const saved = localStorage.getItem(LS_KEY);
+  if (saved && window.FAMILIES[saved]) {
+    startApp(saved);
+  } else {
+    showLogin();
+    document.getElementById('familyCodeInput').focus();
   }
-
-  // EVENT LISTENERS
-  document.getElementById('loginBtn').addEventListener('click', () => {
-    const code = document.getElementById('familyCodeInput').value;
-    if (!attemptLogin(code)) {
-      document.getElementById('loginError').classList.remove('hidden');
-    }
-  });
-  document.getElementById('familyCodeInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') document.getElementById('loginBtn').click();
-  });
-  document.getElementById('logoutBtn').addEventListener('click', logout);
-  document.getElementById('membersEditBtn').addEventListener('click', openMembersModal);
-  document.getElementById('membersCloseBtn').addEventListener('click', closeMembersModal);
-  document.getElementById('membersSaveBtn').addEventListener('click', saveMembersFromModal);
-  document.getElementById('membersModal').addEventListener('click', (e) => {
-    if (e.target.id === 'membersModal') closeMembersModal();
-  });
-
-  document.getElementById('prevBtn').addEventListener('click', () => {
-    if (state.view === 'week') {
-      const ap = (state.weekAnchor || dateKey(new Date())).split('-').map(Number);
-      const monday = startOfWeek(new Date(ap[0], ap[1]-1, ap[2]));
-      monday.setDate(monday.getDate() - 7);
-      state.weekAnchor = dateKey(monday);
-      renderWeek();
-    } else {
-      state.viewMonth--;
-      if (state.viewMonth < 0) { state.viewMonth = 11; state.viewYear--; }
-      renderCalendar();
-    }
-  });
-  document.getElementById('nextBtn').addEventListener('click', () => {
-    if (state.view === 'week') {
-      const ap = (state.weekAnchor || dateKey(new Date())).split('-').map(Number);
-      const monday = startOfWeek(new Date(ap[0], ap[1]-1, ap[2]));
-      monday.setDate(monday.getDate() + 7);
-      state.weekAnchor = dateKey(monday);
-      renderWeek();
-    } else {
-      state.viewMonth++;
-      if (state.viewMonth > 11) { state.viewMonth = 0; state.viewYear++; }
-      renderCalendar();
-    }
-  });
-  document.getElementById('todayBtn').addEventListener('click', () => {
-    const t = new Date();
-    state.viewYear = t.getFullYear();
-    state.viewMonth = t.getMonth();
-    state.weekAnchor = dateKey(t);
-    selectDate(dateKey(t));
-  });
-  document.querySelectorAll('.view-btn').forEach(btn => {
-    btn.addEventListener('click', () => setView(btn.dataset.view));
-  });
-
-  document.querySelector('[data-person="all"]').addEventListener('click', (e) => {
-    document.querySelectorAll('#familyFilters .family-chip').forEach(c => c.classList.remove('active'));
-    e.currentTarget.classList.add('active');
-    state.filterPerson = 'all';
-    refreshCalendar();
-    renderEventList();
-  });
-  document.querySelector('[data-person="familj"]').addEventListener('click', (e) => {
-    document.querySelectorAll('#familyFilters .family-chip').forEach(c => c.classList.remove('active'));
-    e.currentTarget.classList.add('active');
-    state.filterPerson = 'familj';
-    refreshCalendar();
-    renderEventList();
-  });
-  document.querySelector('[data-person="ovrigt"]').addEventListener('click', (e) => {
-    document.querySelectorAll('#familyFilters .family-chip').forEach(c => c.classList.remove('active'));
-    e.currentTarget.classList.add('active');
-    state.filterPerson = 'ovrigt';
-    refreshCalendar();
-    renderEventList();
-  });
-
-  document.getElementById('addBtn').addEventListener('click', () => {
-    if (state.editingEventId) saveEdits();
-    else addEvent();
-  });
-  document.getElementById('cancelEditBtn').addEventListener('click', cancelEditing);
-  document.getElementById('overviewBtn').addEventListener('click', openOverview);
-  document.getElementById('overviewCloseBtn').addEventListener('click', closeOverview);
-  document.getElementById('overviewModal').addEventListener('click', (e) => {
-    if (e.target.id === 'overviewModal') closeOverview();
-  });
-  document.getElementById('modalCloseBtn').addEventListener('click', closeDayModal);
-  document.getElementById('dayModal').addEventListener('click', (e) => {
-    if (e.target.id === 'dayModal') closeDayModal();
-  });
-  document.getElementById('modalAddBtn').addEventListener('click', () => {
-    closeDayModal();
-    setTimeout(() => {
-      document.getElementById('formPanel').scrollIntoView({ behavior: 'smooth' });
-      document.getElementById('eventTitle').focus();
-    }, 100);
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (document.getElementById('dayModal').classList.contains('show')) closeDayModal();
-      else if (document.getElementById('overviewModal').classList.contains('show')) closeOverview();
-      else if (document.getElementById('membersModal').classList.contains('show')) closeMembersModal();
-    }
-  });
-  document.getElementById('allDayToggle').addEventListener('change', (e) => {
-    document.getElementById('timeFields').classList.toggle('hidden', e.target.checked);
-  });
-  document.getElementById('eventRepeat').addEventListener('change', (e) => {
-    document.getElementById('repeatCountRow').classList.toggle('hidden', !e.target.value);
-  });
-  document.querySelectorAll('.repeat-mode-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.repeat-mode-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.repeatMode = btn.dataset.mode;
-      document.getElementById('eventRepeatCount').classList.toggle('hidden', btn.dataset.mode !== 'count');
-      document.getElementById('eventRepeatUntil').classList.toggle('hidden', btn.dataset.mode !== 'until');
-    });
-  });
-  document.getElementById('fabBtn').addEventListener('click', () => {
-    document.getElementById('formPanel').scrollIntoView({ behavior: 'smooth' });
-    setTimeout(() => document.getElementById('eventTitle').focus(), 400);
-  });
-
-  // BOOT
-  (async () => {
-    if (!checkSavedLogin()) {
-      document.getElementById('familyCodeInput').focus();
-    }
-  })();
+})();
 </script>
-
 </body>
 </html>
