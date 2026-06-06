@@ -1,0 +1,19 @@
+{
+  "name": "Vardagspusslet",
+  "short_name": "Vardags",
+  "description": "Familjens kalender och inköpslista",
+  "start_url": "/Familj/",
+  "scope": "/Familj/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4efe6",
+  "theme_color": "#f4efe6",
+  "icons": [
+    {
+      "src": "vardagspusslet.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
