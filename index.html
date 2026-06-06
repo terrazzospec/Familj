@@ -12,11 +12,9 @@
 <link rel="icon" type="image/png" href="../vardagspusslet.png">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- Firebase (compat SDK, samma som kalendern) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-<!-- FAMILJEKODER — samma som kalendern -->
 <script>
   const FAMILIES = {
     'vonreis': { name: 'Familjen Reis', members: ['jesper', 'tilda', 'george', 'bob'] },
@@ -46,287 +44,67 @@
 
 <style>
   :root {
-    --bg: #f4efe6;
-    --bg-card: #fbf8f1;
-    --ink: #1a1a1a;
-    --ink-soft: #5a5550;
-    --line: #d9d2c2;
-    --accent: #c44536;
-    --accent-deep: #8b2e23;
-    --p1: #2d5a4f; --p1-light: #d4e3dd;
-    --p2: #c44536; --p2-light: #f4d6cf;
-    --p3: #d4a574; --p3-light: #f5e8d4;
-    --p4: #4a6fa5; --p4-light: #d6e0ed;
-    --p5: #8b5cf6; --p5-light: #e0d6ed;
-    --familj: #6b4e8b; --familj-light: #e0d6ed;
-    --display: 'Fraunces', Georgia, serif;
-    --body: 'Inter Tight', system-ui, sans-serif;
+    --bg: #f4efe6; --bg-card: #fbf8f1; --ink: #1a1a1a; --ink-soft: #5a5550;
+    --line: #d9d2c2; --accent: #c44536; --accent-deep: #8b2e23;
+    --p1: #2d5a4f; --p2: #c44536; --p3: #d4a574; --p4: #4a6fa5; --p5: #8b5cf6;
+    --familj: #6b4e8b; --ovrigt: #7a7268;
+    --display: 'Fraunces', Georgia, serif; --body: 'Inter Tight', system-ui, sans-serif;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: var(--body);
-    background: var(--bg);
-    color: var(--ink);
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    padding-bottom: 40px;
-  }
-
+  body { font-family: var(--body); background: var(--bg); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; padding-bottom: 40px; }
   .hidden { display: none !important; }
+  input, select, button, textarea { font-family: var(--body); font-size: 16px; }
 
-  input, select, button, textarea {
-    font-family: var(--body);
-    font-size: 16px;
-  }
-
-  /* ---------- LOGIN ---------- */
-  .login-wrap {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
-  .login-card {
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: 24px;
-    padding: 40px 32px;
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.06);
-  }
-  .login-logo {
-    width: 120px; height: 120px;
-    border-radius: 28px;
-    object-fit: cover;
-    margin: 0 auto 20px;
-    display: block;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    background: #fff;
-  }
-  .login-card h1 {
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: 38px;
-    line-height: 1.05;
-    margin-bottom: 6px;
-  }
+  /* LOGIN */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .login-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 24px; padding: 40px 32px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+  .login-logo { width: 120px; height: 120px; border-radius: 28px; object-fit: cover; margin: 0 auto 20px; display: block; box-shadow: 0 8px 24px rgba(0,0,0,0.08); background: #fff; }
+  .login-card h1 { font-family: var(--display); font-weight: 400; font-size: 38px; line-height: 1.05; margin-bottom: 6px; }
   .login-card h1 em { color: var(--accent); font-style: italic; }
-  .login-tagline {
-    font-family: var(--display);
-    font-style: italic;
-    color: var(--ink-soft);
-    margin-bottom: 28px;
-  }
-  .login-card label {
-    display: block;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: 8px;
-  }
-  .login-card input {
-    width: 100%;
-    padding: 14px 16px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: #fff;
-    margin-bottom: 16px;
-  }
+  .login-tagline { font-family: var(--display); font-style: italic; color: var(--ink-soft); margin-bottom: 28px; }
+  .login-card label { display: block; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
+  .login-card input { width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; margin-bottom: 16px; }
   .login-card input:focus { outline: none; border-color: var(--accent); }
-  .btn-primary {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 12px;
-    background: var(--accent);
-    color: #fff;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
+  .btn-primary { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
   .btn-primary:hover { background: var(--accent-deep); }
   .login-help { margin-top: 18px; font-size: 13px; color: var(--ink-soft); }
   .login-error { color: var(--accent); font-size: 13px; margin-bottom: 12px; min-height: 18px; }
 
-  /* ---------- APP ---------- */
+  /* APP */
   .wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
-
-  header {
-    padding: 28px 0 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
+  header { padding: 28px 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 14px; }
   .brand img { width: 56px; height: 56px; border-radius: 14px; object-fit: cover; background: #fff; }
-  .eyebrow {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--ink-soft);
-  }
-  .brand h1 {
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: 30px;
-    line-height: 1;
-  }
+  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+  .brand h1 { font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1; }
   .brand h1 em { color: var(--accent); font-style: italic; }
   .header-right { display: flex; align-items: center; gap: 10px; }
-
-  .sync-status {
-    display: inline-flex; align-items: center; gap: 7px;
-    font-size: 12px; color: var(--ink-soft);
-    padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px;
-    background: var(--bg-card);
-  }
+  .sync-status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-soft); padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-card); }
   .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #cfc8ba; transition: background 0.3s; }
   .sync-dot.on { background: #4caf7d; }
-
-  .nav-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 16px;
-    border: none; border-radius: 999px;
-    background: var(--ink); color: #fff;
-    font-weight: 600; font-size: 14px;
-    text-decoration: none; cursor: pointer;
-  }
+  .nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; border-radius: 999px; background: var(--ink); color: #fff; font-weight: 600; font-size: 14px; text-decoration: none; cursor: pointer; }
   .nav-btn:hover { background: #000; }
 
-  .card {
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 22px;
-    margin-bottom: 22px;
-  }
-  .card-title {
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: 22px;
-    margin-bottom: 16px;
-  }
+  /* LIST TABS */
+  .list-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 14px; -webkit-overflow-scrolling: touch; }
+  .list-tabs::-webkit-scrollbar { height: 0; }
+  .list-tab { display: inline-flex; align-items: center; gap: 7px; padding: 10px 15px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-card); cursor: pointer; font-size: 14px; font-weight: 500; white-space: nowrap; color: var(--ink); }
+  .list-tab:hover { border-color: var(--ink); }
+  .list-tab .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .list-tab.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .list-tab.new { border-style: dashed; color: var(--ink-soft); font-weight: 600; }
 
-  /* Add form */
+  .card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 20px; padding: 22px; margin-bottom: 22px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+  .card-title { font-family: var(--display); font-weight: 400; font-size: 24px; display: flex; align-items: center; gap: 9px; }
+  .card-title .dot { width: 12px; height: 12px; border-radius: 50%; }
+
   .add-row { display: flex; gap: 10px; margin-bottom: 14px; }
-  .add-row input.item-name {
-    flex: 1;
-    padding: 13px 15px;
-    border: 1px solid var(--line); border-radius: 12px; background: #fff;
-  }
-  .add-row input.item-qty {
-    width: 90px;
-    padding: 13px 12px;
-    border: 1px solid var(--line); border-radius: 12px; background: #fff;
-  }
+  .add-row input.item-name { flex: 1; padding: 13px 15px; border: 1px solid var(--line); border-radius: 12px; background: #fff; max-width: 100%; min-width: 0; }
+  .add-row input.item-qty { width: 90px; padding: 13px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; max-width: 100%; min-width: 0; }
   .add-row input:focus { outline: none; border-color: var(--accent); }
+  .field-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
 
-  .field-label {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px;
-  }
-
-  .cat-picker, .person-picker {
-    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;
-  }
-  .chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 13px;
-    border: 1px solid var(--line); border-radius: 999px;
-    background: #fff; cursor: pointer; font-size: 13px; font-weight: 500;
-    transition: all 0.12s; user-select: none;
-  }
-  .chip:hover { border-color: var(--ink); }
-  .chip.selected { background: var(--ink); color: #fff; border-color: var(--ink); }
-  .chip .dot { width: 9px; height: 9px; border-radius: 50%; }
-
-  .add-btn {
-    width: 100%; padding: 14px; border: none; border-radius: 12px;
-    background: var(--accent); color: #fff; font-weight: 700;
-    letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
-  }
-  .add-btn:hover { background: var(--accent-deep); }
-
-  /* List */
-  .cat-group { margin-bottom: 20px; }
-  .cat-group:last-child { margin-bottom: 0; }
-  .cat-head {
-    display: flex; align-items: center; gap: 8px;
-    font-weight: 600; font-size: 13px; letter-spacing: 0.04em;
-    color: var(--ink-soft); text-transform: uppercase;
-    padding-bottom: 8px; margin-bottom: 6px;
-    border-bottom: 1px solid var(--line);
-  }
-  .item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 4px;
-    border-bottom: 1px solid #ece6d9;
-  }
-  .item:last-child { border-bottom: none; }
-  .check {
-    width: 24px; height: 24px; min-width: 24px;
-    border: 2px solid var(--line); border-radius: 50%;
-    cursor: pointer; transition: all 0.15s;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 14px;
-  }
-  .check:hover { border-color: var(--accent); }
-  .item-main { flex: 1; min-width: 0; }
-  .item-name-txt { font-weight: 500; font-size: 16px; }
-  .item-qty-txt { color: var(--ink-soft); font-weight: 400; }
-  .item-meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
-  .person-tag {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 12px; color: var(--ink-soft);
-  }
-  .person-tag .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .item-actions { display: flex; gap: 4px; }
-  .icon-btn {
-    border: none; background: transparent; cursor: pointer;
-    padding: 6px; border-radius: 8px; color: var(--ink-soft); font-size: 15px;
-  }
-  .icon-btn:hover { background: #ece6d9; color: var(--ink); }
-
-  .empty {
-    text-align: center; padding: 28px 10px; color: var(--ink-soft);
-  }
-  .empty .big { font-family: var(--display); font-style: italic; font-size: 20px; }
-
-  /* History */
-  .hist-head {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .hist-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 4px; border-bottom: 1px solid #ece6d9;
-    color: var(--ink-soft);
-  }
-  .hist-item:last-child { border-bottom: none; }
-  .hist-item .name { flex: 1; text-decoration: line-through; }
-  .text-btn {
-    border: none; background: transparent; color: var(--accent);
-    cursor: pointer; font-size: 13px; font-weight: 600;
-  }
-  .text-btn:hover { text-decoration: underline; }
-
-  @media (max-width: 560px) {
-    .brand h1 { font-size: 24px; }
-    .brand img { width: 46px; height: 46px; }
-    header { padding-top: 20px; }
-  }
-
-  /* ---- Foto ---- */
   .photo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
   .photo-btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--ink); }
   .photo-btn:hover { border-color: var(--ink); }
@@ -334,14 +112,44 @@
   .photo-preview img { width: 54px; height: 54px; border-radius: 10px; object-fit: cover; display: block; border: 1px solid var(--line); }
   .photo-remove { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%; border: none; background: var(--accent); color: #fff; cursor: pointer; font-size: 12px; line-height: 1; display: flex; align-items: center; justify-content: center; }
   .photo-status { font-size: 13px; color: var(--ink-soft); }
+
+  .add-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; }
+  .add-btn:hover { background: var(--accent-deep); }
+
+  .item { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid #ece6d9; }
+  .item:last-child { border-bottom: none; }
+  .check { width: 24px; height: 24px; min-width: 24px; border: 2px solid var(--line); border-radius: 50%; cursor: pointer; transition: all 0.15s; }
+  .check:hover { border-color: var(--accent); }
   .item-thumb { width: 42px; height: 42px; min-width: 42px; border-radius: 9px; object-fit: cover; cursor: pointer; border: 1px solid var(--line); }
+  .item-main { flex: 1; min-width: 0; }
+  .item-name-txt { font-weight: 500; font-size: 16px; }
+  .item-qty-txt { color: var(--ink-soft); font-weight: 400; }
+  .item-actions { display: flex; gap: 4px; }
+  .icon-btn { border: none; background: transparent; cursor: pointer; padding: 6px; border-radius: 8px; color: var(--ink-soft); font-size: 15px; }
+  .icon-btn:hover { background: #ece6d9; color: var(--ink); }
+  .empty { text-align: center; padding: 28px 10px; color: var(--ink-soft); }
+  .empty .big { font-family: var(--display); font-style: italic; font-size: 20px; }
+
+  .hist-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .hist-item { display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-bottom: 1px solid #ece6d9; color: var(--ink-soft); }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-item .name { flex: 1; text-decoration: line-through; }
+  .text-btn { border: none; background: transparent; color: var(--accent); cursor: pointer; font-size: 13px; font-weight: 600; }
+  .text-btn:hover { text-decoration: underline; }
+
   .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.82); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
   .lightbox img { max-width: 100%; max-height: 90vh; border-radius: 12px; }
+
+  @media (max-width: 560px) {
+    .brand h1 { font-size: 24px; }
+    .brand img { width: 46px; height: 46px; }
+    header { padding-top: 20px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- ===== LOGIN ===== -->
+<!-- LOGIN -->
 <div id="loginScreen" class="login-wrap">
   <div class="login-card">
     <img src="../vardagspusslet.png" alt="Vardagspusslet" class="login-logo">
@@ -355,7 +163,7 @@
   </div>
 </div>
 
-<!-- ===== APP ===== -->
+<!-- APP -->
 <div id="app" class="hidden">
   <div class="wrap">
     <header>
@@ -372,17 +180,16 @@
       </div>
     </header>
 
+    <!-- Listväljare -->
+    <div class="list-tabs" id="listTabs"></div>
+
     <!-- Lägg till -->
     <div class="card">
-      <h2 class="card-title" id="addTitle">Lägg till vara</h2>
+      <h2 class="card-title" style="font-size:20px; margin-bottom:16px;">Lägg till vara</h2>
       <div class="add-row">
-        <input type="text" class="item-name" id="itemName" placeholder="t.ex. Mjölk, bananer, tandkräm…">
+        <input type="text" class="item-name" id="itemName" placeholder="t.ex. Mjölk, presentkort, ballonger…">
         <input type="text" class="item-qty" id="itemQty" placeholder="antal">
       </div>
-      <div class="field-label">Kategori</div>
-      <div class="cat-picker" id="catPicker"></div>
-      <div class="field-label">Vem (valfritt)</div>
-      <div class="person-picker" id="personPicker"></div>
       <div class="field-label">Bild (valfritt)</div>
       <div class="photo-row">
         <button type="button" class="photo-btn" id="photoBtn">📷 Lägg till bild</button>
@@ -396,16 +203,19 @@
       <button class="add-btn" id="addBtn">Lägg till i listan</button>
     </div>
 
-    <!-- Att handla -->
+    <!-- Aktuell lista -->
     <div class="card">
-      <h2 class="card-title">Att handla</h2>
+      <div class="card-head">
+        <h2 class="card-title" id="listTitle"><span class="dot" id="listTitleDot"></span><span id="listTitleText">Lista</span></h2>
+        <button class="text-btn hidden" id="deleteListBtn">Ta bort lista</button>
+      </div>
       <div id="listContainer"></div>
     </div>
 
     <!-- Historik -->
     <div class="card" id="historyCard">
       <div class="hist-head">
-        <h2 class="card-title" style="margin:0;">Nyligen köpt</h2>
+        <h2 class="card-title" style="font-size:20px; margin:0;">Nyligen köpt</h2>
         <button class="text-btn" id="clearHistBtn">Rensa</button>
       </div>
       <div id="historyContainer"></div>
@@ -420,50 +230,48 @@
   'use strict';
 
   const PERSON_KEYS = ['p1', 'p2', 'p3', 'p4', 'p5'];
-  const CATEGORIES = [
-    { id: 'frukt',   label: 'Frukt & grönt', icon: '🥬' },
-    { id: 'mejeri',  label: 'Mejeri',        icon: '🥛' },
-    { id: 'kott',    label: 'Kött & fisk',   icon: '🥩' },
-    { id: 'brod',    label: 'Bröd',          icon: '🍞' },
-    { id: 'fryst',   label: 'Fryst',         icon: '🧊' },
-    { id: 'skafferi',label: 'Skafferi',      icon: '🥫' },
-    { id: 'dryck',   label: 'Dryck',         icon: '🧃' },
-    { id: 'hushall', label: 'Hushåll',       icon: '🧻' },
-    { id: 'ovrigt',  label: 'Övrigt',        icon: '📦' }
-  ];
-  const CAT_BY_ID = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
   const LS_KEY = 'vardagspusslet_family';
   const CLOUDINARY_CLOUD = 'dtiee88h6';
   const CLOUDINARY_PRESET = 'terrazzo';
 
   const state = {
     familyCode: null,
-    members: {},          // { p1:'Jesper', ... }
-    items: {},            // { pushId: {name,qty,category,person,addedAt} }
-    history: {},          // { pushId: {name,category,person,boughtAt} }
-    selectedCat: 'ovrigt',
-    selectedPerson: '',   // '' = ingen, annars p1..p5 eller 'familj'
-    pendingPhoto: ''      // url till uppladdad bild (innan tillägg)
+    members: {},        // { p1:'Jesper', ... }
+    lists: {},          // { listId: {name,type,personKey,order,items:{},history:{}} }
+    currentListId: null,
+    pendingPhoto: ''
   };
 
-  let itemsRef = null, historyRef = null, membersRef = null;
+  let listsRef = null, membersRef = null;
 
   // ---------- helpers ----------
-  function personColor(key) {
-    if (key === 'familj') return 'var(--familj)';
-    return `var(--${key})`;
-  }
-  function personName(key) {
-    if (!key) return '';
-    if (key === 'familj') return 'Hela familjen';
-    return state.members[key] || '';
-  }
-  function activePersonKeys() {
-    return PERSON_KEYS.filter(k => state.members[k]);
-  }
+  function personColor(key) { return key === 'familj' ? 'var(--familj)' : `var(--${key})`; }
+  function activePersonKeys() { return PERSON_KEYS.filter(k => state.members[k]); }
   function escapeHtml(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
       ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+  function listColor(list) {
+    if (!list) return 'var(--ovrigt)';
+    if (list.type === 'person' && list.personKey) return personColor(list.personKey);
+    if (list.type === 'mat') return 'var(--p1)';
+    return 'var(--ovrigt)';
+  }
+  function listIcon(list) {
+    if (!list) return '';
+    if (list.type === 'mat') return '🍴';
+    if (list.type === 'custom') return '🎉';
+    return '';
+  }
+  // sorteringsordning: personer -> Mat -> egna listor
+  function sortedLists() {
+    return Object.entries(state.lists).sort((a, b) => {
+      const rank = l => l.type === 'person' ? (PERSON_KEYS.indexOf(l.personKey) ) :
+                        l.type === 'mat' ? 50 : 100;
+      const ra = rank(a[1]), rb = rank(b[1]);
+      if (ra !== rb) return ra - rb;
+      return (a[1].createdAt || 0) - (b[1].createdAt || 0);
+    });
   }
 
   // ---------- LOGIN ----------
@@ -474,64 +282,51 @@
   function tryLogin(code) {
     code = (code || '').trim().toLowerCase();
     const err = document.getElementById('loginError');
-    if (!window.FAMILIES[code]) {
-      err.textContent = 'Ogiltig familjekod. Försök igen.';
-      return;
-    }
+    if (!window.FAMILIES[code]) { err.textContent = 'Ogiltig familjekod. Försök igen.'; return; }
     err.textContent = '';
     localStorage.setItem(LS_KEY, code);
     startApp(code);
   }
 
-  function startApp(code) {
+  async function startApp(code) {
     state.familyCode = code;
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     const fam = window.FAMILIES[code];
     document.getElementById('familyNameLabel').textContent = fam ? fam.name : 'Familjen';
 
-    if (!window.firebaseReady || !window.db) {
-      setSync(false, 'Ingen anslutning');
-      return;
-    }
+    if (!window.firebaseReady || !window.db) { setSync(false, 'Ingen anslutning'); return; }
 
     membersRef = window.db.ref(`families/${code}/members`);
-    itemsRef   = window.db.ref(`families/${code}/shopping/items`);
-    historyRef = window.db.ref(`families/${code}/shopping/history`);
+    listsRef   = window.db.ref(`families/${code}/shopping/lists`);
 
-    // members (för namn/färger) — skapa default om saknas
-    membersRef.once('value').then(snap => {
-      if (snap.exists()) {
-        state.members = snap.val();
-      } else {
-        const m = {};
-        (fam.members || []).forEach((name, i) => {
-          const k = PERSON_KEYS[i];
-          if (k) m[k] = name.charAt(0).toUpperCase() + name.slice(1);
-        });
-        state.members = m;
-        membersRef.set(m);
-      }
-      renderPickers();
-    });
-    membersRef.on('value', snap => {
-      if (snap.exists()) { state.members = snap.val(); renderPickers(); renderList(); }
-    });
+    // members först (behövs för listnamn/färger)
+    const msnap = await membersRef.once('value');
+    if (msnap.exists()) {
+      state.members = msnap.val();
+    } else {
+      const m = {};
+      (fam.members || []).forEach((name, i) => {
+        const k = PERSON_KEYS[i];
+        if (k) m[k] = name.charAt(0).toUpperCase() + name.slice(1);
+      });
+      state.members = m;
+      await membersRef.set(m);
+    }
+    membersRef.on('value', s => { if (s.exists()) { state.members = s.val(); renderTabs(); renderCurrent(); } });
 
-    // realtidssynk
-    itemsRef.on('value', snap => {
-      state.items = snap.val() || {};
+    await ensureBuiltinLists();
+    await migrateOldItems();
+
+    listsRef.on('value', s => {
+      state.lists = s.val() || {};
+      if (!state.currentListId || !state.lists[state.currentListId]) selectDefaultList();
       setSync(true, 'Synkad');
-      renderList();
-    });
-    historyRef.on('value', snap => {
-      state.history = snap.val() || {};
-      renderHistory();
+      renderTabs();
+      renderCurrent();
     });
 
-    window.db.ref('.info/connected').on('value', snap => {
-      setSync(!!snap.val(), snap.val() ? 'Synkad' : 'Ansluter…');
-    });
+    window.db.ref('.info/connected').on('value', s => setSync(!!s.val(), s.val() ? 'Synkad' : 'Ansluter…'));
   }
 
   function setSync(on, text) {
@@ -539,166 +334,97 @@
     document.getElementById('syncText').textContent = text;
   }
 
-  // ---------- PICKERS ----------
-  function renderPickers() {
-    // kategori
-    const cp = document.getElementById('catPicker');
-    cp.innerHTML = CATEGORIES.map(c =>
-      `<div class="chip${c.id === state.selectedCat ? ' selected' : ''}" data-cat="${c.id}">
-         <span>${c.icon}</span><span>${escapeHtml(c.label)}</span></div>`).join('');
-    cp.querySelectorAll('.chip').forEach(el => el.onclick = () => {
-      state.selectedCat = el.dataset.cat; renderPickers();
+  // ---------- LISTOR ----------
+  async function ensureBuiltinLists() {
+    const snap = await listsRef.once('value');
+    const lists = snap.val() || {};
+    const updates = {};
+    activePersonKeys().forEach((pk, i) => {
+      if (!lists[pk]) updates[pk] = { name: state.members[pk], type: 'person', personKey: pk, order: i, createdAt: Date.now() };
     });
-
-    // person
-    const pp = document.getElementById('personPicker');
-    let chips = `<div class="chip${state.selectedPerson === '' ? ' selected' : ''}" data-person="">Ingen</div>`;
-    activePersonKeys().forEach(k => {
-      chips += `<div class="chip${state.selectedPerson === k ? ' selected' : ''}" data-person="${k}">
-        <span class="dot" style="background:${personColor(k)}"></span>${escapeHtml(personName(k))}</div>`;
-    });
-    chips += `<div class="chip${state.selectedPerson === 'familj' ? ' selected' : ''}" data-person="familj">
-      <span class="dot" style="background:${personColor('familj')}"></span>Hela familjen</div>`;
-    pp.innerHTML = chips;
-    pp.querySelectorAll('.chip').forEach(el => el.onclick = () => {
-      state.selectedPerson = el.dataset.person; renderPickers();
-    });
+    if (!lists['mat']) updates['mat'] = { name: 'Mat', type: 'mat', order: 50, createdAt: Date.now() };
+    if (Object.keys(updates).length) await listsRef.update(updates);
   }
 
-  // ---------- ITEMS ----------
+  async function migrateOldItems() {
+    const flagRef = window.db.ref(`families/${state.familyCode}/shopping/migratedToLists`);
+    const flag = await flagRef.once('value');
+    if (flag.val()) return;
+    const oldRef = window.db.ref(`families/${state.familyCode}/shopping/items`);
+    const oldSnap = await oldRef.once('value');
+    const old = oldSnap.val();
+    if (old) {
+      for (const it of Object.values(old)) {
+        const target = (it.person && PERSON_KEYS.includes(it.person)) ? it.person : 'mat';
+        await listsRef.child(`${target}/items`).push({
+          name: it.name, qty: it.qty || '', photo: it.photo || '', addedAt: it.addedAt || Date.now()
+        });
+      }
+      await oldRef.remove();
+    }
+    await flagRef.set(true);
+  }
+
+  function selectDefaultList() {
+    const sorted = sortedLists();
+    state.currentListId = sorted.length ? sorted[0][0] : null;
+  }
+  function selectList(id) { state.currentListId = id; renderTabs(); renderCurrent(); }
+
+  function createList() {
+    const name = (prompt('Namn på nya listan (t.ex. Midsommar, Bobkalas):') || '').trim();
+    if (!name) return;
+    const ref = listsRef.push();
+    ref.set({ name: name, type: 'custom', order: 100, createdAt: Date.now() })
+       .then(() => selectList(ref.key));
+  }
+  function deleteList(id) {
+    const list = state.lists[id];
+    if (!list || list.type !== 'custom') return;
+    if (confirm(`Ta bort listan "${list.name}"? Allt i den försvinner.`)) {
+      listsRef.child(id).remove();
+      state.currentListId = null;
+    }
+  }
+
+  // ---------- VAROR ----------
+  function curItemsRef() { return state.currentListId ? listsRef.child(`${state.currentListId}/items`) : null; }
+  function curHistoryRef() { return state.currentListId ? listsRef.child(`${state.currentListId}/history`) : null; }
+
   function addItem() {
     const nameEl = document.getElementById('itemName');
     const qtyEl = document.getElementById('itemQty');
     const name = nameEl.value.trim();
     if (!name) { nameEl.focus(); return; }
-    if (!itemsRef) return;
-    itemsRef.push({
-      name: name,
-      qty: qtyEl.value.trim(),
-      category: state.selectedCat,
-      person: state.selectedPerson,
-      photo: state.pendingPhoto || '',
-      addedAt: Date.now()
-    });
-    nameEl.value = '';
-    qtyEl.value = '';
+    const ref = curItemsRef();
+    if (!ref) return;
+    ref.push({ name: name, qty: qtyEl.value.trim(), photo: state.pendingPhoto || '', addedAt: Date.now() });
+    nameEl.value = ''; qtyEl.value = '';
     clearPendingPhoto();
     nameEl.focus();
   }
-
   function markBought(id, item) {
-    if (!itemsRef || !historyRef) return;
-    historyRef.push({
-      name: item.name, qty: item.qty || '', category: item.category || 'ovrigt',
-      person: item.person || '', boughtAt: Date.now()
-    });
-    itemsRef.child(id).remove();
+    const ir = curItemsRef(), hr = curHistoryRef();
+    if (!ir || !hr) return;
+    hr.push({ name: item.name, qty: item.qty || '', photo: item.photo || '', boughtAt: Date.now() });
+    ir.child(id).remove();
   }
-
   function editItem(id, item) {
     const nytt = prompt('Ändra vara:', item.name);
     if (nytt === null) return;
     const namn = nytt.trim();
-    if (!namn) return;
-    itemsRef.child(id).update({ name: namn });
+    if (namn) curItemsRef().child(id).update({ name: namn });
   }
-
-  function deleteItem(id) {
-    if (itemsRef) itemsRef.child(id).remove();
-  }
-
+  function deleteItem(id) { const r = curItemsRef(); if (r) r.child(id).remove(); }
   function restoreItem(id, h) {
-    if (!itemsRef || !historyRef) return;
-    itemsRef.push({
-      name: h.name, qty: h.qty || '', category: h.category || 'ovrigt',
-      person: h.person || '', addedAt: Date.now()
-    });
-    historyRef.child(id).remove();
+    const ir = curItemsRef(), hr = curHistoryRef();
+    if (!ir || !hr) return;
+    ir.push({ name: h.name, qty: h.qty || '', photo: h.photo || '', addedAt: Date.now() });
+    hr.child(id).remove();
   }
-
   function clearHistory() {
-    if (!historyRef) return;
-    if (confirm('Rensa hela köp-historiken?')) historyRef.set(null);
-  }
-
-  // ---------- RENDER ----------
-  function renderList() {
-    const c = document.getElementById('listContainer');
-    const entries = Object.entries(state.items);
-    if (entries.length === 0) {
-      c.innerHTML = `<div class="empty"><div class="big">Inget på listan ännu</div>
-        <div>Lägg till det första du behöver handla.</div></div>`;
-      return;
-    }
-    // gruppera per kategori, i CATEGORIES-ordning
-    const groups = {};
-    entries.forEach(([id, it]) => {
-      const cat = CAT_BY_ID[it.category] ? it.category : 'ovrigt';
-      (groups[cat] = groups[cat] || []).push([id, it]);
-    });
-    let html = '';
-    CATEGORIES.forEach(cat => {
-      const g = groups[cat.id];
-      if (!g) return;
-      g.sort((a, b) => (a[1].addedAt || 0) - (b[1].addedAt || 0));
-      html += `<div class="cat-group"><div class="cat-head"><span>${cat.icon}</span><span>${escapeHtml(cat.label)}</span></div>`;
-      g.forEach(([id, it]) => {
-        const pkey = it.person || '';
-        const tag = pkey ? `<span class="person-tag"><span class="dot" style="background:${personColor(pkey)}"></span>${escapeHtml(personName(pkey))}</span>` : '';
-        const qty = it.qty ? ` <span class="item-qty-txt">· ${escapeHtml(it.qty)}</span>` : '';
-        const thumb = it.photo ? `<img class="item-thumb" src="${it.photo}" data-act="zoom" alt="bild">` : '';
-        html += `<div class="item" data-id="${id}">
-          <div class="check" data-act="buy" title="Markera köpt"></div>
-          ${thumb}
-          <div class="item-main">
-            <div class="item-name-txt">${escapeHtml(it.name)}${qty}</div>
-            ${tag ? `<div class="item-meta">${tag}</div>` : ''}
-          </div>
-          <div class="item-actions">
-            <button class="icon-btn" data-act="photo" title="Lägg till/byt bild">📷</button>
-            <button class="icon-btn" data-act="edit" title="Ändra">✏️</button>
-            <button class="icon-btn" data-act="del" title="Ta bort">✕</button>
-          </div>
-        </div>`;
-      });
-      html += `</div>`;
-    });
-    c.innerHTML = html;
-
-    c.querySelectorAll('.item').forEach(row => {
-      const id = row.dataset.id;
-      const it = state.items[id];
-      if (!it) return;
-      row.querySelector('[data-act="buy"]').onclick = () => markBought(id, it);
-      row.querySelector('[data-act="edit"]').onclick = () => editItem(id, it);
-      row.querySelector('[data-act="del"]').onclick = () => deleteItem(id);
-      row.querySelector('[data-act="photo"]').onclick = () => addPhotoToItem(id);
-      const zoomEl = row.querySelector('[data-act="zoom"]');
-      if (zoomEl) zoomEl.onclick = () => openLightbox(it.photo);
-    });
-  }
-
-  function renderHistory() {
-    const c = document.getElementById('historyContainer');
-    const card = document.getElementById('historyCard');
-    let entries = Object.entries(state.history);
-    if (entries.length === 0) { card.classList.add('hidden'); return; }
-    card.classList.remove('hidden');
-    entries.sort((a, b) => (b[1].boughtAt || 0) - (a[1].boughtAt || 0));
-    entries = entries.slice(0, 30);
-    c.innerHTML = entries.map(([id, h]) => {
-      const qty = h.qty ? ` · ${escapeHtml(h.qty)}` : '';
-      return `<div class="hist-item" data-id="${id}">
-        <span class="name">${escapeHtml(h.name)}${qty}</span>
-        <button class="text-btn" data-act="restore">↩ Tillbaka</button>
-      </div>`;
-    }).join('');
-    c.querySelectorAll('.hist-item').forEach(row => {
-      const id = row.dataset.id;
-      const h = state.history[id];
-      if (!h) return;
-      row.querySelector('[data-act="restore"]').onclick = () => restoreItem(id, h);
-    });
+    const hr = curHistoryRef();
+    if (hr && confirm('Rensa köp-historiken för den här listan?')) hr.set(null);
   }
 
   // ---------- FOTO ----------
@@ -722,9 +448,8 @@
       img.src = url;
     });
   }
-
   async function uploadPhoto(file, statusEl) {
-    if (statusEl) statusEl.textContent = 'Laddar upp\u2026';
+    if (statusEl) statusEl.textContent = 'Laddar upp…';
     try {
       let blob = file;
       try { blob = await resizeImage(file, 1200, 0.85); } catch (e) {}
@@ -738,21 +463,16 @@
       return data.secure_url;
     } catch (e) {
       console.error('Foto-uppladdning misslyckades', e);
-      if (statusEl) statusEl.textContent = 'Uppladdning misslyckades \u2013 f\u00f6rs\u00f6k igen';
+      if (statusEl) statusEl.textContent = 'Uppladdning misslyckades – försök igen';
       return null;
     }
   }
-
   function clearPendingPhoto() {
     state.pendingPhoto = '';
-    const prev = document.getElementById('photoPreview');
-    if (prev) prev.classList.add('hidden');
-    const status = document.getElementById('photoStatus');
-    if (status) status.textContent = '';
-    const inp = document.getElementById('photoInput');
-    if (inp) inp.value = '';
+    const prev = document.getElementById('photoPreview'); if (prev) prev.classList.add('hidden');
+    const status = document.getElementById('photoStatus'); if (status) status.textContent = '';
+    const inp = document.getElementById('photoInput'); if (inp) inp.value = '';
   }
-
   async function handleFormPhoto(file) {
     const url = await uploadPhoto(file, document.getElementById('photoStatus'));
     if (!url) return;
@@ -760,19 +480,17 @@
     document.getElementById('photoPreviewImg').src = url;
     document.getElementById('photoPreview').classList.remove('hidden');
   }
-
   function addPhotoToItem(id) {
     const inp = document.createElement('input');
-    inp.type = 'file';
-    inp.accept = 'image/*';
+    inp.type = 'file'; inp.accept = 'image/*';
     inp.onchange = async () => {
       if (!inp.files || !inp.files[0]) return;
       const url = await uploadPhoto(inp.files[0], null);
-      if (url && itemsRef) itemsRef.child(id).update({ photo: url });
+      const r = curItemsRef();
+      if (url && r) r.child(id).update({ photo: url });
     };
     inp.click();
   }
-
   function openLightbox(url) {
     if (!url) return;
     document.getElementById('lightboxImg').src = url;
@@ -783,28 +501,111 @@
     document.getElementById('lightboxImg').src = '';
   }
 
+  // ---------- RENDER ----------
+  function renderTabs() {
+    const c = document.getElementById('listTabs');
+    let html = '';
+    sortedLists().forEach(([id, list]) => {
+      const active = id === state.currentListId ? ' active' : '';
+      const icon = listIcon(list);
+      const dot = list.type === 'person' ? `<span class="dot" style="background:${listColor(list)}"></span>` : '';
+      html += `<div class="list-tab${active}" data-id="${id}">${dot}${icon ? icon + ' ' : ''}${escapeHtml(list.name || 'Lista')}</div>`;
+    });
+    html += `<div class="list-tab new" data-new="1">+ Ny lista</div>`;
+    c.innerHTML = html;
+    c.querySelectorAll('.list-tab').forEach(el => {
+      el.onclick = el.dataset.new ? createList : () => selectList(el.dataset.id);
+    });
+  }
+
+  function renderCurrent() {
+    const list = state.lists[state.currentListId];
+    const titleText = document.getElementById('listTitleText');
+    const titleDot = document.getElementById('listTitleDot');
+    const delBtn = document.getElementById('deleteListBtn');
+    if (!list) { titleText.textContent = 'Ingen lista'; renderList(); renderHistory(); return; }
+    titleText.textContent = (listIcon(list) ? listIcon(list) + ' ' : '') + (list.name || 'Lista');
+    titleDot.style.background = listColor(list);
+    titleDot.style.display = list.type === 'person' ? 'inline-block' : 'none';
+    delBtn.classList.toggle('hidden', list.type !== 'custom');
+    delBtn.onclick = () => deleteList(state.currentListId);
+    renderList();
+    renderHistory();
+  }
+
+  function renderList() {
+    const c = document.getElementById('listContainer');
+    const list = state.lists[state.currentListId];
+    const items = (list && list.items) ? list.items : {};
+    const entries = Object.entries(items);
+    if (entries.length === 0) {
+      c.innerHTML = `<div class="empty"><div class="big">Inget i listan ännu</div><div>Lägg till det första.</div></div>`;
+      return;
+    }
+    entries.sort((a, b) => (a[1].addedAt || 0) - (b[1].addedAt || 0));
+    c.innerHTML = entries.map(([id, it]) => {
+      const qty = it.qty ? ` <span class="item-qty-txt">· ${escapeHtml(it.qty)}</span>` : '';
+      const thumb = it.photo ? `<img class="item-thumb" src="${it.photo}" data-act="zoom" alt="bild">` : '';
+      return `<div class="item" data-id="${id}">
+        <div class="check" data-act="buy" title="Markera köpt"></div>
+        ${thumb}
+        <div class="item-main"><div class="item-name-txt">${escapeHtml(it.name)}${qty}</div></div>
+        <div class="item-actions">
+          <button class="icon-btn" data-act="photo" title="Lägg till/byt bild">📷</button>
+          <button class="icon-btn" data-act="edit" title="Ändra">✏️</button>
+          <button class="icon-btn" data-act="del" title="Ta bort">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+    c.querySelectorAll('.item').forEach(row => {
+      const id = row.dataset.id;
+      const it = items[id];
+      if (!it) return;
+      row.querySelector('[data-act="buy"]').onclick = () => markBought(id, it);
+      row.querySelector('[data-act="edit"]').onclick = () => editItem(id, it);
+      row.querySelector('[data-act="del"]').onclick = () => deleteItem(id);
+      row.querySelector('[data-act="photo"]').onclick = () => addPhotoToItem(id);
+      const z = row.querySelector('[data-act="zoom"]');
+      if (z) z.onclick = () => openLightbox(it.photo);
+    });
+  }
+
+  function renderHistory() {
+    const c = document.getElementById('historyContainer');
+    const card = document.getElementById('historyCard');
+    const list = state.lists[state.currentListId];
+    const hist = (list && list.history) ? list.history : {};
+    let entries = Object.entries(hist);
+    if (entries.length === 0) { card.classList.add('hidden'); return; }
+    card.classList.remove('hidden');
+    entries.sort((a, b) => (b[1].boughtAt || 0) - (a[1].boughtAt || 0));
+    entries = entries.slice(0, 30);
+    c.innerHTML = entries.map(([id, h]) => {
+      const qty = h.qty ? ` · ${escapeHtml(h.qty)}` : '';
+      return `<div class="hist-item" data-id="${id}">
+        <span class="name">${escapeHtml(h.name)}${qty}</span>
+        <button class="text-btn" data-act="restore">↩ Tillbaka</button>
+      </div>`;
+    }).join('');
+    c.querySelectorAll('.hist-item').forEach(row => {
+      const id = row.dataset.id;
+      const h = hist[id];
+      if (h) row.querySelector('[data-act="restore"]').onclick = () => restoreItem(id, h);
+    });
+  }
+
   // ---------- INIT ----------
-  document.getElementById('loginBtn').onclick = () =>
-    tryLogin(document.getElementById('familyCodeInput').value);
-  document.getElementById('familyCodeInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') tryLogin(e.target.value);
-  });
+  document.getElementById('loginBtn').onclick = () => tryLogin(document.getElementById('familyCodeInput').value);
+  document.getElementById('familyCodeInput').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(e.target.value); });
   document.getElementById('addBtn').onclick = addItem;
-  document.getElementById('itemName').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addItem();
-  });
-  document.getElementById('itemQty').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addItem();
-  });
+  document.getElementById('itemName').addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
+  document.getElementById('itemQty').addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
   document.getElementById('clearHistBtn').onclick = clearHistory;
   document.getElementById('photoBtn').onclick = () => document.getElementById('photoInput').click();
-  document.getElementById('photoInput').addEventListener('change', e => {
-    if (e.target.files && e.target.files[0]) handleFormPhoto(e.target.files[0]);
-  });
+  document.getElementById('photoInput').addEventListener('change', e => { if (e.target.files && e.target.files[0]) handleFormPhoto(e.target.files[0]); });
   document.getElementById('photoRemove').onclick = clearPendingPhoto;
   document.getElementById('lightbox').onclick = closeLightbox;
 
-  // auto-login via delad localStorage-nyckel
   const saved = localStorage.getItem(LS_KEY);
   if (saved && window.FAMILIES[saved]) {
     startApp(saved);
