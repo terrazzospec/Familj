@@ -1481,7 +1481,8 @@
     .main-grid { gap: 16px; }.form-row { margin-bottom: 18px; }
     .time-row { grid-template-columns: 1fr; gap: 14px; }
    .time-row > div { min-width: 0; }
-   input, select, textarea { max-width: 100%; }
+   input, select, textarea { max-width: 100%; min-width: 0; }
+   input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; }
     .panel { padding: 22px 18px; }
     .modal-overlay { padding: 0; }
     .modal-card { max-height: 100vh; border-radius: 0; }
