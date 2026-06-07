@@ -2040,8 +2040,10 @@
 
   // LOGIN
   function checkSavedLogin() {
-    const saved = localStorage.getItem('vardagspusslet_family');
+    const fromUrl = new URLSearchParams(location.search).get('fam');
+    const saved = (fromUrl && window.FAMILIES[fromUrl]) ? fromUrl : localStorage.getItem('vardagspusslet_family');
     if (saved && window.FAMILIES[saved]) {
+      localStorage.setItem('vardagspusslet_family', saved);
       state.familyCode = saved;
       state.familyName = window.FAMILIES[saved].name;
       showApp();
@@ -2074,6 +2076,7 @@
     document.getElementById('appContainer').classList.remove('hidden');
     document.getElementById('fabBtn').classList.remove('hidden');
     document.getElementById('familyNameLabel').textContent = state.familyName;
+    const _ib = document.querySelector('.inkop-btn'); if (_ib) _ib.setAttribute('href', 'inkop/?fam=' + state.familyCode);
 
     setupSyncStatus();
     await migrateLegacyDataIfNeeded();
