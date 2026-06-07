@@ -1809,6 +1809,7 @@
     </div>
     <div class="modal-body" id="detailBody"></div>
     <div class="modal-footer">
+      <button class="modal-action" id="detailShareBtn">📤 Dela</button>
       <button class="modal-action" id="detailEditBtn">Ändra</button>
       <button class="modal-action danger" id="detailDeleteBtn">Ta bort</button>
     </div>
@@ -2860,6 +2861,37 @@
     document.getElementById('eventDetailModal').classList.remove('show');
     detailEvent = null;
   }
+  async function shareEvent() {
+    const ev = detailEvent;
+    if (!ev) return;
+    const PEOPLE = getPersonMap();
+    const pname = (ev.person === 'ovrigt' && ev.ovrigtName) ? ev.ovrigtName
+      : (ev.person === 'familj' ? 'Familjen'
+      : ((PEOPLE[ev.person] && PEOPLE[ev.person].name) || ''));
+    const payload = {
+      t: ev.title || '', d: ev.date,
+      s: ev.allDay ? '' : (ev.start || ''),
+      e: ev.allDay ? '' : (ev.end || ''),
+      ad: ev.allDay ? 1 : 0,
+      a: ev.address || '', w: ev.takeWith || '',
+      n: ev.notes || '', p: pname, ph: ev.photo || ''
+    };
+    const enc = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    const base = location.origin + location.pathname.replace(/[^/]*$/, '');
+    const url = base + 'dela.html#' + enc;
+    const shareData = { title: ev.title || 'Bokning', text: (pname ? pname + ' \u2013 ' : '') + (ev.title || 'Bokning'), url: url };
+    const btn = document.getElementById('detailShareBtn');
+    try {
+      if (navigator.share) { await navigator.share(shareData); return; }
+    } catch (err) { if (err && err.name === 'AbortError') return; }
+    try {
+      await navigator.clipboard.writeText(url);
+      const old = btn.textContent; btn.textContent = '\u2713 Länk kopierad';
+      setTimeout(() => { btn.textContent = old; }, 1800);
+    } catch (e) {
+      prompt('Kopiera länken:', url);
+    }
+  }
 
   let formPhoto = '';
   const CL_CLOUD = 'dtiee88h6', CL_PRESET = 'terrazzo';
@@ -3150,6 +3182,7 @@
     const ev = detailEvent;
     if (ev && confirm('Ta bort bokningen?')) { await handleDeleteEvent(ev); closeEventDetail(); renderDayModal(); }
   });
+  document.getElementById('detailShareBtn').addEventListener('click', shareEvent);
   document.getElementById('eventPhotoBtn').addEventListener('click', () => document.getElementById('eventPhotoInput').click());
   document.getElementById('eventPhotoInput').addEventListener('change', async (e) => {
     if (e.target.files && e.target.files[0]) { const url = await uploadEventPhoto(e.target.files[0]); if (url) showEventPhotoPreview(url); }
