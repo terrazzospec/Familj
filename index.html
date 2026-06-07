@@ -645,6 +645,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .day.today .day-holiday { color: var(--bg); }
+  .day.selected.sunday .day-num,
+  .day.selected.holiday .day-num { color: #fff; }
+  .day.selected .day-holiday { color: #fff; }
 
   .day-events {
     display: flex;
@@ -1174,6 +1178,7 @@
   }
 
   .modal-action:hover { background: var(--accent-deep); }
+  #detailShareBtn { margin-bottom: 8px; }
 
   .members-list {
     display: flex;
@@ -1370,6 +1375,25 @@
 
   .week-day.today .week-day-name,
   .week-day.today .week-day-num { color: var(--bg); }
+  .week-day.sunday .week-day-name,
+  .week-day.holiday .week-day-name,
+  .week-day.sunday .week-day-num,
+  .week-day.holiday .week-day-num { color: var(--accent); }
+  .week-day.today.sunday .week-day-name,
+  .week-day.today.holiday .week-day-name,
+  .week-day.today.sunday .week-day-num,
+  .week-day.today.holiday .week-day-num { color: var(--bg); }
+  .week-day-holiday {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 4px;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .week-day.today .week-day-holiday { color: var(--bg); }
 
   .week-day-header {
     text-align: center;
@@ -2467,9 +2491,19 @@
       const cell = document.createElement('div');
       cell.className = 'week-day';
       if (key === todayKey) cell.classList.add('today');
+      if (cellDate.getDay() === 0) cell.classList.add('sunday');
+      const holName = redDays(cellDate.getFullYear())[key];
+      if (holName) cell.classList.add('holiday');
       const header = document.createElement('div');
       header.className = 'week-day-header';
       header.innerHTML = `<div class="week-day-name">${DAYS_SV[cellDate.getDay()].slice(0,3)}</div><div class="week-day-num">${cellDate.getDate()}</div>`;
+      if (holName) {
+        const hl = document.createElement('div');
+        hl.className = 'week-day-holiday';
+        hl.textContent = holName;
+        hl.title = holName;
+        header.appendChild(hl);
+      }
       cell.appendChild(header);
       const dayEvents = state.events.filter(e => e.date === key &&
         (state.filterPerson === 'all' || e.person === state.filterPerson));
