@@ -631,6 +631,20 @@
     line-height: 1;
     margin-bottom: 4px;
   }
+  .day.sunday .day-num,
+  .day.holiday .day-num { color: var(--accent); }
+  .day.today.sunday .day-num,
+  .day.today.holiday .day-num { color: var(--bg); }
+  .day-holiday {
+    font-size: 9px;
+    line-height: 1.1;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   .day-events {
     display: flex;
@@ -2317,11 +2331,57 @@
     }
     renderEventList();
   }
+  function easterSunday(year) {
+    const a = year % 19, b = Math.floor(year / 100), c = year % 100;
+    const d = Math.floor(b / 4), e = b % 4;
+    const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4), k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31);
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(year, month - 1, day);
+  }
+  const _redDaysCache = {};
+  function redDays(year) {
+    if (_redDaysCache[year]) return _redDaysCache[year];
+    const map = {};
+    const addD = (dt, n) => { const x = new Date(dt); x.setDate(x.getDate() + n); return x; };
+    const set = (dt, name) => { map[dateKey(dt)] = name; };
+    const easter = easterSunday(year);
+    set(new Date(year, 0, 1), 'Nyårsdagen');
+    set(new Date(year, 0, 6), 'Trettondedag jul');
+    set(addD(easter, -3), 'Skärtorsdagen');
+    set(addD(easter, -2), 'Långfredagen');
+    set(easter, 'Påskdagen');
+    set(addD(easter, 1), 'Annandag påsk');
+    set(new Date(year, 4, 1), 'Första maj');
+    set(addD(easter, 39), 'Kristi himmelsfärd');
+    set(addD(easter, 49), 'Pingstdagen');
+    set(new Date(year, 5, 6), 'Nationaldagen');
+    for (let dd = 19; dd <= 25; dd++) {
+      const dt = new Date(year, 5, dd);
+      if (dt.getDay() === 5) { set(dt, 'Midsommarafton'); set(addD(dt, 1), 'Midsommardagen'); break; }
+    }
+    for (let dd = 31; dd <= 37; dd++) {
+      const dt = new Date(year, 9, dd);
+      if (dt.getDay() === 6) { set(dt, 'Alla helgons dag'); break; }
+    }
+    set(new Date(year, 11, 24), 'Julafton');
+    set(new Date(year, 11, 25), 'Juldagen');
+    set(new Date(year, 11, 26), 'Annandag jul');
+    set(new Date(year, 11, 31), 'Nyårsafton');
+    _redDaysCache[year] = map;
+    return map;
+  }
+
   function renderCalendar() {
     const monthLabel = document.getElementById('monthLabel');
     monthLabel.innerHTML = `${MONTHS[state.viewMonth]}<span class="year">${state.viewYear}</span>`;
     const grid = document.getElementById('daysGrid');
     grid.innerHTML = '';
+    const holidays = redDays(state.viewYear);
     const firstDay = new Date(state.viewYear, state.viewMonth, 1);
     const lastDay = new Date(state.viewYear, state.viewMonth + 1, 0);
     let startOffset = firstDay.getDay() - 1;
@@ -2343,6 +2403,16 @@
       num.className = 'day-num';
       num.textContent = d;
       cell.appendChild(num);
+      if (cellDate.getDay() === 0) cell.classList.add('sunday');
+      const holName = holidays[key];
+      if (holName) {
+        cell.classList.add('holiday');
+        const hl = document.createElement('div');
+        hl.className = 'day-holiday';
+        hl.textContent = holName;
+        hl.title = holName;
+        cell.appendChild(hl);
+      }
       const dayEvents = state.events.filter(e => e.date === key &&
         (state.filterPerson === 'all' || e.person === state.filterPerson));
       if (dayEvents.length > 0) {
