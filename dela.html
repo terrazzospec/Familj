@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Delad bokning · Vardagspusslet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4efe6;
+    --bg-card: #fbf8f1;
+    --ink: #1a1a1a;
+    --ink-soft: #5a5550;
+    --line: #d9d2c2;
+    --accent: #c44536;
+    --accent-deep: #8b2e23;
+    --display: 'Fraunces', Georgia, serif;
+    --body: 'Inter Tight', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--body);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(196, 69, 54, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 85% 70%, rgba(45, 90, 79, 0.05) 0%, transparent 45%);
+  }
+  .wrap { width: 100%; max-width: 440px; }
+  .brand {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .brand-name {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent-deep);
+    letter-spacing: -0.3px;
+  }
+  .brand-sub {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 26px 24px;
+    box-shadow: 0 12px 40px rgba(26,26,26,0.08);
+  }
+  .eyebrow {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .title {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.15;
+    margin-bottom: 18px;
+    color: var(--ink);
+  }
+  .row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 0;
+    border-top: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .row:first-of-type { border-top: none; }
+  .icon { flex: 0 0 22px; text-align: center; font-size: 16px; line-height: 1.4; }
+  a.row { text-decoration: none; color: var(--ink); }
+  a.row span.val { color: var(--accent-deep); text-decoration: underline; }
+  .notes {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: rgba(196,69,54,0.05);
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    white-space: pre-wrap;
+  }
+  .photo { margin-top: 16px; }
+  .photo img {
+    width: 100%;
+    border-radius: 12px;
+    display: block;
+    cursor: zoom-in;
+  }
+  .actions { margin-top: 22px; display: flex; flex-direction: column; gap: 10px; }
+  .btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-family: var(--body);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--accent);
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:active { background: var(--accent-deep); }
+  .btn-outline { background: transparent; color: var(--accent-deep); }
+  .hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ink-soft);
+  }
+  .empty .title { color: var(--ink-soft); }
+  /* Lightbox */
+  .lightbox {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
+  }
+  .lightbox.show { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-name">Vardagspusslet</div>
+      <div class="brand-sub">Delad bokning</div>
+    </div>
+    <div class="card" id="card"></div>
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt=""></div>
+
+<script>
+  const MONTHS = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+  const DAYS = ['söndag','måndag','tisdag','onsdag','torsdag','fredag','lördag'];
+
+  function esc(s){ const d=document.createElement('div'); d.textContent=String(s==null?'':s); return d.innerHTML; }
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function decode(){
+    try {
+      const h = location.hash.slice(1);
+      if (!h) return null;
+      return JSON.parse(decodeURIComponent(escape(atob(h))));
+    } catch(e){ return null; }
+  }
+
+  function fmtDate(dateStr){
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    return `${DAYS[dt.getDay()]} ${d} ${MONTHS[m-1]} ${y}`;
+  }
+
+  function addDays(dateStr, n){
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m-1, d+n);
+    return `${dt.getFullYear()}${pad(dt.getMonth()+1)}${pad(dt.getDate())}`;
+  }
+  function icsDateOnly(dateStr){ const [y,m,d]=dateStr.split('-'); return `${y}${m}${d}`; }
+  function icsDateTime(dateStr, timeStr){
+    const [y,m,d] = dateStr.split('-');
+    const [hh,mm] = (timeStr||'00:00').split(':');
+    return `${y}${m}${d}T${pad(hh)}${pad(mm)}00`;
+  }
+  function escICS(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n'); }
+
+  function buildICS(p){
+    const now = new Date();
+    const dtstamp = `${now.getUTCFullYear()}${pad(now.getUTCMonth()+1)}${pad(now.getUTCDate())}T${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}Z`;
+    const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Vardagspusslet//SE//','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:vp-'+now.getTime()+'@vardagspusslet','DTSTAMP:'+dtstamp];
+    if (p.ad || !p.s) {
+      lines.push('DTSTART;VALUE=DATE:'+icsDateOnly(p.d));
+      lines.push('DTEND;VALUE=DATE:'+addDays(p.d,1));
+    } else {
+      lines.push('DTSTART:'+icsDateTime(p.d,p.s));
+      lines.push('DTEND:'+icsDateTime(p.d, p.e || p.s));
+    }
+    const summary = (p.p ? p.p + ' – ' : '') + (p.t || 'Bokning');
+    lines.push('SUMMARY:'+escICS(summary));
+    if (p.a) lines.push('LOCATION:'+escICS(p.a));
+    const desc = [];
+    if (p.w) desc.push('Ta med: '+p.w);
+    if (p.n) desc.push(p.n);
+    if (desc.length) lines.push('DESCRIPTION:'+escICS(desc.join('\n')));
+    lines.push('END:VEVENT','END:VCALENDAR');
+    return lines.join('\r\n');
+  }
+
+  function downloadICS(p){
+    const ics = buildICS(p);
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = ((p.t || 'bokning').replace(/[^\wåäöÅÄÖ -]/g,'').trim() || 'bokning') + '.ics';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1500);
+  }
+
+  function row(icon, val, href){
+    if (href) return `<a class="row" href="${href}" target="_blank" rel="noopener"><span class="icon">${icon}</span><span class="val">${esc(val)}</span></a>`;
+    return `<div class="row"><span class="icon">${icon}</span><span>${esc(val)}</span></div>`;
+  }
+
+  function render(){
+    const card = document.getElementById('card');
+    const hint = document.getElementById('hint');
+    const p = decode();
+    if (!p || !p.t && !p.d) {
+      card.innerHTML = '<div class="empty"><div class="title">Ingen bokning hittades</div><p>Länken verkar vara ofullständig. Be avsändaren skicka den igen.</p></div>';
+      return;
+    }
+    const timeVal = (p.s && !p.ad) ? `${p.s}${p.e ? ' – ' + p.e : ''}` : 'Heldag';
+    let html = '';
+    html += `<div class="eyebrow">${esc(fmtDate(p.d))}</div>`;
+    html += `<div class="title">${esc(p.t || '(utan titel)')}</div>`;
+    html += row('🕐', timeVal);
+    if (p.p) html += row('👤', p.p);
+    if (p.a) html += row('📍', p.a, 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.a));
+    if (p.w) html += row('🎒', 'Ta med: ' + p.w);
+    if (p.n) html += `<div class="notes">${esc(p.n)}</div>`;
+    if (p.ph) html += `<div class="photo"><img id="evPhoto" src="${esc(p.ph)}" alt="Bild"></div>`;
+    html += '<div class="actions"><button class="btn btn-primary" id="addBtn">📅 Lägg till i min kalender</button>';
+    if (p.a) html += `<a class="btn btn-outline" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.a)}" target="_blank" rel="noopener">📍 Visa på karta</a>`;
+    html += '</div>';
+    card.innerHTML = html;
+    hint.textContent = 'Tryck på knappen för att lägga till bokningen i din egen kalender (iPhone, Google eller Outlook).';
+
+    document.getElementById('addBtn').addEventListener('click', () => downloadICS(p));
+    const ph = document.getElementById('evPhoto');
+    if (ph) ph.addEventListener('click', () => {
+      document.getElementById('lightboxImg').src = p.ph;
+      document.getElementById('lightbox').classList.add('show');
+    });
+  }
+
+  document.getElementById('lightbox').addEventListener('click', function(){ this.classList.remove('show'); });
+  render();
+  window.addEventListener('hashchange', render);
+</script>
+</body>
+</html>
