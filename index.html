@@ -971,6 +971,14 @@
   .icon-btn:hover { opacity: 1; color: var(--accent); background: rgba(196, 69, 54, 0.08); }
 
   .icon-btn.delete { font-size: 20px; font-family: var(--display); }
+  .detail-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; font-size: 15px; color: var(--ink); border-bottom: 1px solid var(--line); }
+  .detail-row:last-of-type { border-bottom: none; }
+  .detail-icon { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; }
+  .detail-dot { width: 13px; height: 13px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .detail-link { text-decoration: none; color: var(--accent); }
+  .detail-notes { margin-top: 14px; padding: 13px 15px; background: rgba(0,0,0,0.035); border-radius: 12px; font-size: 14px; line-height: 1.55; white-space: pre-wrap; color: var(--ink); }
+  .modal-action.danger { color: var(--accent); }
+  #eventDetailModal { z-index: 1300; }
 
   .empty-state {
     text-align: center;
@@ -1740,6 +1748,23 @@
     <div class="modal-body" id="modalBody"></div>
     <div class="modal-footer">
       <button class="modal-action" id="modalAddBtn">+ Lägg till för denna dag</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="eventDetailModal">
+  <div class="modal-card modal-card-narrow">
+    <div class="modal-header">
+      <div>
+        <div class="modal-eyebrow" id="detailEyebrow"></div>
+        <h2 class="modal-title" id="detailTitle"></h2>
+      </div>
+      <button class="modal-close" id="detailCloseBtn">×</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-footer">
+      <button class="modal-action" id="detailEditBtn">Ändra</button>
+      <button class="modal-action danger" id="detailDeleteBtn">Ta bort</button>
     </div>
   </div>
 </div>
@@ -2660,6 +2685,53 @@
     document.body.style.overflow = '';
     modalCurrentDate = null;
   }
+
+  let detailEvent = null;
+  function openEventDetail(ev) {
+    detailEvent = ev;
+    const PEOPLE = getPersonMap();
+    const [yy, mm, dd] = ev.date.split('-').map(Number);
+    const dObj = new Date(yy, mm - 1, dd);
+    document.getElementById('detailEyebrow').textContent = `${DAYS_SV[dObj.getDay()]} ${dd} ${MONTHS[mm-1]}`;
+    document.getElementById('detailTitle').textContent = ev.title || '(utan titel)';
+    const body = document.getElementById('detailBody');
+    body.innerHTML = '';
+    const tval = (ev.start && !ev.allDay) ? `${ev.start}${ev.end ? ' – ' + ev.end : ''}` : 'Heldag';
+    const time = document.createElement('div');
+    time.className = 'detail-row';
+    time.innerHTML = `<span class="detail-icon">🕐</span><span>${escapeHtml(tval)}</span>`;
+    body.appendChild(time);
+    const person = document.createElement('div');
+    person.className = 'detail-row';
+    const pname = (ev.person === 'ovrigt' && ev.ovrigtName) ? ev.ovrigtName : (ev.person === 'familj' ? 'Familjen' : ((PEOPLE[ev.person] && PEOPLE[ev.person].name) || 'Okänd'));
+    person.innerHTML = `<span class="detail-dot" style="background:var(--${ev.person})"></span><span>${escapeHtml(pname)}</span>`;
+    body.appendChild(person);
+    if (ev.reminder && REMINDER_LABELS[ev.reminder]) {
+      const rem = document.createElement('div');
+      rem.className = 'detail-row';
+      rem.innerHTML = `<span class="detail-icon">🔔</span><span>Påminnelse ${escapeHtml(REMINDER_LABELS[ev.reminder])}</span>`;
+      body.appendChild(rem);
+    }
+    if (ev.address) {
+      const addr = document.createElement('a');
+      addr.className = 'detail-row detail-link';
+      addr.href = mapsLink(ev.address);
+      addr.target = '_blank';
+      addr.innerHTML = `<span class="detail-icon">📍</span><span>${escapeHtml(ev.address)}</span>`;
+      body.appendChild(addr);
+    }
+    if (ev.notes) {
+      const notes = document.createElement('div');
+      notes.className = 'detail-notes';
+      notes.textContent = ev.notes;
+      body.appendChild(notes);
+    }
+    document.getElementById('eventDetailModal').classList.add('show');
+  }
+  function closeEventDetail() {
+    document.getElementById('eventDetailModal').classList.remove('show');
+    detailEvent = null;
+  }
   function renderDayModal() {
     if (!modalCurrentDate) return;
     const [y, m, d] = modalCurrentDate.split('-').map(Number);
@@ -2683,7 +2755,7 @@
     const card = document.createElement('div');
     card.className = `big-event bg-${ev.person}`;
     card.style.cursor = 'pointer';
-    card.addEventListener('click', () => { closeDayModal(); startEditingEvent(ev); });
+    card.addEventListener('click', () => openEventDetail(ev));
     const timeCol = document.createElement('div');
     if (ev.start && !ev.allDay) {
       timeCol.className = 'big-event-time';
@@ -2726,23 +2798,6 @@
       body.appendChild(a);
     }
     card.appendChild(body);
-    const actions = document.createElement('div');
-    actions.className = 'big-event-actions';
-    const edit = document.createElement('button');
-    edit.className = 'icon-btn';
-    edit.innerHTML = '✎';
-    edit.style.fontSize = '18px';
-    edit.title = 'Redigera';
-    edit.addEventListener('click', (e) => { e.stopPropagation(); closeDayModal(); startEditingEvent(ev); });
-    actions.appendChild(edit);
-    const del = document.createElement('button');
-    del.className = 'icon-btn delete';
-    del.innerHTML = '×';
-    del.style.fontSize = '22px';
-    del.title = 'Ta bort';
-    del.addEventListener('click', async (e) => { e.stopPropagation(); await handleDeleteEvent(ev); renderDayModal(); });
-    actions.appendChild(del);
-    card.appendChild(actions);
     return card;
   }
 
@@ -2915,6 +2970,17 @@
   document.getElementById('dayModal').addEventListener('click', (e) => {
     if (e.target.id === 'dayModal') closeDayModal();
   });
+  document.getElementById('detailCloseBtn').addEventListener('click', closeEventDetail);
+  document.getElementById('eventDetailModal').addEventListener('click', (e) => {
+    if (e.target.id === 'eventDetailModal') closeEventDetail();
+  });
+  document.getElementById('detailEditBtn').addEventListener('click', () => {
+    const ev = detailEvent; closeEventDetail(); closeDayModal(); startEditingEvent(ev);
+  });
+  document.getElementById('detailDeleteBtn').addEventListener('click', async () => {
+    const ev = detailEvent;
+    if (ev && confirm('Ta bort bokningen?')) { await handleDeleteEvent(ev); closeEventDetail(); renderDayModal(); }
+  });
   document.getElementById('modalAddBtn').addEventListener('click', () => {
     closeDayModal();
     setTimeout(() => {
@@ -2924,7 +2990,8 @@
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (document.getElementById('dayModal').classList.contains('show')) closeDayModal();
+      if (document.getElementById('eventDetailModal').classList.contains('show')) closeEventDetail();
+      else if (document.getElementById('dayModal').classList.contains('show')) closeDayModal();
       else if (document.getElementById('overviewModal').classList.contains('show')) closeOverview();
       else if (document.getElementById('membersModal').classList.contains('show')) closeMembersModal();
     }
