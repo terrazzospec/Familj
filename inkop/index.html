@@ -101,7 +101,9 @@
 
   .add-row { display: flex; gap: 10px; margin-bottom: 14px; }
   .add-row input.item-name { flex: 1; padding: 13px 15px; border: 1px solid var(--line); border-radius: 12px; background: #fff; max-width: 100%; min-width: 0; }
-  .add-row input.item-qty { width: 90px; padding: 13px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; max-width: 100%; min-width: 0; }
+  .add-row input.item-qty { width: 64px; padding: 13px 10px; border: 1px solid var(--line); border-radius: 12px; background: #fff; max-width: 100%; min-width: 0; }
+  .add-row select.item-unit { width: 86px; padding: 13px 8px; border: 1px solid var(--line); border-radius: 12px; background: #fff; max-width: 100%; min-width: 0; font-size: 15px; font-family: inherit; color: var(--ink); -webkit-appearance: none; appearance: none; cursor: pointer; }
+  .add-row select.item-unit:focus { outline: none; border-color: var(--accent); }
   .add-row input:focus { outline: none; border-color: var(--accent); }
   .field-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
 
@@ -176,7 +178,7 @@
       </div>
       <div class="header-right">
         <span class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">Ansluter…</span></span>
-        <a href="../" class="nav-btn"><span>📅 Kalender</span></a>
+        <a href="/Familj/" class="nav-btn"><span>📅 Kalender</span></a>
       </div>
     </header>
 
@@ -189,6 +191,22 @@
       <div class="add-row">
         <input type="text" class="item-name" id="itemName" placeholder="t.ex. Mjölk, presentkort, ballonger…">
         <input type="text" class="item-qty" id="itemQty" placeholder="antal">
+        <select class="item-unit" id="itemUnit" aria-label="Enhet">
+          <option value="">enhet</option>
+          <option value="st">st</option>
+          <option value="kg">kg</option>
+          <option value="hg">hg</option>
+          <option value="g">g</option>
+          <option value="l">l</option>
+          <option value="dl">dl</option>
+          <option value="cl">cl</option>
+          <option value="ml">ml</option>
+          <option value="pkt">pkt</option>
+          <option value="frp">frp</option>
+          <option value="burk">burk</option>
+          <option value="flaska">flaska</option>
+          <option value="påse">påse</option>
+        </select>
       </div>
       <div class="field-label">Bild (valfritt)</div>
       <div class="photo-row">
@@ -289,7 +307,7 @@
   }
 
   async function startApp(code) {
-    const _kb = document.querySelector('.nav-btn'); if (_kb) _kb.setAttribute('href', '../?fam=' + code);
+    const _kb = document.querySelector('.nav-btn'); if (_kb) _kb.setAttribute('href', '/Familj/?fam=' + code);
     state.familyCode = code;
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
@@ -395,12 +413,16 @@
   function addItem() {
     const nameEl = document.getElementById('itemName');
     const qtyEl = document.getElementById('itemQty');
+    const unitEl = document.getElementById('itemUnit');
     const name = nameEl.value.trim();
     if (!name) { nameEl.focus(); return; }
     const ref = curItemsRef();
     if (!ref) return;
-    ref.push({ name: name, qty: qtyEl.value.trim(), photo: state.pendingPhoto || '', addedAt: Date.now() });
-    nameEl.value = ''; qtyEl.value = '';
+    const amount = qtyEl.value.trim();
+    const unit = unitEl ? unitEl.value : '';
+    const qtyCombined = unit ? (amount ? amount + ' ' + unit : unit) : amount;
+    ref.push({ name: name, qty: qtyCombined, photo: state.pendingPhoto || '', addedAt: Date.now() });
+    nameEl.value = ''; qtyEl.value = ''; if (unitEl) unitEl.value = '';
     clearPendingPhoto();
     nameEl.focus();
   }
