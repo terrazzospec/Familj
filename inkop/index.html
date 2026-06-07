@@ -289,6 +289,7 @@
   }
 
   async function startApp(code) {
+    const _kb = document.querySelector('.nav-btn'); if (_kb) _kb.setAttribute('href', '../?fam=' + code);
     state.familyCode = code;
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
@@ -606,8 +607,10 @@
   document.getElementById('photoRemove').onclick = clearPendingPhoto;
   document.getElementById('lightbox').onclick = closeLightbox;
 
-  const saved = localStorage.getItem(LS_KEY);
+  const fromUrl = new URLSearchParams(location.search).get('fam');
+  const saved = (fromUrl && window.FAMILIES[fromUrl]) ? fromUrl : localStorage.getItem(LS_KEY);
   if (saved && window.FAMILIES[saved]) {
+    localStorage.setItem(LS_KEY, saved);
     startApp(saved);
   } else {
     showLogin();
