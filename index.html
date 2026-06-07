@@ -2682,6 +2682,8 @@
     const PEOPLE = getPersonMap();
     const card = document.createElement('div');
     card.className = `big-event bg-${ev.person}`;
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => { closeDayModal(); startEditingEvent(ev); });
     const timeCol = document.createElement('div');
     if (ev.start && !ev.allDay) {
       timeCol.className = 'big-event-time';
@@ -2731,14 +2733,14 @@
     edit.innerHTML = '✎';
     edit.style.fontSize = '18px';
     edit.title = 'Redigera';
-    edit.addEventListener('click', () => { closeDayModal(); startEditingEvent(ev); });
+    edit.addEventListener('click', (e) => { e.stopPropagation(); closeDayModal(); startEditingEvent(ev); });
     actions.appendChild(edit);
     const del = document.createElement('button');
     del.className = 'icon-btn delete';
     del.innerHTML = '×';
     del.style.fontSize = '22px';
     del.title = 'Ta bort';
-    del.addEventListener('click', async () => { await handleDeleteEvent(ev); renderDayModal(); });
+    del.addEventListener('click', async (e) => { e.stopPropagation(); await handleDeleteEvent(ev); renderDayModal(); });
     actions.appendChild(del);
     card.appendChild(actions);
     return card;
