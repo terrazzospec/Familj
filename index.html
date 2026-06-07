@@ -980,6 +980,17 @@
   .modal-action.danger { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); margin-top: 8px; }
   .modal-action.danger:hover { background: rgba(196, 69, 54, 0.08); }
   #eventDetailModal { z-index: 3000; }
+  .event-photo-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .event-photo-btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; font-size: 14px; color: var(--ink); }
+  .event-photo-preview { position: relative; display: inline-block; }
+  .event-photo-preview img { width: 54px; height: 54px; border-radius: 9px; object-fit: cover; display: block; border: 1px solid var(--line); }
+  .event-photo-remove { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%; border: none; background: var(--accent); color: #fff; cursor: pointer; font-size: 12px; line-height: 1; }
+  .event-photo-status { font-size: 13px; color: var(--ink-soft); }
+  .detail-photo { margin-top: 14px; }
+  .detail-photo img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 12px; cursor: pointer; display: block; }
+  .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 4000; padding: 24px; }
+  .lightbox.show { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 90vh; border-radius: 12px; }
 
   .empty-state {
     text-align: center;
@@ -1659,6 +1670,24 @@
         <div class="form-row">
           <label>Adress (valfritt)</label>
           <input type="text" id="eventAddress" placeholder="t.ex. Kungsgatan 12, Stockholm">
+        </div>
+
+        <div class="form-row">
+          <label>Ta med (valfritt)</label>
+          <input type="text" id="eventTakeWith" placeholder="t.ex. gympakläder, matsäck">
+        </div>
+
+        <div class="form-row">
+          <label>Bild (valfritt)</label>
+          <div class="event-photo-row">
+            <button type="button" class="event-photo-btn" id="eventPhotoBtn">📷 Lägg till bild</button>
+            <input type="file" id="eventPhotoInput" accept="image/*" style="display:none">
+            <div class="event-photo-preview hidden" id="eventPhotoPreview">
+              <img id="eventPhotoPreviewImg" src="" alt="">
+              <button type="button" class="event-photo-remove" id="eventPhotoRemove">✕</button>
+            </div>
+            <span class="event-photo-status" id="eventPhotoStatus"></span>
+          </div>
         </div>
 
         <div class="form-row">
@@ -2546,6 +2575,8 @@
     document.getElementById('eventEnd').value = ev.end || '';
     document.getElementById('eventNotes').value = ev.notes || '';
     document.getElementById('eventAddress').value = ev.address || '';
+    document.getElementById('eventTakeWith').value = ev.takeWith || '';
+    showEventPhotoPreview(ev.photo || '');
     document.getElementById('eventReminder').value = ev.reminder || '';
     document.getElementById('ovrigtName').value = ev.ovrigtName || '';
     document.getElementById('allDayToggle').checked = !!ev.allDay;
@@ -2573,6 +2604,8 @@
     ev.end = document.getElementById('allDayToggle').checked ? '' : document.getElementById('eventEnd').value;
     ev.notes = document.getElementById('eventNotes').value.trim();
     ev.address = document.getElementById('eventAddress').value.trim();
+    ev.takeWith = document.getElementById('eventTakeWith').value.trim();
+    ev.photo = formPhoto || '';
     ev.reminder = document.getElementById('eventReminder').value;
     ev.allDay = document.getElementById('allDayToggle').checked;
     if (ev.person === 'ovrigt') ev.ovrigtName = document.getElementById('ovrigtName').value.trim();
@@ -2586,7 +2619,8 @@
   function cancelEditing() {
     state.editingEventId = null;
     state.formPersons = [];
-    ['eventTitle','eventStart','eventEnd','eventNotes','eventAddress','eventReminder','ovrigtName'].forEach(id => document.getElementById(id).value = '');
+    ['eventTitle','eventStart','eventEnd','eventNotes','eventAddress','eventTakeWith','eventReminder','ovrigtName'].forEach(id => document.getElementById(id).value = '');
+    clearEventPhoto();
     document.getElementById('ovrigtNameRow').classList.add('hidden');
     document.getElementById('allDayToggle').checked = false;
     document.getElementById('timeFields').classList.remove('hidden');
@@ -2610,6 +2644,8 @@
     const end = allDay ? '' : document.getElementById('eventEnd').value;
     const notes = document.getElementById('eventNotes').value.trim();
     const address = document.getElementById('eventAddress').value.trim();
+    const takeWith = document.getElementById('eventTakeWith').value.trim();
+    const photo = formPhoto || '';
     const reminder = document.getElementById('eventReminder').value;
     const ovrigtName = document.getElementById('ovrigtName').value.trim();
     const repeat = document.getElementById('eventRepeat').value;
@@ -2649,7 +2685,7 @@
             groupId, seriesId, seriesType: repeat || '',
             person,
             ovrigtName: person === 'ovrigt' ? ovrigtName : '',
-            date: d, title, start, end, notes, address, allDay, reminder,
+            date: d, title, start, end, notes, address, takeWith, photo, allDay, reminder,
             reminderFired: false,
             spanStart: occStart, spanEnd: occEnd,
             dayIndex: i+1, dayTotal: dates.length
@@ -2658,7 +2694,8 @@
         }
       }
     }
-    ['eventTitle','eventStart','eventEnd','eventNotes','eventAddress','eventReminder','ovrigtName'].forEach(id => document.getElementById(id).value = '');
+    ['eventTitle','eventStart','eventEnd','eventNotes','eventAddress','eventTakeWith','eventReminder','ovrigtName'].forEach(id => document.getElementById(id).value = '');
+    clearEventPhoto();
     document.getElementById('ovrigtNameRow').classList.add('hidden');
     document.getElementById('eventRepeat').value = '';
     document.getElementById('repeatCountRow').classList.add('hidden');
@@ -2721,11 +2758,26 @@
       addr.innerHTML = `<span class="detail-icon">📍</span><span>${escapeHtml(ev.address)}</span>`;
       body.appendChild(addr);
     }
+    if (ev.takeWith) {
+      const tw = document.createElement('div');
+      tw.className = 'detail-row';
+      tw.innerHTML = `<span class="detail-icon">🎒</span><span>Ta med: ${escapeHtml(ev.takeWith)}</span>`;
+      body.appendChild(tw);
+    }
     if (ev.notes) {
       const notes = document.createElement('div');
       notes.className = 'detail-notes';
       notes.textContent = ev.notes;
       body.appendChild(notes);
+    }
+    if (ev.photo) {
+      const ph = document.createElement('div');
+      ph.className = 'detail-photo';
+      const img = document.createElement('img');
+      img.src = ev.photo; img.alt = 'Bild';
+      img.addEventListener('click', () => openLightbox(ev.photo));
+      ph.appendChild(img);
+      body.appendChild(ph);
     }
     document.getElementById('eventDetailModal').classList.add('show');
   }
@@ -2733,6 +2785,47 @@
     document.getElementById('eventDetailModal').classList.remove('show');
     detailEvent = null;
   }
+
+  let formPhoto = '';
+  const CL_CLOUD = 'dtiee88h6', CL_PRESET = 'terrazzo';
+  function resizeImg(file, maxDim, q) {
+    return new Promise((res, rej) => {
+      const img = new Image(); const url = URL.createObjectURL(file);
+      img.onload = () => { URL.revokeObjectURL(url); let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) { if (w >= h) { h = Math.round(h*maxDim/w); w = maxDim; } else { w = Math.round(w*maxDim/h); h = maxDim; } }
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        c.toBlob(b => b ? res(b) : rej(new Error('toBlob')), 'image/jpeg', q); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('img')); }; img.src = url;
+    });
+  }
+  async function uploadEventPhoto(file) {
+    const status = document.getElementById('eventPhotoStatus');
+    status.textContent = 'Laddar upp\u2026';
+    try {
+      let blob = file; try { blob = await resizeImg(file, 1400, 0.85); } catch (e) {}
+      const fd = new FormData(); fd.append('file', blob); fd.append('upload_preset', CL_PRESET);
+      const r = await fetch(`https://api.cloudinary.com/v1_1/${CL_CLOUD}/image/upload`, { method: 'POST', body: fd });
+      if (!r.ok) throw new Error('Cloudinary ' + r.status);
+      const d = await r.json(); status.textContent = '';
+      return d.secure_url;
+    } catch (e) { console.error('Foto-uppladdning misslyckades', e); status.textContent = 'Uppladdning misslyckades \u2013 f\u00f6rs\u00f6k igen'; return null; }
+  }
+  function showEventPhotoPreview(url) {
+    formPhoto = url || '';
+    const prev = document.getElementById('eventPhotoPreview');
+    if (url) { document.getElementById('eventPhotoPreviewImg').src = url; prev.classList.remove('hidden'); }
+    else { prev.classList.add('hidden'); document.getElementById('eventPhotoPreviewImg').src = ''; }
+  }
+  function clearEventPhoto() {
+    formPhoto = '';
+    const prev = document.getElementById('eventPhotoPreview'); if (prev) prev.classList.add('hidden');
+    const img = document.getElementById('eventPhotoPreviewImg'); if (img) img.src = '';
+    const st = document.getElementById('eventPhotoStatus'); if (st) st.textContent = '';
+    const inp = document.getElementById('eventPhotoInput'); if (inp) inp.value = '';
+  }
+  function openLightbox(url) { if (!url) return; document.getElementById('lightboxImg').src = url; document.getElementById('eventLightbox').classList.add('show'); }
+  function closeLightbox() { document.getElementById('eventLightbox').classList.remove('show'); document.getElementById('lightboxImg').src = ''; }
   function renderDayModal() {
     if (!modalCurrentDate) return;
     const [y, m, d] = modalCurrentDate.split('-').map(Number);
@@ -2982,6 +3075,12 @@
     const ev = detailEvent;
     if (ev && confirm('Ta bort bokningen?')) { await handleDeleteEvent(ev); closeEventDetail(); renderDayModal(); }
   });
+  document.getElementById('eventPhotoBtn').addEventListener('click', () => document.getElementById('eventPhotoInput').click());
+  document.getElementById('eventPhotoInput').addEventListener('change', async (e) => {
+    if (e.target.files && e.target.files[0]) { const url = await uploadEventPhoto(e.target.files[0]); if (url) showEventPhotoPreview(url); }
+  });
+  document.getElementById('eventPhotoRemove').addEventListener('click', clearEventPhoto);
+  document.getElementById('eventLightbox').addEventListener('click', closeLightbox);
   document.getElementById('modalAddBtn').addEventListener('click', () => {
     closeDayModal();
     setTimeout(() => {
@@ -3098,6 +3197,8 @@
     }
   })();
 </script>
+
+<div class="lightbox" id="eventLightbox"><img id="lightboxImg" src="" alt=""></div>
 
 </body>
 </html>
