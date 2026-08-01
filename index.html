@@ -581,10 +581,32 @@
     padding: 8px 0;
   }
 
-  .days {
+.days {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: 28px repeat(7, 1fr);
     gap: 4px;
+  }
+  .week-num-cell {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 8px;
+    font-family: var(--display);
+    font-size: 11px;
+    font-style: italic;
+    color: var(--ink-soft);
+    opacity: 0.65;
+  }
+  .weekdays {
+    grid-template-columns: 28px repeat(7, 1fr) !important;
+  }
+  .weekdays::before {
+    content: "v.";
+    font-size: 10px;
+    color: var(--ink-soft);
+    opacity: 0.5;
+    align-self: center;
+    text-align: center;
   }
 
   .day {
@@ -2285,6 +2307,14 @@
     document.getElementById('todayDate').textContent = `${today.getDate()} ${MONTHS[today.getMonth()]} ${today.getFullYear()}`;
   }
 
+  function getWeekNumber(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  }
+  
   function dateKey(d) {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -2411,10 +2441,23 @@
     const lastDay = new Date(state.viewYear, state.viewMonth + 1, 0);
     let startOffset = firstDay.getDay() - 1;
     if (startOffset < 0) startOffset = 6;
+
+    // Hjälpfunktion: lägg in veckonummer i början av varje rad
+    let cellsInRow = 0;
+    function addWeekNumberCell(dateForWeek) {
+      const wn = document.createElement('div');
+      wn.className = 'week-num-cell';
+      wn.textContent = getWeekNumber(dateForWeek);
+      grid.appendChild(wn);
+    }
+    // Första radens veckonummer (baserat på första dagen i månaden)
+    addWeekNumberCell(firstDay);
+
     for (let i = 0; i < startOffset; i++) {
       const empty = document.createElement('div');
       empty.className = 'day empty';
       grid.appendChild(empty);
+      cellsInRow++;
     }
     const todayKey = dateKey(new Date());
     for (let d = 1; d <= lastDay.getDate(); d++) {
@@ -2468,6 +2511,13 @@
         else selectDate(key);
       });
       grid.appendChild(cell);
+      cellsInRow++;
+      // När en rad (7 dagar) är full och det finns fler dagar kvar: lägg nytt veckonummer
+      if (cellsInRow === 7 && d < lastDay.getDate()) {
+        cellsInRow = 0;
+        const nextDay = new Date(state.viewYear, state.viewMonth, d + 1);
+        addWeekNumberCell(nextDay);
+      }
     }
   }
 
@@ -2478,8 +2528,7 @@
     const weekStart = startOfWeek(anchorDate);
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
-    monthLabel.innerHTML = `${weekStart.getDate()}–${weekEnd.getDate()} ${MONTHS[weekStart.getMonth()].slice(0,3)} <span class="year">${weekStart.getFullYear()}</span>`;
-    const view = document.getElementById('weekView');
+monthLabel.innerHTML = `${weekStart.getDate()}–${weekEnd.getDate()} ${MONTHS[weekStart.getMonth()].slice(0,3)} <span class="year">v.${getWeekNumber(weekStart)} · ${weekStart.getFullYear()}</span>`;    const view = document.getElementById('weekView');
     view.innerHTML = '';
     const grid = document.createElement('div');
     grid.className = 'week-grid';
