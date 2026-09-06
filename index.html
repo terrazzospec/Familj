@@ -1600,6 +1600,7 @@
         <div>
           <span class="eyebrow" id="familyNameLabel">Familjen</span>
           <h1>Vardags<em>pusslet</em></h1>
+          <span id="buildStamp" style="display:block;font-size:10px;letter-spacing:.5px;color:#b0a48f;margin-top:2px;">build 2026-09-06d · till-datum följer med</span>
         </div>
       </div>
     </div>
@@ -1791,6 +1792,15 @@
           <p style="font-size:11px;color:var(--ink-soft);margin-top:6px;">Välj hur du vill ange längden</p>
         </div>
 
+        <div class="form-row hidden" id="editScopeRow">
+          <label>Det här är en serie — vad vill du ändra?</label>
+          <div class="repeat-mode-toggle">
+            <button type="button" class="repeat-mode-btn active" data-scope="single">Endast detta</button>
+            <button type="button" class="repeat-mode-btn" data-scope="series">Hela serien</button>
+          </div>
+          <p style="font-size:11px;color:var(--ink-soft);margin-top:6px;" id="editScopeHint">Ändrar bara den här bokningen.</p>
+        </div>
+
         <button class="submit-btn" id="addBtn">Boka in</button>
         <button class="cancel-edit-btn hidden" id="cancelEditBtn">Avbryt redigering</button>
       </div>
@@ -1917,6 +1927,7 @@
     formPersons: [],
     editingEventId: null,
     repeatMode: 'count',
+    editScope: 'single',
     events: []
   };
 
@@ -2716,13 +2727,60 @@ monthLabel.innerHTML = `${weekStart.getDate()}–${weekEnd.getDate()} ${MONTHS[w
     });
   }
 
+  function askSeriesScope(title) {
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+      const box = document.createElement('div');
+      box.style.cssText = 'background:#fff;border-radius:14px;max-width:340px;width:100%;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.2);font-family:var(--body,sans-serif);';
+      const h = document.createElement('div');
+      h.style.cssText = 'font-size:15px;font-weight:700;margin-bottom:4px;';
+      h.textContent = 'Ta bort "' + title + '"';
+      const sub = document.createElement('div');
+      sub.style.cssText = 'font-size:13px;color:#7a7060;margin-bottom:16px;';
+      sub.textContent = 'Det här är en återkommande bokning.';
+      box.appendChild(h); box.appendChild(sub);
+      const mk = (label, val, style) => {
+        const b = document.createElement('button');
+        b.textContent = label;
+        b.style.cssText = style;
+        b.addEventListener('click', () => { document.body.removeChild(overlay); resolve(val); });
+        return b;
+      };
+      box.appendChild(mk('Ta bort detta datum', 'single',
+        'display:block;width:100%;padding:11px;margin-bottom:8px;border-radius:9px;border:1px solid #ddd;background:#fff;color:#333;font-weight:600;font-size:13px;cursor:pointer;'));
+      box.appendChild(mk('Ta bort hela serien', 'series',
+        'display:block;width:100%;padding:11px;margin-bottom:8px;border-radius:9px;border:1px solid #d9534f;background:#d9534f;color:#fff;font-weight:600;font-size:13px;cursor:pointer;'));
+      box.appendChild(mk('Avbryt', null,
+        'display:block;width:100%;padding:11px;border-radius:9px;border:none;background:transparent;color:#7a7060;font-weight:600;font-size:13px;cursor:pointer;'));
+      overlay.appendChild(box);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) { document.body.removeChild(overlay); resolve(null); } });
+      document.body.appendChild(overlay);
+    });
+  }
+
   async function handleDeleteEvent(ev) {
-    if (!confirm(`Ta bort "${ev.title}"?`)) return;
-    const groupAll = ev.groupId ? state.events.filter(e => e.groupId === ev.groupId && e.person === ev.person) : [ev];
-    for (const e of groupAll) await deleteEventById(e.id);
+    if (ev.seriesId) {
+      const scope = await askSeriesScope(ev.title);
+      if (!scope) return false;
+      if (scope === 'series') {
+        const all = state.events.filter(e => e.seriesId === ev.seriesId && e.person === ev.person);
+        for (const e of all) await deleteEventById(e.id);
+        showToast('Serien borttagen');
+      } else {
+        const occ = ev.groupId ? state.events.filter(e => e.groupId === ev.groupId && e.person === ev.person) : [ev];
+        for (const e of occ) await deleteEventById(e.id);
+        showToast('Tillfället borttaget');
+      }
+    } else {
+      if (!confirm(`Ta bort "${ev.title}"?`)) return false;
+      const groupAll = ev.groupId ? state.events.filter(e => e.groupId === ev.groupId && e.person === ev.person) : [ev];
+      for (const e of groupAll) await deleteEventById(e.id);
+      showToast('Borttagen');
+    }
     refreshCalendar();
     renderEventList();
-    showToast('Borttagen');
+    return true;
   }
 
   function startEditingEvent(ev) {
@@ -2745,7 +2803,14 @@ monthLabel.innerHTML = `${weekStart.getDate()}–${weekEnd.getDate()} ${MONTHS[w
       o.classList.toggle('selected', o.dataset.person === ev.person);
     });
     document.getElementById('ovrigtNameRow').classList.toggle('hidden', ev.person !== 'ovrigt');
-    document.getElementById('formTitle').textContent = 'Redigerar';
+    state.editScope = 'single';
+    const isSeries = !!ev.seriesId;
+    document.getElementById('editScopeRow').classList.toggle('hidden', !isSeries);
+    document.querySelectorAll('#editScopeRow .repeat-mode-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.scope === 'single');
+    });
+    document.getElementById('editScopeHint').textContent = 'Ändrar bara den här bokningen.';
+    document.getElementById('formTitle').textContent = isSeries ? 'Redigerar serie' : 'Redigerar';
     document.getElementById('addBtn').textContent = 'Spara ändringar';
     document.getElementById('cancelEditBtn').classList.remove('hidden');
     document.getElementById('formPanel').classList.add('editing');
@@ -2758,21 +2823,60 @@ monthLabel.innerHTML = `${weekStart.getDate()}–${weekEnd.getDate()} ${MONTHS[w
     if (!ev) { cancelEditing(); return; }
     const title = document.getElementById('eventTitle').value.trim();
     if (!title) { showToast('Skriv vad'); return; }
-    ev.title = title;
-    ev.start = document.getElementById('allDayToggle').checked ? '' : document.getElementById('eventStart').value;
-    ev.end = document.getElementById('allDayToggle').checked ? '' : document.getElementById('eventEnd').value;
-    ev.notes = document.getElementById('eventNotes').value.trim();
-    ev.address = document.getElementById('eventAddress').value.trim();
-    ev.takeWith = document.getElementById('eventTakeWith').value.trim();
-    ev.photo = formPhoto || '';
-    ev.reminder = document.getElementById('eventReminder').value;
-    ev.allDay = document.getElementById('allDayToggle').checked;
-    if (ev.person === 'ovrigt') ev.ovrigtName = document.getElementById('ovrigtName').value.trim();
-    await saveEvent(ev);
+    const newStart = document.getElementById('eventDateStart').value;
+    const newEnd = document.getElementById('eventDateEnd').value || newStart;
+    if (!newStart) { showToast('Välj datum'); return; }
+    if (new Date(newEnd) < new Date(newStart)) { showToast('Till-datum kan inte vara före från-datum'); return; }
+
+    const allDay = document.getElementById('allDayToggle').checked;
+    const f = {
+      title,
+      start: allDay ? '' : document.getElementById('eventStart').value,
+      end: allDay ? '' : document.getElementById('eventEnd').value,
+      notes: document.getElementById('eventNotes').value.trim(),
+      address: document.getElementById('eventAddress').value.trim(),
+      takeWith: document.getElementById('eventTakeWith').value.trim(),
+      photo: formPhoto || '',
+      reminder: document.getElementById('eventReminder').value,
+      allDay
+    };
+    const ovrigtName = ev.person === 'ovrigt' ? document.getElementById('ovrigtName').value.trim() : '';
+
+    function applyFields(t) {
+      t.title = f.title; t.start = f.start; t.end = f.end;
+      t.notes = f.notes; t.address = f.address; t.takeWith = f.takeWith;
+      t.photo = f.photo; t.reminder = f.reminder; t.allDay = f.allDay;
+      if (t.person === 'ovrigt') t.ovrigtName = ovrigtName;
+    }
+
+    if (ev.seriesId && state.editScope === 'series') {
+      // Change every occurrence in this person's series. A date change shifts
+      // the whole series by the same number of days (t.ex. Ons -> Tors, eller +1 vecka).
+      const deltaDays = Math.round((new Date(newStart) - new Date(ev.date)) / 86400000);
+      const targets = state.events.filter(e => e.seriesId === ev.seriesId && e.person === ev.person);
+      for (const t of targets) {
+        applyFields(t);
+        if (deltaDays !== 0) {
+          t.date = shiftDateKey(t.date, deltaDays);
+          if (t.spanStart) t.spanStart = shiftDateKey(t.spanStart, deltaDays);
+          if (t.spanEnd) t.spanEnd = shiftDateKey(t.spanEnd, deltaDays);
+        }
+        await saveEvent(t);
+      }
+      showToast(deltaDays !== 0 ? 'Hela serien flyttad' : 'Hela serien uppdaterad');
+    } else {
+      // Single occurrence (bryts inte ut ur serien, men bara denna ändras).
+      ev.date = newStart;
+      ev.spanStart = newStart;
+      ev.spanEnd = newEnd;
+      applyFields(ev);
+      await saveEvent(ev);
+      showToast('Sparat');
+    }
+
     cancelEditing();
     refreshCalendar();
     renderEventList();
-    showToast('Sparat');
   }
 
   function cancelEditing() {
@@ -2788,6 +2892,8 @@ monthLabel.innerHTML = `${weekStart.getDate()}–${weekEnd.getDate()} ${MONTHS[w
     document.getElementById('addBtn').textContent = 'Boka in';
     document.getElementById('cancelEditBtn').classList.add('hidden');
     document.getElementById('formPanel').classList.remove('editing');
+    state.editScope = 'single';
+    document.getElementById('editScopeRow').classList.add('hidden');
   }
 
   async function addEvent() {
@@ -3263,7 +3369,9 @@ monthLabel.innerHTML = `${weekStart.getDate()}–${weekEnd.getDate()} ${MONTHS[w
   });
   document.getElementById('detailDeleteBtn').addEventListener('click', async () => {
     const ev = detailEvent;
-    if (ev && confirm('Ta bort bokningen?')) { await handleDeleteEvent(ev); closeEventDetail(); renderDayModal(); }
+    if (!ev) return;
+    const done = await handleDeleteEvent(ev);
+    if (done) { closeEventDetail(); renderDayModal(); }
   });
   document.getElementById('detailShareBtn').addEventListener('click', shareEvent);
   document.getElementById('eventPhotoBtn').addEventListener('click', () => document.getElementById('eventPhotoInput').click());
@@ -3290,16 +3398,34 @@ monthLabel.innerHTML = `${weekStart.getDate()}–${weekEnd.getDate()} ${MONTHS[w
   document.getElementById('allDayToggle').addEventListener('change', (e) => {
     document.getElementById('timeFields').classList.toggle('hidden', e.target.checked);
   });
+  document.getElementById('eventDateStart').addEventListener('change', (e) => {
+    const start = e.target.value;
+    const endField = document.getElementById('eventDateEnd');
+    if (start && (!endField.value || endField.value < start)) {
+      endField.value = start;
+    }
+  });
   document.getElementById('eventRepeat').addEventListener('change', (e) => {
     document.getElementById('repeatCountRow').classList.toggle('hidden', !e.target.value);
   });
-  document.querySelectorAll('.repeat-mode-btn').forEach(btn => {
+  document.querySelectorAll('#repeatCountRow .repeat-mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.repeat-mode-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#repeatCountRow .repeat-mode-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state.repeatMode = btn.dataset.mode;
       document.getElementById('eventRepeatCount').classList.toggle('hidden', btn.dataset.mode !== 'count');
       document.getElementById('eventRepeatUntil').classList.toggle('hidden', btn.dataset.mode !== 'until');
+    });
+  });
+  document.querySelectorAll('#editScopeRow .repeat-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#editScopeRow .repeat-mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.editScope = btn.dataset.scope;
+      document.getElementById('editScopeHint').textContent =
+        btn.dataset.scope === 'series'
+          ? 'Ändrar alla tillfällen. Byter du datum flyttas hela serien lika mycket.'
+          : 'Ändrar bara den här bokningen.';
     });
   });
   document.getElementById('fabBtn').addEventListener('click', () => {
